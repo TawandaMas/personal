@@ -1,0 +1,58 @@
+backend:
+  name: github
+  repo: YOUR_GITHUB_USERNAME/tawanda-space   # ← change this
+  branch: main
+  base_url: https://decapcms.org             # hosted auth proxy — no Netlify needed
+
+media_folder: public/images
+public_folder: /images
+
+collections:
+
+  - name: projects
+    label: Projects
+    folder: src/content/projects
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Tag, name: tag, widget: string, hint: "e.g. iOS App, Web App" }
+      - { label: Year, name: year, widget: string }
+      - { label: Description, name: description, widget: text }
+      - { label: URL, name: url, widget: string }
+      - label: Status
+        name: status
+        widget: select
+        options: [Live, In Progress, Archived]
+      - { label: Order, name: order, widget: number, default: 99 }
+      - { label: Body, name: body, widget: markdown, required: false }
+
+  - name: books
+    label: Books
+    folder: src/content/books
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Author, name: author, widget: string }
+      - { label: Year, name: year, widget: number }
+      - { label: Genre, name: genre, widget: string }
+      - label: Status
+        name: status
+        widget: select
+        options: [reading, read, queue]
+        default: queue
+      - { label: Note, name: note, widget: string, required: false, hint: "A short personal note or quote" }
+      - { label: Order, name: order, widget: number, default: 99 }
+
+  - name: games
+    label: Games
+    folder: src/content/games
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Slug, name: slug, widget: string, hint: "URL-friendly name, e.g. snake" }
+      - { label: Tag, name: tag, widget: string, hint: "e.g. Arcade, Puzzle" }
+      - { label: Description, name: description, widget: text }
+      - { label: Order, name: order, widget: number, default: 99 }

@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Home">
+  <article class="home-copy prose">
+
+    <figure class="corner-me">
+      <img src="/me.jpg" alt="Tawanda" />
+      <figcaption>That's me.</figcaption>
+    </figure>
+
+    <p>
+      Tawanda is a one-man indie app studio whose personal consumption is rumored to have a distinct effect on the global price of coffee. Previously, he was a marketer at tech companies such as B12.io, Awesome Motive, and Uscreen. After growing tired of selling software to businesses and endless office politics, he decided to build products that spread joy and relief.
+    </p>
+
+    <p>He also thinks it's kinda cringe to write about himself in the third person.... so I'm going to cut that out now.</p>
+
+    <p>How's that for whiplash?</p>
+
+    <p>
+      I'm currently building <a href="https://accompla.app" target="_blank" rel="noopener">Accompla</a> and <a href="https://plarsona.com" target="_blank" rel="noopener">Plarsona</a>. Have a look. Take them out for a spin. Then let me know what you think. I write frequent reflections on what I'm building over on my <a href="https://blog.tawanda.space" target="_blank" rel="noopener">blog</a>. Read a few things and sign up.
+    </p>
+
+    <p>
+      Feel free to explore the rest of my site. There are <a href="/books">book recommendations and reviews</a> and even <a href="/games">video games</a>.
+    </p>
+
+    <p class="sign-off">See you around!</p>
+
+  </article>
+</Base>
+
+<style>
+  .home-copy {
+    max-width: 600px;
+    padding-top: 1rem;
+  }
+
+  .home-copy p {
+    font-family: var(--font-serif);
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    line-height: 1.85;
+    color: var(--ink);
+    margin-bottom: 1.75rem;
+  }
+
+
+
+  .corner-me {
+    float: right;
+    width: clamp(100px, 20vw, 140px);
+    margin-left: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.4rem;
+    background: var(--paper-dark);
+    border: 1.5px solid var(--rule);
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+    transform: rotate(1.5deg);
+    transition: transform 0.3s ease;
+  }
+
+  .corner-me:hover {
+    transform: rotate(0deg) scale(1.02);
+  }
+
+  .corner-me img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 1;
+    object-fit: cover;
+    filter: sepia(0.2) contrast(0.9);
+  }
+
+  .corner-me figcaption {
+    font-family: var(--font-sans);
+    font-size: 0.6rem;
+    color: var(--ink-light);
+    text-align: center;
+    margin-top: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .sign-off {
+    font-style: italic;
+    color: var(--ink-mid) !important;
+    font-size: 1.1rem !important;
+    margin-top: 0.5rem;
+  }
+</style>

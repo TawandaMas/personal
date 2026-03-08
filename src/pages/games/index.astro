@@ -1,0 +1,85 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const gameFiles = await Astro.glob('../../content/games/*.md');
+const games = gameFiles
+  .map(g => ({ ...g.frontmatter }))
+  .sort((a, b) => (a.order || 99) - (b.order || 99));
+---
+
+<Base title="Games">
+  <div class="page-header">
+    <h1>Games</h1>
+    <p>Small things you can actually play.</p>
+  </div>
+
+  <div class="games-grid">
+    {games.map(game => (
+      <a href={`/games/${game.slug}`} class="game-card">
+        <div class="game-tag">{game.tag}</div>
+        <h2 class="game-title">{game.title}</h2>
+        <p class="game-desc">{game.description}</p>
+        <div class="play-cta">Play →</div>
+      </a>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .game-card {
+    background: var(--paper);
+    padding: 1.75rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    transition: background 0.15s;
+  }
+
+  .game-card:hover { background: var(--paper-dark); }
+  .game-card:hover .play-cta { color: var(--accent); }
+
+  .game-tag {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.7;
+    margin-bottom: 0.25rem;
+  }
+
+  .game-title {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .game-desc {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--ink-mid);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .play-cta {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-light);
+    margin-top: 0.75rem;
+    transition: color 0.2s;
+  }
+</style>

@@ -1,0 +1,290 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Tawanda Chisango — indie app builder, writer, occasional chaos agent." } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { href: '/projects', label: 'Projects' },
+  { href: '/books', label: 'Books' },
+  { href: '/games', label: 'Games' },
+  { href: 'https://blog.tawanda.space', label: 'Blog', external: true },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <title>{title === 'Home' ? 'Tawanda Chisango' : `${title} — Tawanda`}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Karla:wght@300;400;500&display=swap" rel="stylesheet" />
+  <ViewTransitions />
+</head>
+<body>
+  <!-- SVG paper texture filter -->
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="paper">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blend"/>
+      <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </svg>
+
+  <div class="paper-overlay"></div>
+
+  <header>
+    <a href="/" class="wordmark">T.</a>
+    <nav>
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          class:list={['nav-link', { active: !link.external && currentPath.startsWith(link.href) }]}
+          target={link.external ? '_blank' : undefined}
+          rel={link.external ? 'noopener noreferrer' : undefined}
+        >
+          {link.label}{link.external ? ' ↗' : ''}
+        </a>
+      ))}
+    </nav>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer>
+    <span>tawanda.space</span>
+    <span class="dim">Made with too much coffee.</span>
+  </footer>
+
+</body>
+</html>
+
+<style is:global>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --paper: #f2ede4;
+    --paper-dark: #e8e0d0;
+    --paper-crease: #d4c9b4;
+    --ink: #1c1814;
+    --ink-mid: #4a4035;
+    --ink-light: #8a7d6a;
+    --accent: #8b3a2a;
+    --accent-light: #c45d3e;
+    --rule: #c8bca8;
+    --font-serif: 'Lora', Georgia, serif;
+    --font-sans: 'Karla', sans-serif;
+    --max-w: 820px;
+    --pad: clamp(1.25rem, 5vw, 3rem);
+  }
+
+  html {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Crumpled paper background */
+  body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--pad);
+    position: relative;
+  }
+
+  /* Layered paper texture using CSS */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      /* coarse crumple wrinkles */
+      repeating-linear-gradient(
+        47deg,
+        transparent,
+        transparent 120px,
+        rgba(0,0,0,0.012) 121px,
+        rgba(0,0,0,0.012) 122px
+      ),
+      repeating-linear-gradient(
+        -31deg,
+        transparent,
+        transparent 90px,
+        rgba(0,0,0,0.01) 91px,
+        rgba(0,0,0,0.01) 92px
+      ),
+      repeating-linear-gradient(
+        73deg,
+        transparent,
+        transparent 200px,
+        rgba(255,255,255,0.04) 201px,
+        rgba(255,255,255,0.04) 202px
+      ),
+      /* fine grain */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+  }
+
+  /* Subtle shadow vignette for crumpled feel */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(160,130,90,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 80%, rgba(100,80,50,0.07) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(80,60,30,0.06) 100%);
+  }
+
+  header, main, footer {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 0 1.75rem;
+    border-bottom: 1.5px solid var(--rule);
+    margin-bottom: 3.5rem;
+  }
+
+  .wordmark {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    transition: opacity 0.2s;
+    text-decoration: none;
+  }
+
+  .wordmark:hover { opacity: 0.65; }
+
+  nav {
+    display: flex;
+    gap: 1.75rem;
+    align-items: center;
+  }
+
+  .nav-link {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--ink-mid);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.2s;
+  }
+
+  .nav-link:hover { color: var(--ink); }
+  .nav-link:hover::after { width: 100%; }
+  .nav-link.active { color: var(--accent); }
+  .nav-link.active::after { width: 100%; }
+
+  /* MAIN */
+  main { flex: 1; }
+
+  /* FOOTER */
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.75rem 0;
+    margin-top: 4rem;
+    border-top: 1.5px solid var(--rule);
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    font-family: var(--font-sans);
+  }
+
+  .dim { color: var(--ink-light); }
+
+  /* PAGE TRANSITIONS */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  main { animation: fade-in 0.3s ease both; }
+
+  /* SHARED PAGE HEADER */
+  .page-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .page-header h1 {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 6vw, 3.25rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+
+  .page-header p {
+    font-size: 0.85rem;
+    color: var(--ink-light);
+  }
+
+  /* INLINE LINKS */
+  .prose a, .inline-link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: rgba(139, 58, 42, 0.35);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.2s;
+  }
+
+  .prose a:hover, .inline-link:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  @media (max-width: 560px) {
+    nav { gap: 1rem; }
+    .nav-link { font-size: 0.75rem; }
+  }
+</style>

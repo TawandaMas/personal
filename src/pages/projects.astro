@@ -1,0 +1,127 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Read all project markdown files
+const projectFiles = await Astro.glob('../content/projects/*.md');
+const projects = projectFiles
+  .map(p => ({ ...p.frontmatter }))
+  .sort((a, b) => (a.order || 99) - (b.order || 99));
+---
+
+<Base title="Projects">
+  <div class="page-header">
+    <h1>Projects</h1>
+    <p>Things I've shipped, or am shipping.</p>
+  </div>
+
+  <div class="projects-list">
+    {projects.map(project => (
+      <a href={project.url} target="_blank" rel="noopener noreferrer" class="project-row">
+        <div class="project-main">
+          <div class="project-tag">{project.tag} · {project.year}</div>
+          <h2 class="project-name">{project.title}</h2>
+          <p class="project-desc">{project.description}</p>
+        </div>
+        <div class="project-meta">
+          <span class:list={['status-pip', project.status === 'Live' ? 'live' : 'wip']}></span>
+          <span class="status-label">{project.status}</span>
+          <span class="arrow">↗</span>
+        </div>
+      </a>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .project-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+  }
+
+  .project-row:first-child { border-top: none; }
+  .project-row:hover .project-name { color: var(--accent); }
+  .project-row:hover .arrow { transform: translate(3px, -3px); color: var(--accent); }
+
+  .project-tag {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 0.4rem;
+  }
+
+  .project-name {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .project-desc {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--ink-mid);
+    line-height: 1.65;
+    max-width: 440px;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35rem;
+    flex-shrink: 0;
+    padding-top: 0.3rem;
+  }
+
+  .status-pip {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ink-light);
+  }
+
+  .status-pip.live {
+    background: #5a8a5e;
+    box-shadow: 0 0 5px rgba(90,138,94,0.4);
+  }
+
+  .status-label {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  .arrow {
+    font-size: 1rem;
+    color: var(--ink-light);
+    margin-top: auto;
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  @media (max-width: 500px) {
+    .project-row { flex-direction: column; gap: 1rem; }
+    .project-meta { flex-direction: row; align-items: center; }
+    .arrow { margin-top: 0; }
+  }
+</style>
