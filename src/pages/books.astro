@@ -117,10 +117,10 @@ const queue = books.filter(b => b.status === 'queue');
 
   /* PHYSICAL CARD STYLING */
   .book-card {
-    background: #fffcf8;
+    background: var(--paper-dark);
     background-image: 
       linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
-      linear-gradient(#eee 0.1em, transparent 0.1em);
+      linear-gradient(var(--rule) 0.1em, transparent 0.1em);
     background-size: 100% 1.4rem;
     border: 1px solid var(--rule);
     border-bottom: 2px solid var(--paper-crease);
@@ -132,6 +132,12 @@ const queue = books.filter(b => b.status === 'queue');
     transform: rotate(var(--rotation, 0deg));
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 2px 4px 12px rgba(0,0,0,0.03);
+  }
+
+  :root.dark .book-card {
+    background-image: 
+      linear-gradient(90deg, transparent 79px, #3d362d 79px, #3d362d 81px, transparent 81px),
+      linear-gradient(rgba(255,255,255,0.05) 0.1em, transparent 0.1em);
   }
 
   .book-card::before {

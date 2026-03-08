@@ -28,6 +28,24 @@ const navLinks = [
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Karla:wght@300;400;500&display=swap" rel="stylesheet" />
   <ViewTransitions />
+  <script is:inline>
+    const theme = (() => {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+        return localStorage.getItem('theme');
+      }
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+      return 'light';
+    })();
+  
+    if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+    }
+    window.localStorage.setItem('theme', theme);
+  </script>
 </head>
 <body>
   <!-- SVG paper texture filter -->
@@ -55,6 +73,10 @@ const navLinks = [
           {link.label}{link.external ? ' ↗' : ''}
         </a>
       ))}
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <span class="sun">☀️</span>
+        <span class="moon">🌙</span>
+      </button>
     </nav>
   </header>
 
@@ -66,6 +88,24 @@ const navLinks = [
     <span>tawanda.space</span>
     <span class="dim">Made with too much coffee.</span>
   </footer>
+
+  <script>
+    const handleToggleClick = () => {
+      const element = document.documentElement;
+      element.classList.toggle("dark");
+
+      const isDark = element.classList.contains("dark");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    }
+
+    document.getElementById("theme-toggle")?.addEventListener("click", handleToggleClick);
+
+    document.addEventListener('astro:after-swap', () => {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    });
+  </script>
 
 </body>
 </html>
@@ -91,6 +131,18 @@ const navLinks = [
     --font-sans: 'Karla', sans-serif;
     --max-w: 820px;
     --pad: clamp(1.25rem, 5vw, 3rem);
+  }
+
+  :root.dark {
+    --paper: #1c1814;
+    --paper-dark: #14110e;
+    --paper-crease: #2a241e;
+    --ink: #f2ede4;
+    --ink-mid: #d4c9b4;
+    --ink-light: #8a7d6a;
+    --accent: #c45d3e;
+    --accent-light: #8b3a2a;
+    --rule: #3d362d;
   }
 
   html {
@@ -146,6 +198,11 @@ const navLinks = [
       /* fine grain */
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
     mix-blend-mode: multiply;
+  }
+
+  :root.dark body::before {
+    opacity: 0.4;
+    mix-blend-mode: soft-light;
   }
 
   /* Subtle shadow vignette for crumpled feel */
@@ -221,6 +278,32 @@ const navLinks = [
   .nav-link:hover::after { width: 100%; }
   .nav-link.active { color: var(--accent); }
   .nav-link.active::after { width: 100%; }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    background: transparent;
+    border: 1px solid var(--rule);
+    padding: 0.35rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-left: 0.5rem;
+  }
+
+  .theme-toggle:hover {
+    background: var(--paper-dark);
+    border-color: var(--ink-light);
+  }
+
+  .theme-toggle .moon { display: block; }
+  .theme-toggle .sun { display: none; }
+
+  :root.dark .theme-toggle .sun { display: block; }
+  :root.dark .theme-toggle .moon { display: none; }
 
   /* MAIN */
   main { flex: 1; }
