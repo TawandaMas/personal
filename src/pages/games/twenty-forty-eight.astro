@@ -228,8 +228,13 @@ import Base from '../../layouts/Base.astro';
 
   // Swipe support
   let touchStart = null;
-  gridEl.addEventListener('touchstart', e => touchStart = {x: e.touches[0].clientX, y: e.touches[0].clientY});
+  gridEl.addEventListener('touchstart', e => {
+    e.preventDefault();
+    touchStart = {x: e.touches[0].clientX, y: e.touches[0].clientY};
+  }, { passive: false });
+  gridEl.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
   gridEl.addEventListener('touchend', e => {
+    e.preventDefault();
     if (!touchStart) return;
     const dx = e.changedTouches[0].clientX - touchStart.x;
     const dy = e.changedTouches[0].clientY - touchStart.y;
@@ -239,5 +244,5 @@ import Base from '../../layouts/Base.astro';
         if (Math.abs(dy) > 30) move(dy > 0 ? 'down' : 'up');
     }
     touchStart = null;
-  });
+  }, { passive: false });
 </script>

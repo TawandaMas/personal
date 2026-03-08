@@ -68,7 +68,7 @@ import Base from '../../layouts/Base.astro';
   const startBtn = document.getElementById('start-btn');
 
   let basket, items, score, lives, gameLoop, running = false, speed = 2;
-  const BASKET_W = 70, BASKET_H = 14, ITEM_R = 8;
+  const BASKET_W = 100, BASKET_H = 14, ITEM_R = 8;
 
   function resize() {
     const wrap = canvas.parentElement;
@@ -113,7 +113,7 @@ import Base from '../../layouts/Base.astro';
   function spawnItem() {
     const isBad = Math.random() < 0.2;
     items.push({
-      x: ITEM_R + Math.random() * (canvas.width - ITEM_R * 2),
+      x: Math.max(ITEM_R, Math.min(canvas.width - ITEM_R, Math.random() * canvas.width)),
       y: -ITEM_R, r: isBad ? 10 : ITEM_R,
       bad: isBad,
       color: isBad ? '#b34a3b' : '#1c1814'
@@ -149,7 +149,7 @@ import Base from '../../layouts/Base.astro';
       item.y += speed;
       const basketY = canvas.height - 40;
       const caught = item.y + item.r >= basketY && item.y - item.r < basketY + BASKET_H &&
-                     item.x > basket.x && item.x < basket.x + BASKET_W;
+                     item.x + item.r > basket.x - 10 && item.x - item.r < basket.x + BASKET_W + 10;
       const missed = item.y - item.r > canvas.height;
 
       if (caught) {
