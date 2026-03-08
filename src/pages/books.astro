@@ -152,12 +152,13 @@ const queue = books.filter(b => b.status === 'queue');
   .book-card {
     background: var(--paper-dark);
     background-image: 
-      linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
-      linear-gradient(var(--rule) 0.1em, transparent 0.1em);
+      linear-gradient(90deg, transparent 79px, rgba(171, 206, 212, 0.5) 79px, rgba(171, 206, 212, 0.5) 81px, transparent 81px),
+      linear-gradient(var(--rule) 0.05rem, transparent 0.05rem);
     background-size: 100% 1.4rem;
     border: 1px solid var(--rule);
     border-bottom: 2px solid var(--paper-crease);
     padding: 1.5rem;
+    padding-left: 100px;
     min-height: 220px;
     position: relative;
     display: flex;
@@ -167,24 +168,29 @@ const queue = books.filter(b => b.status === 'queue');
     box-shadow: 2px 4px 12px rgba(0,0,0,0.03);
   }
 
+  .book-card::after {
+    display: none; /* remove potential duplicate vignette */
+  }
+
   :root.dark .book-card {
     background-image: 
-      linear-gradient(90deg, transparent 79px, #3d362d 79px, #3d362d 81px, transparent 81px),
-      linear-gradient(rgba(255,255,255,0.05) 0.1em, transparent 0.1em);
+      linear-gradient(90deg, transparent 79px, rgba(61, 54, 45, 0.3) 79px, rgba(61, 54, 45, 0.3) 81px, transparent 81px),
+      linear-gradient(rgba(255,255,255,0.03) 0.05rem, transparent 0.05rem);
   }
 
   .book-card::before {
     content: '';
     position: absolute;
     top: 50%;
-    left: -5px;
-    width: 10px;
-    height: 10px;
-    background: var(--paper-crease);
+    left: 20px;
+    width: 32px;
+    height: 32px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
     border-radius: 50%;
     transform: translateY(-50%);
-    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
-    opacity: 0.5;
+    box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05);
+    opacity: 0.8;
   }
 
   .book-card:hover {
