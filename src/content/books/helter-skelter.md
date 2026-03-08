@@ -1,9 +1,10 @@
 ---
-title: "Helter Skelter "
-author: Ray Bugliosi
+title: Helter Skelter
+author: Vincent Bugliosi & Curt Gentry
 year: 1974
 genre: True Crime
 status: read
-rating: 4
-order: 99
+note: "The definitive account of the Manson murders by the man who prosecuted them."
+rating: 5
+order: 3
 ---
