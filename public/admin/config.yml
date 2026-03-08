@@ -1,8 +1,7 @@
 backend:
   name: github
-  repo: TawandaMas/personal   # ← change this
+  repo: TawandaMas/personal
   branch: main
-  base_url: https://decapcms.org             # hosted auth proxy — no Netlify needed
 
 media_folder: public/images
 public_folder: /images
