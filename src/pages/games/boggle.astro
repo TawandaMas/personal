@@ -1,0 +1,215 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Boggle">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Boggle</h1>
+      <div class="score-wrap">Score: <span id="score">0</span> · Time: <span id="timer">120</span>s</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div class="boggle-pane">
+        <div id="grid" class="boggle-grid"></div>
+        <div class="word-display">
+            <span id="current-word"></span>
+        </div>
+        <button id="submit-word" class="action-btn">Submit</button>
+    </div>
+    <div class="found-words">
+        <h3>Found:</h3>
+        <ul id="word-list"></ul>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Boggle</div>
+        <div id="overlay-sub" class="overlay-sub">Find words in the 4x4 grid. Letters must be adjacent.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Adjacency includes diagonals · 3+ letters</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #score, #timer { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    display: flex;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  @media (max-width: 600px) { .game-wrap { flex-direction: column; } }
+
+  .boggle-pane { flex: 1.5; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+
+  .boggle-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 1;
+  }
+
+  .die {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-bottom: 3px solid var(--rule);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.1s;
+  }
+  .die.selected { background: var(--accent); color: white; border-bottom-color: var(--accent-light); transform: translateY(2px); }
+
+  .word-display { min-height: 2rem; font-family: var(--font-sans); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
+
+  .action-btn { background: var(--ink); color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 20px; font-family: var(--font-sans); cursor: pointer; }
+
+  .found-words { flex: 1; background: var(--paper); padding: 1.25rem; border: 1px solid var(--rule); font-family: var(--font-sans); }
+  .found-words h3 { font-size: 0.8rem; border-bottom: 1px solid var(--rule); margin-bottom: 0.5rem; padding-bottom: 0.25rem; }
+  #word-list { list-style: none; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const gridEl = document.getElementById('grid');
+  const wordDisplay = document.getElementById('current-word');
+  const wordList = document.getElementById('word-list');
+  const scoreEl = document.getElementById('score');
+  const timerEl = document.getElementById('timer');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+  const submitBtn = document.getElementById('submit-word');
+
+  let grid = [];
+  let currentSelection = [];
+  let found = [];
+  let score = 0;
+  let timeLeft = 120;
+  let gameActive = false;
+
+  function initBoard() {
+    const letters = 'EEEEEEEEEEEEEEEEEEAAAAAAAAAAIIIIIIIIIIOOOOOOOOOONNNNNNNNRRRRRRRRTTTTTTTTLLLLLLSSSSSSUUUUDDDDGGGBBCCFFHHMMPPVVWWYYJKQXZ';
+    grid = Array.from({length: 16}, () => letters[Math.floor(Math.random() * letters.length)]);
+    found = [];
+    score = 0;
+    timeLeft = 120;
+    currentSelection = [];
+    render();
+    renderList();
+  }
+
+  function render() {
+    gridEl.innerHTML = '';
+    grid.forEach((char, i) => {
+        const die = document.createElement('div');
+        die.className = 'die';
+        if (currentSelection.some(s => s.idx === i)) die.classList.add('selected');
+        die.textContent = char;
+        die.addEventListener('click', () => handleTap(i, char));
+        gridEl.appendChild(die);
+    });
+    wordDisplay.textContent = currentSelection.map(s => s.char).join('');
+  }
+
+  function handleTap(idx, char) {
+    if (!gameActive) return;
+    const last = currentSelection[currentSelection.length - 1];
+    if (last && last.idx === idx) {
+        currentSelection.pop();
+    } else if (currentSelection.some(s => s.idx === idx)) {
+        return; // already used
+    } else {
+        if (last) {
+            const r1 = Math.floor(last.idx / 4), c1 = last.idx % 4;
+            const r2 = Math.floor(idx / 4), c2 = idx % 4;
+            if (Math.abs(r1-r2) > 1 || Math.abs(c1-c2) > 1) return;
+        }
+        currentSelection.push({idx, char});
+    }
+    render();
+  }
+
+  function submitWord() {
+    const word = currentSelection.map(s => s.char).join('');
+    if (word.length >= 3 && !found.includes(word)) {
+        found.push(word);
+        score += word.length === 3 ? 1 : (word.length === 4 ? 2 : word.length);
+        scoreEl.textContent = String(score);
+        renderList();
+    }
+    currentSelection = [];
+    render();
+  }
+
+  function renderList() {
+    wordList.innerHTML = '';
+    found.forEach(w => {
+        const li = document.createElement('li');
+        li.textContent = w;
+        wordList.appendChild(li);
+    });
+  }
+
+  function startGame() {
+    overlay.classList.add('hidden');
+    gameActive = true;
+    initBoard();
+    const interval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = String(timeLeft);
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            endGame();
+        }
+    }, 1000);
+  }
+
+  function endGame() {
+    gameActive = false;
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = `Score: ${score}`;
+    startBtn.textContent = 'Play Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+  submitBtn.addEventListener('click', submitWord);
+</script>

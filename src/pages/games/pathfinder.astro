@@ -1,0 +1,189 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Path Finder">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Path Finder</h1>
+      <div class="score-wrap">Level: <span id="level">1</span>/5</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <canvas id="path-canvas"></canvas>
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Path Finder</div>
+        <div id="overlay-sub" class="overlay-sub">Connect the matching dots. Paths cannot cross.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Drag from dot to dot · Fill the grid</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #level { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+  }
+
+  #path-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
+  const canvas = document.getElementById('path-canvas');
+  const ctx = canvas.getContext('2d');
+  const levelEl = document.getElementById('level');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let grid = 5, cellSize, dots = [], paths = [], currentPath = null, level = 1;
+
+  function initLevel() {
+    cellSize = canvas.width / grid;
+    paths = [];
+    currentPath = null;
+    levelEl.textContent = String(level);
+    
+    // Hardcoded level dots
+    if (level === 1) {
+        dots = [
+            {r:0, c:0, colorIdx: 0}, {r:4, c:4, colorIdx: 0},
+            {r:0, c:4, colorIdx: 1}, {r:4, c:0, colorIdx: 1},
+            {r:2, c:2, colorIdx: 2}, {r:3, c:3, colorIdx: 2}
+        ];
+    } else {
+        dots = [
+            {r:0, c:0, colorIdx: 0}, {r:4, c:4, colorIdx: 0},
+            {r:1, c:1, colorIdx: 1}, {r:3, c:3, colorIdx: 1}
+        ];
+    }
+    draw();
+  }
+
+  function draw() {
+    ctx.fillStyle = '#e8e0d0'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    
+    // Grid lines
+    ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+    for(let i=0; i<=grid; i++) {
+        ctx.beginPath(); ctx.moveTo(i*cellSize, 0); ctx.lineTo(i*cellSize, canvas.height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i*cellSize); ctx.lineTo(canvas.width, i*cellSize); ctx.stroke();
+    }
+
+    // Paths
+    paths.forEach(p => drawPath(p));
+    if (currentPath) drawPath(currentPath);
+
+    // Dots
+    dots.forEach(d => {
+        ctx.fillStyle = COLORS[d.colorIdx];
+        ctx.beginPath(); ctx.arc(d.c*cellSize+cellSize/2, d.r*cellSize+cellSize/2, cellSize*0.3, 0, Math.PI*2); ctx.fill();
+    });
+  }
+
+  function drawPath(p) {
+    ctx.strokeStyle = COLORS[p.colorIdx];
+    ctx.lineWidth = cellSize * 0.4;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    p.points.forEach((pt, i) => {
+        const x = pt.c*cellSize + cellSize/2, y = pt.r*cellSize + cellSize/2;
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+
+  function handleStart(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+    const r = Math.floor(y/cellSize), c = Math.floor(x/cellSize);
+    
+    const dot = dots.find(d => d.r === r && d.c === c);
+    if (dot) {
+        // Clear existing path for this color
+        paths = paths.filter(p => p.colorIdx !== dot.colorIdx);
+        currentPath = {colorIdx: dot.colorIdx, points: [{r, c}]};
+    }
+  }
+
+  function handleMove(e) {
+    if (!currentPath) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || (e.touches?.[0]?.clientX)) - rect.left;
+    const y = (e.clientY || (e.touches?.[0]?.clientY)) - rect.top;
+    const r = Math.floor(y/cellSize), c = Math.floor(x/cellSize);
+
+    if (r<0 || r>=grid || c<0 || c>=grid) return;
+    
+    const last = currentPath.points[currentPath.points.length-1];
+    if (last.r !== r || last.c !== c) {
+        // Must be adjacent
+        if (Math.abs(last.r - r) + Math.abs(last.c - c) === 1) {
+            // No crossing same color
+            if (!currentPath.points.some(p => p.r === r && p.c === c)) {
+                currentPath.points.push({r, c});
+                draw();
+            }
+        }
+    }
+  }
+
+  function handleEnd() {
+    if (!currentPath) return;
+    const last = currentPath.points[currentPath.points.length-1];
+    const dot = dots.find(d => d.r === last.r && d.c === last.c && d.colorIdx === currentPath.colorIdx);
+    const start = currentPath.points[0];
+    if (dot && (start.r !== last.r || start.c !== last.c)) {
+        paths.push(currentPath);
+        if (paths.length === dots.length/2) endGame();
+    }
+    currentPath = null;
+    draw();
+  }
+
+  function endGame() {
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = "Connected!";
+    startBtn.textContent = 'Next Level';
+    level++;
+  }
+
+  canvas.width = 400; canvas.height = 400;
+  startBtn.addEventListener('click', () => { overlay.classList.add('hidden'); initLevel(); });
+  canvas.addEventListener('mousedown', handleStart);
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('mouseup', handleEnd);
+</script>

@@ -1,0 +1,188 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Nonogram">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Nonogram</h1>
+      <div class="score-wrap">Level: <span id="level">1</span></div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div class="nonogram-container">
+        <div class="top-clues" id="top-clues"></div>
+        <div class="left-clues" id="left-clues"></div>
+        <div class="nono-grid" id="grid"></div>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Nonogram</div>
+        <div id="overlay-sub" class="overlay-sub">Use the clues to reveal the pixel art. Tap to fill, Right-click/Long-press to X.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Numbers show blocks of filled squares</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    padding: 1rem;
+  }
+
+  .nonogram-container {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    grid-template-rows: 80px 1fr;
+    gap: 4px;
+  }
+
+  .top-clues { grid-column: 2; display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font-family: var(--font-sans); font-size: 0.7rem; align-items: end; }
+  .left-clues { grid-row: 2; display: grid; grid-template-rows: repeat(5, 1fr); text-align: right; font-family: var(--font-sans); font-size: 0.7rem; align-items: center; padding-right: 8px; }
+
+  .nono-grid {
+    grid-column: 2; grid-row: 2;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    aspect-ratio: 1;
+  }
+
+  .cell {
+    background: var(--paper);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  .cell.filled { background: var(--ink); }
+  .cell.marked::after { content: '×'; color: var(--accent); opacity: 0.5; }
+
+  .overlay {
+    position: absolute; inset: 0; background: rgba(242, 237, 228, 0.95); display: flex; align-items: center; justify-content: center; z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const HEART = [
+      [0,1,0,1,0],
+      [1,1,1,1,1],
+      [1,1,1,1,1],
+      [0,1,1,1,0],
+      [0,0,1,0,0]
+  ];
+  
+  const gridEl = document.getElementById('grid');
+  const topEl = document.getElementById('top-clues');
+  const leftEl = document.getElementById('left-clues');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let solution = HEART;
+  let userBoard = Array(5).fill().map(() => Array(5).fill(0));
+
+  function initBoard() {
+    gridEl.innerHTML = '';
+    topEl.innerHTML = '';
+    leftEl.innerHTML = '';
+    
+    // Top clues
+    for (let c=0; c<5; c++) {
+        const col = solution.map(r => r[c]);
+        const clues = getClues(col);
+        const div = document.createElement('div');
+        div.innerHTML = clues.join('<br>');
+        topEl.appendChild(div);
+    }
+    
+    // Left clues
+    for (let r=0; r<5; r++) {
+        const row = solution[r];
+        const clues = getClues(row);
+        const div = document.createElement('div');
+        div.textContent = clues.join(' ');
+        leftEl.appendChild(div);
+    }
+
+    // Grid
+    for (let r=0; r<5; r++) {
+        for (let c=0; c<5; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.addEventListener('click', () => toggle(r, c, cell));
+            cell.addEventListener('contextmenu', e => { e.preventDefault(); mark(r, c, cell); });
+            gridEl.appendChild(cell);
+        }
+    }
+  }
+
+  function getClues(arr) {
+    const res = [];
+    let count = 0;
+    arr.forEach(v => {
+        if (v === 1) count++;
+        else if (count > 0) { res.push(count); count = 0; }
+    });
+    if (count > 0) res.push(count);
+    return res.length > 0 ? res : [0];
+  }
+
+  function toggle(r, c, el) {
+    if (el.classList.contains('marked')) return;
+    userBoard[r][c] = userBoard[r][c] === 1 ? 0 : 1;
+    el.classList.toggle('filled');
+    checkWin();
+  }
+
+  function mark(r, c, el) {
+    if (el.classList.contains('filled')) return;
+    el.classList.toggle('marked');
+  }
+
+  function checkWin() {
+    for (let r=0; r<5; r++) {
+        for (let c=0; c<5; c++) {
+            if (userBoard[r][c] !== solution[r][c]) return;
+        }
+    }
+    endGame();
+  }
+
+  function startGame() {
+    overlay.classList.add('hidden');
+    initBoard();
+  }
+
+  function endGame() {
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = "Masterpiece!";
+    document.getElementById('overlay-sub').textContent = "The heart of the puzzle revealed.";
+    startBtn.textContent = 'Play Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+</script>
