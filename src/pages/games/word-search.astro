@@ -72,7 +72,8 @@ import Base from '../../layouts/Base.astro';
     cursor: pointer;
   }
   .letter.selected { background: var(--accent); color: white; }
-  .letter.found { background: #efe; color: #4a6b4a; }
+  .letter.dragging { background: rgba(139,58,42,0.3); }
+  .letter.found { background: rgba(74,107,74,0.15); color: #4a6b4a; font-weight: 700; }
 
   .word-list-pane { flex: 1; font-family: var(--font-sans); font-size: 0.85rem; }
   .word-list-pane h3 { margin-bottom: 0.75rem; color: var(--ink-mid); font-size: 0.9rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.4rem; }
@@ -82,17 +83,32 @@ import Base from '../../layouts/Base.astro';
   .overlay {
     position: absolute;
     inset: 0;
-    background: rgba(242, 237, 228, 0.95);
+    background: var(--paper);
+    opacity: 0.98;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10;
+    border: 2px solid var(--rule);
   }
   .overlay.hidden { display: none; }
-  .overlay-content { text-align: center; }
+  .overlay-content { text-align: center; padding: 2rem; }
   .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
   .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
-  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+  .start-btn { 
+    margin-top: 1.5rem; 
+    padding: 0.75rem 2rem; 
+    background: var(--ink); 
+    color: var(--paper);
+    border: none;
+    border-radius: 2rem;
+    font-family: var(--font-sans); 
+    font-weight: 600;
+    text-transform: uppercase; 
+    cursor: pointer; 
+    transition: all 0.2s;
+  }
+  .start-btn:hover { transform: scale(1.05); }
 </style>
 
 <script>
@@ -158,65 +174,128 @@ import Base from '../../layouts/Base.astro';
 
   function render() {
     gridEl.innerHTML = '';
-    for (let r=0; r<10; r++) {
-        for (let c=0; c<10; c++) {
-            const div = document.createElement('div');
-            div.className = 'letter';
-            div.textContent = grid[r][c];
-            div.dataset.r = r;
-            div.dataset.c = c;
-            div.addEventListener('click', () => handleToggle(div, r, c));
-            gridEl.appendChild(div);
-        }
+    for (let r = 0; r < 10; r++) {
+      for (let c = 0; c < 10; c++) {
+        const div = document.createElement('div');
+        div.className = 'letter';
+        div.textContent = grid[r][c];
+        div.dataset.r = r;
+        div.dataset.c = c;
+        gridEl.appendChild(div);
+      }
     }
 
     listEl.innerHTML = '';
     targetWords.forEach(word => {
-        const li = document.createElement('li');
-        li.textContent = word;
-        if (foundWords.includes(word)) li.className = 'found';
-        listEl.appendChild(li);
+      const li = document.createElement('li');
+      li.textContent = word;
+      if (foundWords.includes(word)) li.className = 'found';
+      listEl.appendChild(li);
     });
+
+    // Restore found state
+    document.querySelectorAll('.found-cell').forEach(el => el.classList.add('found'));
   }
 
-  function handleToggle(div, r, c) {
-    if (div.classList.contains('found')) return;
-    
-    div.classList.toggle('selected');
-    selection = Array.from(gridEl.querySelectorAll('.letter.selected')).map(el => ({
-        char: el.textContent, r: el.dataset.r, c: el.dataset.c
-    }));
+  let isDragging = false;
+  let dragStart = null;
+  let dragCells = [];
+  const foundCellKeys = new Set();
 
-    checkSelection();
+  function getCellAt(clientX, clientY) {
+    const el = document.elementFromPoint(clientX, clientY);
+    if (el && el.classList.contains('letter')) return el;
+    return null;
   }
 
-  function checkSelection() {
-    const word = selection.map(s => s.char).join('');
+  function getLine(startEl, endEl) {
+    const r1 = parseInt(startEl.dataset.r), c1 = parseInt(startEl.dataset.c);
+    const r2 = parseInt(endEl.dataset.r), c2 = parseInt(endEl.dataset.c);
+    const dr = Math.sign(r2 - r1), dc = Math.sign(c2 - c1);
+    const cells = [];
+    let r = r1, c = c1;
+    while (true) {
+      const el = gridEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+      if (el) cells.push(el);
+      if (r === r2 && c === c2) break;
+      r += dr; c += dc;
+    }
+    return cells;
+  }
+
+  function highlightDrag(cells) {
+    document.querySelectorAll('.letter.dragging').forEach(el => el.classList.remove('dragging'));
+    cells.forEach(el => el.classList.add('dragging'));
+    dragCells = cells;
+  }
+
+  function commitSelection() {
+    const word = dragCells.map(el => el.textContent).join('');
     const revWord = word.split('').reverse().join('');
-    
     const match = targetWords.find(w => (w === word || w === revWord) && !foundWords.includes(w));
     if (match) {
-        foundWords.push(match);
-        gridEl.querySelectorAll('.letter.selected').forEach(el => {
-            el.classList.remove('selected');
-            el.classList.add('found');
-        });
-        selection = [];
-        foundEl.textContent = String(foundWords.length);
-        render();
-        if (foundWords.length === targetWords.length) endGame();
+      foundWords.push(match);
+      dragCells.forEach(el => {
+        el.classList.remove('dragging');
+        el.classList.add('found');
+        foundCellKeys.add(`${el.dataset.r},${el.dataset.c}`);
+      });
+      foundEl.textContent = String(foundWords.length);
+      render();
+      // Restore found cells
+      foundCellKeys.forEach(key => {
+        const [r, c] = key.split(',');
+        const el = gridEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+        if (el) el.classList.add('found');
+      });
+      if (foundWords.length === targetWords.length) endGame();
+    } else {
+      document.querySelectorAll('.letter.dragging').forEach(el => el.classList.remove('dragging'));
     }
+    dragCells = [];
+    dragStart = null;
+    isDragging = false;
   }
 
+  // Mouse events
+  gridEl.addEventListener('mousedown', e => {
+    const cell = e.target.closest('.letter');
+    if (cell) { isDragging = true; dragStart = cell; highlightDrag([cell]); }
+  });
+  gridEl.addEventListener('mousemove', e => {
+    if (!isDragging || !dragStart) return;
+    const cell = e.target.closest('.letter');
+    if (cell) highlightDrag(getLine(dragStart, cell));
+  });
+  window.addEventListener('mouseup', () => { if (isDragging) commitSelection(); isDragging = false; });
+
+  // Touch events
+  gridEl.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const cell = getCellAt(e.touches[0].clientX, e.touches[0].clientY);
+    if (cell) { isDragging = true; dragStart = cell; highlightDrag([cell]); }
+  }, { passive: false });
+  gridEl.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!isDragging || !dragStart) return;
+    const cell = getCellAt(e.touches[0].clientX, e.touches[0].clientY);
+    if (cell) highlightDrag(getLine(dragStart, cell));
+  }, { passive: false });
+  gridEl.addEventListener('touchend', e => {
+    e.preventDefault();
+    if (isDragging) commitSelection();
+  }, { passive: false });
+
   function startGame() {
+    foundCellKeys.clear();
     overlay.classList.add('hidden');
     initGame();
   }
 
   function endGame() {
     overlay.classList.remove('hidden');
-    document.getElementById('overlay-title').textContent = "Excellent!";
-    document.getElementById('overlay-sub').textContent = "All words discovered. Your vocabulary is top-notch.";
+    document.getElementById('overlay-title').textContent = 'Excellent!';
+    document.getElementById('overlay-sub').textContent = 'All words discovered. Sharp eyes!';
     startBtn.textContent = 'Play Again';
   }
 

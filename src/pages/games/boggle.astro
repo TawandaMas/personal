@@ -87,7 +87,18 @@ import Base from '../../layouts/Base.astro';
 
   .word-display { min-height: 2rem; font-family: var(--font-sans); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
 
-  .action-btn { background: var(--ink); color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 20px; font-family: var(--font-sans); cursor: pointer; }
+  .action-btn { 
+    background: var(--ink); 
+    color: var(--paper); 
+    border: none; 
+    padding: 0.6rem 1.5rem; 
+    border-radius: 2rem; 
+    font-family: var(--font-sans); 
+    font-weight: 600;
+    cursor: pointer; 
+    transition: all 0.2s;
+  }
+  .action-btn:hover { transform: scale(1.05); opacity: 0.9; }
 
   .found-words { flex: 1; background: var(--paper); padding: 1.25rem; border: 1px solid var(--rule); font-family: var(--font-sans); }
   .found-words h3 { font-size: 0.8rem; border-bottom: 1px solid var(--rule); margin-bottom: 0.5rem; padding-bottom: 0.25rem; }
@@ -96,17 +107,32 @@ import Base from '../../layouts/Base.astro';
   .overlay {
     position: absolute;
     inset: 0;
-    background: rgba(242, 237, 228, 0.95);
+    background: var(--paper);
+    opacity: 0.98;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10;
+    border: 2px solid var(--rule);
   }
   .overlay.hidden { display: none; }
-  .overlay-content { text-align: center; }
+  .overlay-content { text-align: center; padding: 2rem; }
   .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
   .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
-  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+  .start-btn { 
+    margin-top: 1.5rem; 
+    padding: 0.75rem 2rem; 
+    background: var(--ink); 
+    color: var(--paper);
+    border: none;
+    border-radius: 2rem;
+    font-family: var(--font-sans); 
+    font-weight: 600;
+    text-transform: uppercase; 
+    cursor: pointer; 
+    transition: all 0.2s;
+  }
+  .start-btn:hover { transform: scale(1.05); }
 </style>
 
 <script>

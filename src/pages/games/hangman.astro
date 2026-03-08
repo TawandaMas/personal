@@ -88,34 +88,52 @@ import Base from '../../layouts/Base.astro';
   }
   .key {
     background: var(--paper);
-    border: 1px solid var(--rule);
-    padding: 0.5rem 0;
+    color: var(--ink);
+    border: 1.5px solid var(--rule);
+    padding: 0.6rem 0;
     text-align: center;
     font-family: var(--font-sans);
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
+    border-radius: 4px;
     user-select: none;
     transition: all 0.1s;
   }
+  .key:hover { background: var(--paper-dark); border-color: var(--ink-light); }
   .key.used { opacity: 0.3; pointer-events: none; }
-  .key.wrong { background: #fee; color: #b34a3b; }
-  .key.correct { background: #efe; color: #4a6b4a; }
+  .key.wrong { background: #b34a3b; color: white; border-color: #b34a3b; }
+  .key.correct { background: #4a6b4a; color: white; border-color: #4a6b4a; }
 
   .overlay {
     position: absolute;
     inset: 0;
-    background: rgba(242, 237, 228, 0.95);
+    background: var(--paper);
+    opacity: 0.98;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10;
+    border: 2px solid var(--rule);
   }
   .overlay.hidden { display: none; }
-  .overlay-content { text-align: center; }
+  .overlay-content { text-align: center; padding: 2rem; }
   .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
   .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
-  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+  .start-btn { 
+    margin-top: 1.5rem; 
+    padding: 0.75rem 2rem; 
+    background: var(--ink); 
+    color: var(--paper);
+    border: none;
+    border-radius: 2rem;
+    font-family: var(--font-sans); 
+    font-weight: 600;
+    text-transform: uppercase; 
+    cursor: pointer; 
+    transition: all 0.2s;
+  }
+  .start-btn:hover { transform: scale(1.05); }
 </style>
 
 <script>

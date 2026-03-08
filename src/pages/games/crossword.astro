@@ -7,35 +7,37 @@ import Base from '../../layouts/Base.astro';
     <a href="/games" class="back">← Games</a>
     <div class="game-title-row">
       <h1>Crossword</h1>
-      <div class="score-wrap">Solve the mini puzzle.</div>
+      <div class="score-wrap" id="status-text">Solve the mini puzzle.</div>
     </div>
   </div>
 
   <div class="game-wrap">
     <div class="crossword-container">
-        <div id="grid" class="crossword-grid"></div>
-        <div class="clues-pane">
-            <div class="clue-section">
-                <h3>Across</h3>
-                <ul id="across-clues"></ul>
-            </div>
-            <div class="clue-section">
-                <h3>Down</h3>
-                <ul id="down-clues"></ul>
-            </div>
+      <div id="grid" class="crossword-grid"></div>
+      <div class="clues-pane">
+        <div class="clue-section">
+          <h3>Across</h3>
+          <ul id="across-clues"></ul>
         </div>
+        <div class="clue-section">
+          <h3>Down</h3>
+          <ul id="down-clues"></ul>
+        </div>
+      </div>
     </div>
+    <!-- Mobile keyboard -->
+    <div class="mobile-keys" id="mobile-keys"></div>
 
     <div id="overlay" class="overlay">
       <div class="overlay-content">
         <div id="overlay-title" class="overlay-title">Mini Crossword</div>
-        <div id="overlay-sub" class="overlay-sub">Fill in the 5x5 grid. Tap a square to select.</div>
+        <div id="overlay-sub" class="overlay-sub">Fill in the 5×5 grid. Tap a square then type.</div>
         <button id="start-btn" class="start-btn">Start Game</button>
       </div>
     </div>
   </div>
 
-  <div class="hint">Type letters to fill squares</div>
+  <div class="hint">Tap a square · Use keyboard or on-screen keys</div>
 </Base>
 
 <style>
@@ -43,81 +45,118 @@ import Base from '../../layouts/Base.astro';
   .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
   .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
   .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #status-text { font-family: var(--font-sans); font-size: 0.8rem; color: var(--ink-light); }
 
   .game-wrap {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    border: 1.5px solid var(--rule);
-    background: var(--paper-dark);
-    padding: 1.5rem;
+    position: relative; width: 100%; max-width: 600px; margin: 0 auto;
+    border: 1.5px solid var(--rule); background: var(--paper-dark); padding: 1.5rem;
   }
 
-  .crossword-container { display: flex; gap: 2rem; }
-  @media (max-width: 600px) { .crossword-container { flex-direction: column; } }
+  .crossword-container { display: flex; gap: 2rem; align-items: flex-start; }
+  @media (max-width: 560px) { .crossword-container { flex-direction: column; } }
 
   .crossword-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    gap: 1px;
+    gap: 2px;
     background: var(--rule);
     width: 100%;
-    max-width: 300px;
+    max-width: 260px;
+    flex-shrink: 0;
     aspect-ratio: 1;
   }
 
   .square {
     background: var(--paper);
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-family: var(--font-sans);
-    font-size: 1.25rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    cursor: pointer;
+    font-size: 1.1rem; font-weight: 700; text-transform: uppercase;
+    cursor: pointer; user-select: none;
+    min-height: 0;
+    aspect-ratio: 1;
+    transition: background 0.1s;
   }
   .square.black { background: var(--ink); cursor: default; }
-  .square.selected { background: rgba(139, 58, 42, 0.1); outline: 2px solid var(--accent); z-index: 5; }
+  .square.selected { background: rgba(139,58,42,0.15); outline: 2px solid var(--accent); z-index: 5; }
+  .square.correct { color: #4a6b4a; }
+  .square.wrong { color: #b34a3b; }
   .square .num {
-    position: absolute;
-    top: 2px; left: 2px;
-    font-size: 0.6rem;
-    color: var(--ink-light);
+    position: absolute; top: 1px; left: 2px;
+    font-size: 0.5rem; color: var(--ink-light); font-weight: 400;
+    line-height: 1;
   }
+  .square .letter { font-size: 1.1rem; line-height: 1; }
 
-  .clues-pane { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
-  .clue-section h3 { font-family: var(--font-serif); font-size: 0.9rem; font-style: italic; border-bottom: 1px solid var(--rule); margin-bottom: 0.5rem; }
-  .clue-section ul { list-style: none; font-family: var(--font-sans); font-size: 0.8rem; line-height: 1.4; color: var(--ink-mid); }
-  .clue-section li { margin-bottom: 0.4rem; }
+  .clues-pane { flex: 1; display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+  .clue-section h3 { font-family: var(--font-serif); font-size: 0.85rem; font-style: italic; border-bottom: 1px solid var(--rule); margin-bottom: 0.4rem; padding-bottom: 0.25rem; }
+  .clue-section ul { list-style: none; font-family: var(--font-sans); font-size: 0.75rem; line-height: 1.5; color: var(--ink-mid); }
+  .clue-section li { margin-bottom: 0.3rem; cursor: pointer; }
+  .clue-section li:hover { color: var(--accent); }
+  .clue-section li.active { color: var(--accent); font-weight: 600; }
+
+  .mobile-keys {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 4px;
+    margin-top: 1rem;
+  }
+  .key-btn {
+    background: var(--paper); border: 1px solid var(--rule);
+    font-family: var(--font-sans); font-size: 0.75rem; font-weight: 600;
+    padding: 0.4rem 0; cursor: pointer; border-radius: 4px;
+    text-align: center; transition: all 0.1s;
+  }
+  .key-btn:active { background: var(--accent); color: white; }
+  .key-btn.bksp { font-size: 0.65rem; color: var(--ink-light); }
 
   .overlay {
-    position: absolute; inset: 0; background: rgba(242, 237, 228, 0.95); display: flex; align-items: center; justify-content: center; z-index: 10;
+    position: absolute; inset: 0; background: var(--paper); opacity: 0.98;
+    display: flex; align-items: center; justify-content: center; z-index: 10;
+    border: 2px solid var(--rule);
   }
   .overlay.hidden { display: none; }
-  .overlay-content { text-align: center; }
+  .overlay-content { text-align: center; padding: 2rem; }
   .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
   .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
-  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+  .start-btn {
+    margin-top: 1.5rem; padding: 0.75rem 2rem;
+    background: var(--ink); color: var(--paper); border: none; border-radius: 2rem;
+    font-family: var(--font-sans); font-weight: 600; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .start-btn:hover { transform: scale(1.05); }
+  .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
 <script>
   const PUZZLE = {
-      grid: [
-          'A','S','T','R','O',
-          'S','O','L','A','R',
-          'T','O','O','L','S',
-          'R','A','D','I','O',
-          'O','R','B','I','T'
+    size: 5,
+    solution: [
+      'P','A','P','E','R',
+      'A','R','E','N','A',
+      'L','E','A','P','S',
+      'M','A','T','E','S',
+      'S','T','A','R','S',
+    ],
+    blacks: [],  // no black squares for simplicity
+    numbers: [1,2,3,4,5, 6,0,0,0,0, 11,0,0,0,0, 16,0,0,0,0, 21,0,0,0,0],
+    clues: {
+      across: [
+        '1. Writing material',
+        '6. Gladiatorial venue',
+        '11. Jumps',
+        '16. Companions',
+        '21. Celestial lights',
       ],
-      nums: [1,2,3,4,5,6,0,0,0,0,11,0,0,0,0,16,0,0,0,0,21,0,0,0,0],
-      clues: {
-          across: ['1. Personal space theme', '6. Of the sun', '11. Items in a kit', '16. Wireless signal', '21. Circular path'],
-          down: ['1. Celestial body', '2. Ground soil', '3. Also', '4. High temp', '5. Sphere shape']
-      }
+      down: [
+        '1. Flat surface',
+        '2. Dip into water',
+        '3. Advantage (short)',
+        '4. Writing instrument tip',
+        '5. Scientific study',
+      ]
+    }
   };
 
   const gridEl = document.getElementById('grid');
@@ -125,40 +164,112 @@ import Base from '../../layouts/Base.astro';
   const downEl = document.getElementById('down-clues');
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start-btn');
+  const statusText = document.getElementById('status-text');
+  const mobileKeysEl = document.getElementById('mobile-keys');
 
-  let activeIdx = 0;
+  let userGrid = [];
+  let activeIdx = -1;
+
+  function buildMobileKeys() {
+    const rows = ['ABCDEFGHI', 'JKLMNOPQR', 'STUVWXYZ⌫'];
+    mobileKeysEl.style.gridTemplateColumns = `repeat(9, 1fr)`;
+    mobileKeysEl.innerHTML = '';
+    rows.forEach(row => {
+      [...row].forEach(ch => {
+        const btn = document.createElement('button');
+        btn.className = 'key-btn' + (ch === '⌫' ? ' bksp' : '');
+        btn.textContent = ch;
+        btn.addEventListener('click', e => { e.preventDefault(); handleKey(ch === '⌫' ? 'Backspace' : ch); });
+        mobileKeysEl.appendChild(btn);
+      });
+    });
+  }
 
   function initBoard() {
+    userGrid = Array(25).fill('');
     gridEl.innerHTML = '';
-    PUZZLE.grid.forEach((char, i) => {
-        const sq = document.createElement('div');
-        sq.className = 'square';
-        if (PUZZLE.nums[i] > 0) {
-            const num = document.createElement('span');
-            num.className = 'num';
-            num.textContent = PUZZLE.nums[i];
-            sq.appendChild(num);
-        }
-        sq.addEventListener('click', () => {
-            document.querySelectorAll('.square').forEach(s => s.classList.remove('selected'));
-            sq.classList.add('selected');
-            activeIdx = i;
-        });
-        gridEl.appendChild(sq);
+    PUZZLE.solution.forEach((_, i) => {
+      const sq = document.createElement('div');
+      sq.className = 'square';
+      if (PUZZLE.numbers[i] > 0) {
+        const num = document.createElement('span');
+        num.className = 'num';
+        num.textContent = PUZZLE.numbers[i];
+        sq.appendChild(num);
+      }
+      const letter = document.createElement('span');
+      letter.className = 'letter';
+      sq.appendChild(letter);
+      sq.addEventListener('click', () => selectSquare(i));
+      gridEl.appendChild(sq);
     });
-    
-    acrossEl.innerHTML = PUZZLE.clues.across.map(c => `<li>${c}</li>`).join('');
-    downEl.innerHTML = PUZZLE.clues.down.map(c => `<li>${c}</li>`).join('');
+
+    acrossEl.innerHTML = PUZZLE.clues.across.map((c, i) => `<li data-dir="across" data-i="${i}">${c}</li>`).join('');
+    downEl.innerHTML = PUZZLE.clues.down.map((c, i) => `<li data-dir="down" data-i="${i}">${c}</li>`).join('');
+
+    document.querySelectorAll('.clue-section li').forEach(li => {
+      li.addEventListener('click', () => {
+        document.querySelectorAll('.clue-section li').forEach(l => l.classList.remove('active'));
+        li.classList.add('active');
+      });
+    });
+  }
+
+  function selectSquare(idx) {
+    document.querySelectorAll('.square').forEach(s => s.classList.remove('selected'));
+    activeIdx = idx;
+    gridEl.children[idx].classList.add('selected');
+  }
+
+  function handleKey(key) {
+    if (activeIdx < 0) return;
+    const sq = gridEl.children[activeIdx];
+    const letterEl = sq.querySelector('.letter');
+    if (key === 'Backspace') {
+      userGrid[activeIdx] = '';
+      letterEl.textContent = '';
+      sq.classList.remove('correct', 'wrong');
+      // Move back
+      if (activeIdx > 0) selectSquare(activeIdx - 1);
+    } else if (/^[A-Za-z]$/.test(key)) {
+      const ch = key.toUpperCase();
+      userGrid[activeIdx] = ch;
+      letterEl.textContent = ch;
+      if (ch === PUZZLE.solution[activeIdx]) {
+        sq.classList.add('correct'); sq.classList.remove('wrong');
+      } else {
+        sq.classList.add('wrong'); sq.classList.remove('correct');
+      }
+      // Auto-advance
+      if (activeIdx < 24) selectSquare(activeIdx + 1);
+      checkWin();
+    }
+  }
+
+  function checkWin() {
+    const allCorrect = userGrid.every((ch, i) => ch === PUZZLE.solution[i]);
+    if (allCorrect) {
+      statusText.textContent = '🎉 Solved!';
+      overlay.classList.remove('hidden');
+      document.getElementById('overlay-title').textContent = 'Solved!';
+      document.getElementById('overlay-sub').textContent = 'All words correct. Excellent work!';
+      startBtn.textContent = 'Play Again';
+    }
   }
 
   window.addEventListener('keydown', e => {
-      const char = e.key.toUpperCase();
-      if (/^[A-Z]$/.test(char)) {
-          const sq = gridEl.children[activeIdx];
-          sq.childNodes[1] ? (sq.childNodes[1].textContent = char) : (sq.append(char));
-          // Check win logic would go here
-      }
+    if (activeIdx >= 0 && /^[A-Za-z]$/.test(e.key)) { e.preventDefault(); handleKey(e.key); }
+    if (e.key === 'Backspace') { e.preventDefault(); handleKey('Backspace'); }
+    if (e.key === 'ArrowRight' && activeIdx < 24) selectSquare(activeIdx + 1);
+    if (e.key === 'ArrowLeft' && activeIdx > 0) selectSquare(activeIdx - 1);
+    if (e.key === 'ArrowDown' && activeIdx + 5 < 25) selectSquare(activeIdx + 5);
+    if (e.key === 'ArrowUp' && activeIdx - 5 >= 0) selectSquare(activeIdx - 5);
   });
 
-  startBtn.addEventListener('click', () => { overlay.classList.add('hidden'); initBoard(); });
+  startBtn.addEventListener('click', () => {
+    overlay.classList.add('hidden');
+    statusText.textContent = 'Solve the mini puzzle.';
+    initBoard();
+    buildMobileKeys();
+  });
 </script>

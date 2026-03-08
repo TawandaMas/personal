@@ -6,23 +6,23 @@ import Base from '../../layouts/Base.astro';
   <div class="game-header">
     <a href="/games" class="back">← Games</a>
     <div class="game-title-row">
-      <h1>Endless Runner</h1>
+      <h1>Paper Run</h1>
       <div class="score-wrap">Distance: <span id="score">0</span>m</div>
     </div>
   </div>
 
-  <div class="game-wrap">
+  <div class="game-wrap" id="game-wrap">
     <canvas id="runner-canvas"></canvas>
     <div id="overlay" class="overlay">
       <div class="overlay-content">
         <div id="overlay-title" class="overlay-title">Paper Run</div>
-        <div id="overlay-sub" class="overlay-sub">Tap to jump over obstacles.</div>
+        <div id="overlay-sub" class="overlay-sub">Jump over obstacles. Double-jump for high barriers!</div>
         <button id="start-btn" class="start-btn">Start Game</button>
       </div>
     </div>
   </div>
 
-  <div class="hint">Tap or Space to Jump · Double Tap to Double Jump</div>
+  <div class="hint">Tap, click, or press Space to jump · Double-tap to double-jump</div>
 </Base>
 
 <style>
@@ -33,32 +33,30 @@ import Base from '../../layouts/Base.astro';
   #score { color: var(--accent); font-weight: 500; font-size: 1rem; }
 
   .game-wrap {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    aspect-ratio: 2.5;
-    border: 1.5px solid var(--rule);
-    background: var(--paper-dark);
-    overflow: hidden;
+    position: relative; width: 100%; max-width: 640px; margin: 0 auto;
+    aspect-ratio: 3; border: 1.5px solid var(--rule);
+    background: var(--paper-dark); overflow: hidden; touch-action: none; cursor: pointer;
   }
 
   #runner-canvas { display: block; width: 100%; height: 100%; }
 
   .overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(242, 237, 228, 0.95);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
+    position: absolute; inset: 0; background: var(--paper); opacity: 0.98;
+    display: flex; align-items: center; justify-content: center; z-index: 10;
+    border: 2px solid var(--rule);
   }
   .overlay.hidden { display: none; }
-  .overlay-content { text-align: center; }
+  .overlay-content { text-align: center; padding: 2rem; }
   .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
   .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
-  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+  .start-btn {
+    margin-top: 1.5rem; padding: 0.75rem 2rem;
+    background: var(--ink); color: var(--paper); border: none; border-radius: 2rem;
+    font-family: var(--font-sans); font-weight: 600; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .start-btn:hover { transform: scale(1.05); }
+  .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
 <script>
@@ -66,73 +64,199 @@ import Base from '../../layouts/Base.astro';
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
   const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
   const startBtn = document.getElementById('start-btn');
 
-  let runner, obstacles, score, gameLoop, running = false, speed = 5;
-  const GRAVITY = 0.6;
-  const JUMP_FORCE = -12;
+  let runner, obstacles, particles, score, gameLoop, running = false, speed, groundY;
+  let clouds = [];
+
+  function resize() {
+    const wrap = canvas.parentElement;
+    canvas.width = wrap.clientWidth;
+    canvas.height = wrap.clientHeight;
+    groundY = canvas.height * 0.8;
+    if (!running) drawIdle();
+  }
+
+  function drawIdle() {
+    ctx.fillStyle = '#e8e0d0';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawGround();
+    drawRunner();
+  }
+
+  function drawGround() {
+    // Ground shadow
+    ctx.fillStyle = 'rgba(180,156,120,0.3)';
+    ctx.fillRect(0, groundY + 2, canvas.width, 4);
+    // Ground line
+    ctx.fillStyle = '#c8bca8';
+    ctx.fillRect(0, groundY, canvas.width, 2);
+  }
+
+  function drawRunner() {
+    if (!runner) return;
+    const { x, y, w, h } = runner;
+    const isOnGround = y + h >= groundY;
+    
+    // Shadow
+    if (isOnGround) {
+      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      ctx.beginPath();
+      ctx.ellipse(x + w / 2, groundY + 4, w * 0.7, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Body
+    ctx.fillStyle = '#1c1814';
+    ctx.fillRect(x, y, w, h * 0.7);
+    
+    // Head
+    ctx.beginPath();
+    ctx.arc(x + w / 2, y, w * 0.45, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Legs (running animation)
+    const legTime = Date.now() / 100;
+    const leg1 = Math.sin(legTime) * 8;
+    const leg2 = -Math.sin(legTime) * 8;
+    ctx.strokeStyle = '#1c1814';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x + w / 2, y + h * 0.7);
+    ctx.lineTo(x + w / 2 + leg1, y + h);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x + w / 2, y + h * 0.7);
+    ctx.lineTo(x + w / 2 + leg2, y + h);
+    ctx.stroke();
+  }
 
   function init() {
-    runner = { x: 50, y: canvas.height - 40, w: 20, h: 40, vy: 0, jumps: 0 };
+    runner = { x: canvas.width * 0.12, y: groundY - canvas.height * 0.25, w: canvas.width * 0.04, h: canvas.height * 0.35, vy: 0, jumps: 0 };
     obstacles = [];
+    particles = [];
     score = 0;
-    speed = 5;
+    speed = canvas.width * 0.007;
     scoreEl.textContent = '0';
+    clouds = [
+      { x: canvas.width * 0.3, y: canvas.height * 0.15, w: 60 },
+      { x: canvas.width * 0.7, y: canvas.height * 0.08, w: 80 },
+    ];
   }
 
   function spawnObstacle() {
-    const w = 15 + Math.random() * 20;
-    const h = 20 + Math.random() * 30;
-    obstacles.push({ x: canvas.width, y: canvas.height - h, w, h });
+    const isTall = Math.random() < 0.3;
+    const h = isTall ? groundY * 0.55 : groundY * 0.28;
+    const w = canvas.width * 0.025 + Math.random() * canvas.width * 0.02;
+    obstacles.push({ x: canvas.width + w, y: groundY - h, w, h, isTall });
   }
 
   function draw() {
     ctx.fillStyle = '#e8e0d0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Floor line
-    ctx.strokeStyle = 'var(--rule)';
-    ctx.beginPath(); ctx.moveTo(0, canvas.height); ctx.lineTo(canvas.width, canvas.height); ctx.stroke();
-
-    // Runner
-    ctx.fillStyle = '#1c1814';
-    ctx.fillRect(runner.x, runner.y, runner.w, runner.h);
+    // Clouds
+    clouds.forEach(c => {
+      ctx.fillStyle = 'rgba(200,188,168,0.5)';
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, c.w / 2, c.w / 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(c.x + c.w * 0.2, c.y - c.w * 0.1, c.w / 4, c.w / 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
 
     // Obstacles
-    ctx.fillStyle = '#8b3a2a';
-    obstacles.forEach(o => { ctx.fillRect(o.x, o.y, o.w, o.h); });
+    obstacles.forEach(o => {
+      ctx.fillStyle = '#8b3a2a';
+      ctx.fillRect(o.x, o.y, o.w, o.h + 2);
+      ctx.fillStyle = '#6a2a1e';
+      ctx.fillRect(o.x - 3, o.y, o.w + 6, 6);
+    });
+
+    drawGround();
+    drawRunner();
+
+    // Particles
+    particles.forEach(p => {
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = '#8b3a2a';
+      ctx.fillRect(p.x, p.y, 3, 3);
+    });
+    ctx.globalAlpha = 1;
+
+    // Score on canvas
+    ctx.fillStyle = '#8a7d6a';
+    ctx.font = `${canvas.height * 0.08}px sans-serif`;
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.floor(score / 10) + 'm', canvas.width - 8, canvas.height * 0.12);
   }
 
   function update() {
-    runner.vy += GRAVITY;
-    runner.y += runner.vy;
-
-    if (runner.y + runner.h > canvas.height) {
-        runner.y = canvas.height - runner.h;
-        runner.vy = 0;
-        runner.jumps = 0;
-    }
-
+    if (!running) return;
     speed += 0.001;
-    score += Math.floor(speed / 5);
+    score += speed;
     scoreEl.textContent = String(Math.floor(score / 10));
 
-    obstacles.forEach(o => {
-        o.x -= speed;
-        // Collision
-        if (runner.x < o.x + o.w && runner.x + runner.w > o.x && runner.y < o.y + o.h && runner.y + runner.h > o.y) return endGame();
+    // Physics
+    runner.vy += canvas.height * 0.0015;
+    runner.y += runner.vy;
+    if (runner.y + runner.h >= groundY) {
+      runner.y = groundY - runner.h;
+      runner.vy = 0;
+      runner.jumps = 0;
+    }
+
+    // Clouds
+    clouds.forEach(c => {
+      c.x -= speed * 0.3;
+      if (c.x + c.w < 0) c.x = canvas.width + c.w;
     });
 
+    // Obstacles
+    obstacles.forEach(o => { o.x -= speed; });
+    
+    // Collision
+    for (const o of obstacles) {
+      const margin = runner.w * 0.15;
+      if (runner.x + margin < o.x + o.w &&
+          runner.x + runner.w - margin > o.x &&
+          runner.y + margin < o.y + o.h &&
+          runner.y + runner.h - margin > o.y) {
+        spawnParticles();
+        return endGame();
+      }
+    }
+
     obstacles = obstacles.filter(o => o.x + o.w > 0);
-    if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - (200 + Math.random() * 300)) spawnObstacle();
+    const minGap = canvas.width * 0.4;
+    if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - minGap - Math.random() * canvas.width * 0.3) {
+      spawnObstacle();
+    }
+
+    // Particles
+    particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= 0.05; });
+    particles = particles.filter(p => p.life > 0);
 
     draw();
     gameLoop = requestAnimationFrame(update);
   }
 
+  function spawnParticles() {
+    for (let i = 0; i < 10; i++) {
+      particles.push({
+        x: runner.x + runner.w / 2, y: runner.y + runner.h / 2,
+        vx: (Math.random() - 0.5) * 5, vy: -Math.random() * 5,
+        life: 1
+      });
+    }
+  }
+
   function jump() {
     if (!running || runner.jumps >= 2) return;
-    runner.vy = JUMP_FORCE;
+    runner.vy = -(canvas.height * 0.018);
     runner.jumps++;
   }
 
@@ -140,23 +264,23 @@ import Base from '../../layouts/Base.astro';
     running = true;
     overlay.classList.add('hidden');
     init();
-    update();
+    gameLoop = requestAnimationFrame(update);
   }
 
   function endGame() {
     running = false;
     cancelAnimationFrame(gameLoop);
     overlay.classList.remove('hidden');
-    document.getElementById('overlay-title').textContent = `Distance: ${Math.floor(score/10)}m`;
-    startBtn.textContent = 'Play Again';
+    overlayTitle.textContent = `${Math.floor(score / 10)}m`;
+    startBtn.textContent = 'Run Again';
   }
 
-  canvas.width = 600;
-  canvas.height = 200;
-  draw();
-
   startBtn.addEventListener('click', startGame);
-  window.addEventListener('keydown', e => { if (e.code === 'Space' || e.code === 'ArrowUp') jump(); });
-  canvas.addEventListener('mousedown', jump);
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
+  });
+  canvas.addEventListener('click', jump);
   canvas.addEventListener('touchstart', e => { e.preventDefault(); jump(); }, { passive: false });
+  window.addEventListener('resize', resize);
+  resize();
 </script>

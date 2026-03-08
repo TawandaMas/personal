@@ -116,43 +116,50 @@ const navLinks = [
   </footer>
 
   <script>
-    const handleToggleClick = () => {
-      const element = document.documentElement;
-      element.classList.toggle("dark");
+    function initMobileMenu() {
+      const themeToggle = document.getElementById("theme-toggle");
+      const menuToggle = document.getElementById("menu-toggle");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const body = document.body;
+      const html = document.documentElement;
 
-      const isDark = element.classList.contains("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
+      themeToggle?.addEventListener("click", () => {
+        html.classList.toggle("dark");
+        const isDark = html.classList.contains("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+
+      const toggleMenu = () => {
+        menuToggle?.classList.toggle("open");
+        mobileMenu?.classList.toggle("open");
+        body.classList.toggle("menu-open");
+      };
+
+      menuToggle?.addEventListener("click", toggleMenu);
+
+      document.querySelectorAll('.mobile-nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          menuToggle?.classList.remove("open");
+          mobileMenu?.classList.remove("open");
+          body.classList.remove("menu-open");
+        });
+      });
     }
 
-    document.getElementById("theme-toggle")?.addEventListener("click", handleToggleClick);
+    // Initialize on first load
+    initMobileMenu();
 
-    // Mobile Menu Toggle
-    const menuToggle = document.getElementById("menu-toggle");
-    const mobileMenu = document.getElementById("mobile-menu");
-    const body = document.body;
-
-    const toggleMenu = () => {
-      const isOpen = menuToggle?.classList.toggle("open");
-      mobileMenu?.classList.toggle("open");
-      body.classList.toggle("menu-open");
-    };
-
-    menuToggle?.addEventListener("click", toggleMenu);
-
-    // Close menu on link click (important for SPA-like navigation)
-    document.querySelectorAll('.mobile-nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        menuToggle?.classList.remove("open");
-        mobileMenu?.classList.remove("open");
-        body.classList.remove("menu-open");
-      });
-    });
-
+    // Re-initialize after Astro transitions
     document.addEventListener('astro:after-swap', () => {
-      if (localStorage.getItem('theme') === 'dark') {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark') {
         document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
       }
     });
+
+    document.addEventListener('astro:page-load', initMobileMenu);
   </script>
 
 </body>
@@ -167,6 +174,7 @@ const navLinks = [
 
   :root {
     --paper: #f2ede4;
+    --paper-rgb: 242, 237, 228;
     --paper-dark: #e8e0d0;
     --paper-crease: #d4c9b4;
     --ink: #1c1814;
@@ -183,6 +191,7 @@ const navLinks = [
 
   :root.dark {
     --paper: #1c1814;
+    --paper-rgb: 28, 24, 20;
     --paper-dark: #14110e;
     --paper-crease: #2a241e;
     --ink: #f2ede4;
@@ -398,7 +407,6 @@ const navLinks = [
   .mobile-menu {
     position: fixed;
     inset: 0;
-    background: var(--paper);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -409,12 +417,17 @@ const navLinks = [
     visibility: hidden;
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     transform: translateY(-10px);
+    pointer-events: none;
   }
 
   .mobile-menu.open {
-    opacity: 0.98;
+    opacity: 1;
     visibility: visible;
     transform: translateY(0);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    background: rgba(var(--paper-rgb), 0.8);
+    pointer-events: auto;
   }
 
   .mobile-menu::before {

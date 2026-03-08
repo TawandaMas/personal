@@ -90,56 +90,32 @@ import Base from '../../layouts/Base.astro';
   .overlay {
     position: absolute;
     inset: 0;
-    background: rgba(242, 237, 228, 0.93);
+    background: var(--paper);
+    opacity: 0.98;
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(1px);
+    z-index: 10;
+    border: 2px solid var(--rule);
   }
-
   .overlay.hidden { display: none; }
-
-  .overlay-content {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.9rem;
-  }
-
-  .overlay-title {
-    font-family: var(--font-serif);
-    font-size: 3rem;
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  .overlay-sub {
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    line-height: 1.8;
-    color: var(--ink-light);
-    letter-spacing: 0.03em;
-  }
-
-  .start-btn {
-    margin-top: 0.5rem;
-    padding: 0.55rem 1.4rem;
-    background: transparent;
-    border: 1.5px solid var(--accent);
-    color: var(--accent);
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    cursor: pointer;
+  .overlay-content { text-align: center; padding: 2rem; }
+  .overlay-title { font-family: var(--font-serif); font-size: 3rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; line-height: 1.6; }
+  .start-btn { 
+    margin-top: 1.5rem; 
+    padding: 0.75rem 2rem; 
+    background: var(--ink); 
+    color: var(--paper);
+    border: none;
+    border-radius: 2rem;
+    font-family: var(--font-sans); 
+    font-weight: 600;
+    text-transform: uppercase; 
+    cursor: pointer; 
     transition: all 0.2s;
   }
-
-  .start-btn:hover {
-    background: var(--accent);
-    color: var(--paper);
-  }
+  .start-btn:hover { transform: scale(1.05); }
 
   .hint {
     font-family: var(--font-sans);
