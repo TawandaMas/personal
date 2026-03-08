@@ -7,7 +7,6 @@ const gamesCollection = defineCollection({
     description: z.string(),
     tag: z.string(),
     order: z.number().optional(),
-    slug: z.string().optional(),
   }),
 });
 
