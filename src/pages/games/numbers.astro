@@ -102,23 +102,50 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-<script>
   const grid = document.getElementById('grid');
   const nextEl = document.getElementById('next-num');
   const timerEl = document.getElementById('timer');
   const overlay = document.getElementById('overlay');
   const overlayTitle = document.getElementById('overlay-title');
   const overlaySub = document.getElementById('overlay-sub');
-  const startBtn = document.getElementById('start-btn');
+  
+  // Create difficulty UI dynamically inside overlay or replace start btn logic
+  const diffWrap = document.createElement('div');
+  diffWrap.style.display = 'flex';
+  diffWrap.style.gap = '0.5rem';
+  diffWrap.style.justifyContent = 'center';
+  diffWrap.style.marginTop = '1.5rem';
+  diffWrap.style.flexWrap = 'wrap';
+
+  [9, 16, 25, 36, 49].forEach(size => {
+      const btn = document.createElement('button');
+      btn.textContent = `${Math.sqrt(size)}x${Math.sqrt(size)}`;
+      btn.className = 'start-btn';
+      btn.style.marginTop = '0';
+      btn.style.padding = '0.5rem 1rem';
+      btn.addEventListener('click', () => startGame(size));
+      diffWrap.appendChild(btn);
+  });
+  
+  document.getElementById('start-btn').replaceWith(diffWrap);
 
   let nextNum = 1;
+  let targetNum = 25;
   let startTime = 0;
   let timerInterval = null;
   let gameActive = false;
 
-  function initGrid() {
+  function initGrid(size) {
     grid.innerHTML = '';
-    const nums = Array.from({length: 25}, (_, i) => i + 1);
+    const cols = Math.sqrt(size);
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${cols}, 1fr)`;
+    
+    // Scale font
+    const fontSize = cols >= 7 ? '1rem' : (cols >= 6 ? '1.2rem' : '1.5rem');
+    
+    let nums = Array.from({length: size}, (_, i) => i + 1);
+    
     // Shuffle
     for (let i = nums.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -128,9 +155,11 @@ import Base from '../../layouts/Base.astro';
     nums.forEach(n => {
       const cell = document.createElement('div');
       cell.className = 'number-cell';
+      cell.style.fontSize = fontSize;
       cell.textContent = String(n);
       cell.dataset.num = String(n);
-      cell.addEventListener('click', () => handleTap(cell, n));
+      cell.addEventListener('mousedown', (e) => { e.preventDefault(); handleTap(cell, n); });
+      cell.addEventListener('touchstart', (e) => { e.preventDefault(); handleTap(cell, n); }, {passive: false});
       grid.appendChild(cell);
     });
   }
@@ -140,7 +169,7 @@ import Base from '../../layouts/Base.astro';
     if (n === nextNum) {
       cell.classList.add('correct');
       nextNum++;
-      if (nextNum > 25) {
+      if (nextNum > targetNum) {
         endGame();
       } else {
         nextEl.textContent = String(nextNum);
@@ -154,13 +183,31 @@ import Base from '../../layouts/Base.astro';
     }
   }
 
-  function startGame() {
+  function startGame(size) {
+    targetNum = size;
     nextNum = 1;
     gameActive = true;
     nextEl.textContent = '1';
     timerEl.textContent = '0.00';
     overlay.classList.add('hidden');
-    initGrid();
+    
+    // Update score header to show mode best
+    const bestScore = localStorage.getItem(`best-numbers-${size}`);
+    const scoreWrap = document.querySelector('.score-wrap');
+    const existingBest = document.getElementById('best-display');
+    if (existingBest) existingBest.remove();
+    
+    if (bestScore) {
+        const bestDiv = document.createElement('div');
+        bestDiv.id = 'best-display';
+        bestDiv.style.fontSize = '0.75rem';
+        bestDiv.style.color = 'var(--ink-light)';
+        bestDiv.style.marginTop = '0.2rem';
+        bestDiv.textContent = `Best ${Math.sqrt(size)}x${Math.sqrt(size)}: ${bestScore}s`;
+        scoreWrap.appendChild(bestDiv);
+    }
+    
+    initGrid(size);
     
     startTime = performance.now();
     timerInterval = setInterval(() => {
@@ -177,18 +224,23 @@ import Base from '../../layouts/Base.astro';
     overlayTitle.textContent = `${finalTime}s`;
     
     let msg = "Fast!";
-    if (parseFloat(finalTime) < 15) msg = "Elite speed!";
-    else if (parseFloat(finalTime) > 30) msg = "Take your time.";
+    const timeNum = parseFloat(finalTime);
+    
+    // Rough tier logic scaling with size
+    const expectedTime = targetNum * 0.8; 
+    
+    if (timeNum < expectedTime * 0.7) msg = "Elite speed!";
+    else if (timeNum > expectedTime * 1.5) msg = "Take your time.";
     
     overlaySub.textContent = msg;
-    startBtn.textContent = 'Play Again';
 
-    const best = localStorage.getItem('best-numbers');
-    if (!best || parseFloat(finalTime) < parseFloat(best)) {
-        localStorage.setItem('best-numbers', finalTime);
-        overlaySub.textContent = `New Best! ${msg}`;
+    const bestKey = `best-numbers-${targetNum}`;
+    const best = localStorage.getItem(bestKey);
+    if (!best || timeNum < parseFloat(best)) {
+        localStorage.setItem(bestKey, finalTime);
+        overlaySub.innerHTML = `<span style="color:var(--accent)">New Best!</span><br/>${msg}`;
+    } else {
+        overlaySub.innerHTML = `${msg}<br/>Best: ${best}s`;
     }
   }
-
-  startBtn.addEventListener('click', startGame);
 </script>

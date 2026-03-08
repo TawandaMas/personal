@@ -100,7 +100,6 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-<script>
   const gridEl = document.getElementById('grid');
   const movesEl = document.getElementById('moves');
   const overlay = document.getElementById('overlay');
@@ -108,7 +107,16 @@ import Base from '../../layouts/Base.astro';
 
   let tiles = [];
   let moves = 0;
-  const SIZE = 4;
+  let SIZE = 4;
+  let currentLevel = '4x4 (Normal)';
+
+  function setSize(s, lvlName) {
+      SIZE = s;
+      currentLevel = lvlName;
+      gridEl.style.gridTemplateColumns = `repeat(${SIZE}, 1fr)`;
+      gridEl.style.gridTemplateRows = `repeat(${SIZE}, 1fr)`;
+      initBoard();
+  }
 
   function initBoard() {
     tiles = Array.from({length: SIZE * SIZE}, (_, i) => i === SIZE * SIZE - 1 ? null : i + 1);
@@ -121,7 +129,8 @@ import Base from '../../layouts/Base.astro';
   function shuffle() {
     // Solvable shuffle (simulate random moves from win state)
     let emptyIdx = SIZE * SIZE - 1;
-    for (let i = 0; i < 200; i++) {
+    const shuffles = SIZE === 3 ? 100 : (SIZE === 4 ? 200 : 350);
+    for (let i = 0; i < shuffles; i++) {
         const neighbors = getNeighbors(emptyIdx);
         const nextIdx = neighbors[Math.floor(Math.random() * neighbors.length)];
         [tiles[emptyIdx], tiles[nextIdx]] = [tiles[nextIdx], tiles[emptyIdx]];
@@ -145,6 +154,9 @@ import Base from '../../layouts/Base.astro';
     tiles.forEach((val, idx) => {
         const tile = document.createElement('div');
         tile.className = 'tile';
+        if (SIZE === 5) tile.style.fontSize = '1.2rem';
+        if (SIZE === 3) tile.style.fontSize = '2rem';
+        
         if (val === null) {
             tile.classList.add('empty');
         } else {
@@ -174,17 +186,52 @@ import Base from '../../layouts/Base.astro';
     return true;
   }
 
-  function startGame() {
-    overlay.classList.add('hidden');
-    initBoard();
-  }
-
   function endGame() {
     overlay.classList.remove('hidden');
     document.getElementById('overlay-title').textContent = "Solved!";
     document.getElementById('overlay-sub').textContent = `Magnificent. You did it in ${moves} moves.`;
     startBtn.textContent = 'Play Again';
+    
+    // Save best moves
+    const key = `slide-${SIZE}x${SIZE}-best`;
+    const best = parseInt(localStorage.getItem(key) || 999999);
+    if (moves < best) {
+        localStorage.setItem(key, moves);
+        document.getElementById('overlay-sub').textContent += ` A NEW RECORD!`;
+    }
   }
 
-  startBtn.addEventListener('click', startGame);
+  // Inject Difficulty Buttons into overlay
+  const overlayContent = document.querySelector('.overlay-content');
+  const diffRow = document.createElement('div');
+  diffRow.style.cssText = "display:flex; justify-content:center; gap: 0.5rem; margin-top: 1.5rem;";
+  
+  [
+    {n: 3, label: '3x3 (Easy)'},
+    {n: 4, label: '4x4 (Normal)'},
+    {n: 5, label: '5x5 (Hard)'}
+  ].forEach(lvl => {
+      const btn = document.createElement('button');
+      btn.textContent = lvl.label;
+      btn.className = 'key-btn';
+      btn.style.cssText = "background:var(--paper); border:1.5px solid var(--rule); padding:0.4rem 0.8rem; border-radius:1rem; cursor:pointer; font-family:var(--font-sans); font-size:0.8rem; transition:all 0.2s;";
+      btn.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.diff-btn').forEach(b => { b.style.background = 'var(--paper)'; b.style.color = 'var(--ink)'; });
+          btn.style.background = 'var(--ink)';
+          btn.style.color = 'white';
+          btn.classList.add('diff-btn');
+          SIZE = lvl.n;
+          currentLevel = lvl.label;
+      };
+      if (lvl.n === 4) btn.onclick({stopPropagation:()=>{}}); // pre-select
+      diffRow.appendChild(btn);
+  });
+  
+  overlayContent.insertBefore(diffRow, startBtn);
+
+  startBtn.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+      setSize(SIZE, currentLevel);
+  });
 </script>

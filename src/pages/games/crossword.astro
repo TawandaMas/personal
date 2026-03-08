@@ -130,33 +130,11 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
-  const PUZZLE = {
+  let PUZZLE = {
     size: 5,
-    solution: [
-      'P','A','P','E','R',
-      'A','R','E','N','A',
-      'L','E','A','P','S',
-      'M','A','T','E','S',
-      'S','T','A','R','S',
-    ],
-    blacks: [],  // no black squares for simplicity
-    numbers: [1,2,3,4,5, 6,0,0,0,0, 11,0,0,0,0, 16,0,0,0,0, 21,0,0,0,0],
-    clues: {
-      across: [
-        '1. Writing material',
-        '6. Gladiatorial venue',
-        '11. Jumps',
-        '16. Companions',
-        '21. Celestial lights',
-      ],
-      down: [
-        '1. Flat surface',
-        '2. Dip into water',
-        '3. Advantage (short)',
-        '4. Writing instrument tip',
-        '5. Scientific study',
-      ]
-    }
+    solution: [],
+    numbers: [],
+    clues: { across: [], down: [] }
   };
 
   const gridEl = document.getElementById('grid');
@@ -185,9 +163,60 @@ import Base from '../../layouts/Base.astro';
     });
   }
 
+  async function generatePuzzle() {
+      // Very basic procedural 5x5 generation: We just generate 5 separate horizontal words for now to ensure validity
+      // A true crossing generation requires backtracking algorithms that are too heavy for synchronous client-side without locking the UI.
+      // So instead, we do a "Word Stack" style mini crossword where down clues are essentially random anagram columns,
+      // but to keep it simple and fun, we just populate 5 random valid 5-letters 
+      
+      gridEl.innerHTML = '<div style="color:var(--ink-light); grid-column: span 5; text-align: center; margin-top: 50%;">Thinking...</div>';
+      acrossEl.innerHTML = '<li>Fetching definitions...</li>';
+      downEl.innerHTML = '<li>Down clues NA</li>';
+
+      let words = [];
+      let definitions = [];
+
+      try {
+          const res = await fetch(`https://api.datamuse.com/words?sp=?????&md=df&max=50`);
+          const data = await res.json();
+          
+          let candidates = data.filter(w => !w.word.includes(' ') && !w.word.includes('-') && w.defs && w.defs.length > 0);
+          candidates.sort(() => Math.random() - 0.5);
+          
+          for(let i=0; i<5; i++) {
+              if (candidates[i]) {
+                  words.push(candidates[i].word.toUpperCase());
+                  // Extract just the definition part before any tabs or massive sentences
+                  let def = candidates[i].defs[0].split('\t')[1] || candidates[i].defs[0];
+                  // truncate def
+                  if (def.length > 60) def = def.substring(0, 57) + '...';
+                  definitions.push(def);
+              }
+          }
+      } catch (e) {
+          console.error(e);
+      }
+
+      // Fallback if fetch fails or fewer than 5 words found
+      if (words.length < 5) {
+          words = ['PAPER', 'ARENA', 'LEAPS', 'MATES', 'STARS'];
+          definitions = ['Writing material', 'Gladiatorial venue', 'Jumps', 'Companions', 'Celestial lights'];
+      }
+
+      // Build PUZZLE obj
+      PUZZLE.solution = words.join('').split('');
+      PUZZLE.numbers = [1,0,0,0,0, 2,0,0,0,0, 3,0,0,0,0, 4,0,0,0,0, 5,0,0,0,0];
+      
+      PUZZLE.clues.across = definitions.map((d, i) => `${i+1}. ${d}`);
+      PUZZLE.clues.down = ['(Read across to solve columns)']; // Down clues omitted for procedural stack mode
+
+      initBoard();
+  }
+
   function initBoard() {
     userGrid = Array(25).fill('');
     gridEl.innerHTML = '';
+    
     PUZZLE.solution.forEach((_, i) => {
       const sq = document.createElement('div');
       sq.className = 'square';
@@ -211,6 +240,11 @@ import Base from '../../layouts/Base.astro';
       li.addEventListener('click', () => {
         document.querySelectorAll('.clue-section li').forEach(l => l.classList.remove('active'));
         li.classList.add('active');
+        // Auto select the first square of that row
+        const rowIdx = parseInt(li.dataset.i);
+        if (!isNaN(rowIdx) && li.dataset.dir === 'across') {
+             selectSquare(rowIdx * 5);
+        }
       });
     });
   }
@@ -269,7 +303,7 @@ import Base from '../../layouts/Base.astro';
   startBtn.addEventListener('click', () => {
     overlay.classList.add('hidden');
     statusText.textContent = 'Solve the mini puzzle.';
-    initBoard();
     buildMobileKeys();
+    generatePuzzle();
   });
 </script>

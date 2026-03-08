@@ -125,8 +125,12 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-<script>
-  const SYMBOLS = ['★', '♠', '♣', '♦', '♥', '☀', '☽', '⚓'];
+  const THEMES = {
+      'Symbols': ['★', '♠', '♣', '♦', '♥', '☀', '☽', '⚓', '▲', '▼', '◀', '▶', '♻', '⚙', '♫', '⚡', '✿', '✂'],
+      'Emoji': ['😀', '😂', '😎', '😍', '🤔', '🥶', '🤠', '👽', '👻', '🤖', '🎃', '💩', '🙉', '💥', '🍕', '🌮', '🍔', '🍟'],
+      'Math': ['∑', 'π', '∞', '√', '∫', '∆', 'Ω', 'μ', 'θ', 'α', 'β', 'γ', 'λ', 'ρ', 'σ', 'φ', 'ψ', 'ω']
+  };
+
   const grid = document.getElementById('grid');
   const movesEl = document.getElementById('moves');
   const timerEl = document.getElementById('timer');
@@ -142,10 +146,22 @@ import Base from '../../layouts/Base.astro';
   let gameActive = false;
   let startTime = 0;
   let timerInterval = null;
+  
+  let currentTheme = 'Symbols';
+  let gridSize = 4; // 4x4 or 6x6
 
   function initGame() {
     grid.innerHTML = '';
-    const deck = [...SYMBOLS, ...SYMBOLS];
+    grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+    
+    // Decrease font size for 6x6 so it fits
+    const fontSize = gridSize === 6 ? '1.25rem' : '2rem';
+
+    const numPairs = (gridSize * gridSize) / 2;
+    const symbolsToUse = THEMES[currentTheme].slice(0, numPairs);
+    const deck = [...symbolsToUse, ...symbolsToUse];
+    
     // Shuffle
     for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -157,7 +173,7 @@ import Base from '../../layouts/Base.astro';
       card.className = 'card';
       card.innerHTML = `
         <div class="card-face card-back"></div>
-        <div class="card-face card-front">${symbol}</div>
+        <div class="card-face card-front" style="font-size: ${fontSize}">${symbol}</div>
       `;
       card.addEventListener('click', () => flipCard(card, symbol));
       grid.appendChild(card);
@@ -184,13 +200,13 @@ import Base from '../../layouts/Base.astro';
       c2.card.classList.add('matched');
       matches++;
       flippedCards = [];
-      if (matches === SYMBOLS.length) endGame();
+      if (matches === (gridSize * gridSize) / 2) endGame();
     } else {
       setTimeout(() => {
         c1.card.classList.remove('flipped');
         c2.card.classList.remove('flipped');
         flippedCards = [];
-      }, 1000);
+      }, 800);
     }
   }
 
@@ -205,6 +221,7 @@ import Base from '../../layouts/Base.astro';
     initGame();
     
     startTime = Date.now();
+    if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
       timerEl.textContent = String(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
@@ -218,7 +235,70 @@ import Base from '../../layouts/Base.astro';
     overlayTitle.textContent = "Matched!";
     overlaySub.textContent = `Completed in ${moves} moves and ${finalTime} seconds.`;
     startBtn.textContent = 'Play Again';
+    
+    const key = `memory-${gridSize}x${gridSize}-best`;
+    const bestMoves = parseInt(localStorage.getItem(key) || 9999);
+    if (moves < bestMoves) {
+        localStorage.setItem(key, moves);
+        overlaySub.textContent += ` New Best!`;
+    }
   }
 
+  // UI Setup for Options
+  const overlayContent = document.querySelector('.overlay-content');
+  
+  // Theme Builder
+  const themeRow = document.createElement('div');
+  themeRow.style.cssText = "display:flex; justify-content:center; gap: 0.5rem; margin-top: 1.5rem; margin-bottom: 0.5rem;";
+  Object.keys(THEMES).forEach(theme => {
+      const btn = document.createElement('button');
+      btn.textContent = theme;
+      btn.className = 'theme-btn';
+      btn.style.cssText = "background:var(--paper); border:1.5px solid var(--rule); padding:0.4rem 0.8rem; border-radius:1rem; cursor:pointer; font-family:var(--font-sans); font-size:0.8rem; transition:all 0.2s;";
+      btn.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.theme-btn').forEach(b => { b.style.background = 'var(--paper)'; b.style.color = 'var(--ink)'; });
+          btn.style.background = 'var(--ink)';
+          btn.style.color = 'white';
+          currentTheme = theme;
+      };
+      if (theme === 'Symbols') btn.onclick({stopPropagation:()=>{}}); // pre-select
+      themeRow.appendChild(btn);
+  });
+  
+  // Size Builder
+  const sizeRow = document.createElement('div');
+  sizeRow.style.cssText = "display:flex; justify-content:center; gap: 0.5rem; margin-bottom: 1.5rem;";
+  [4, 6].forEach(size => {
+      const btn = document.createElement('button');
+      btn.textContent = `${size}x${size}`;
+      btn.className = 'size-btn';
+      btn.style.cssText = "background:var(--paper); border:1.5px solid var(--rule); padding:0.4rem 0.8rem; border-radius:1rem; cursor:pointer; font-family:var(--font-sans); font-size:0.8rem; transition:all 0.2s;";
+      btn.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.size-btn').forEach(b => { b.style.background = 'var(--paper)'; b.style.color = 'var(--ink)'; });
+          btn.style.background = 'var(--ink)';
+          btn.style.color = 'white';
+          gridSize = size;
+      };
+      if (size === 4) btn.onclick({stopPropagation:()=>{}}); // pre-select
+      sizeRow.appendChild(btn);
+  });
+
+  overlayContent.insertBefore(themeRow, startBtn);
+  overlayContent.insertBefore(sizeRow, startBtn);
+
   startBtn.addEventListener('click', startGame);
+  
+  // Add best score display to header
+  const best4 = localStorage.getItem('memory-4x4-best');
+  const best6 = localStorage.getItem('memory-6x6-best');
+  if (best4 || best6) {
+      const hs = document.createElement('div');
+      hs.style.fontSize = '0.75rem';
+      hs.style.marginTop = '0.5rem';
+      hs.style.color = 'var(--ink-light)';
+      hs.innerHTML = `Best Moves: 4x4: <b>${best4||'-'}</b> | 6x6: <b>${best6||'-'}</b>`;
+      document.querySelector('.score-wrap').appendChild(hs);
+  }
 </script>

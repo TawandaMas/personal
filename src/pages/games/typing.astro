@@ -109,8 +109,7 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-<script>
-  const PASSAGES = [
+  const FALLBACK_PASSAGES = [
     "The library was a silent cathedral of paper and ink, where every shelf held a thousand lives waiting to be relived through the eyes of a reader.",
     "Technology is a mirror that reflects our own creativity, yet at its best, it acts as a lens that clarifies the complexities of the human condition.",
     "Design is not just what it looks like and feels like. Design is how it works, and how it makes the user feel in the moment of interaction.",
@@ -128,15 +127,51 @@ import Base from '../../layouts/Base.astro';
   const wpmEl = document.getElementById('wpm');
   const accEl = document.getElementById('acc');
   const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlaySub = document.getElementById('overlay-sub');
   const startBtn = document.getElementById('start-btn');
 
   let text = '';
   let startTime = 0;
   let timerInterval = null;
   let active = false;
+  let totalKeystrokes = 0;
+  let correctKeystrokes = 0;
+  
+  let bestWPM = parseInt(localStorage.getItem('typing-best') || 0);
 
-  function initTest() {
-    text = PASSAGES[Math.floor(Math.random() * PASSAGES.length)];
+  // Inject best score into header
+  if (bestWPM > 0) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.style.marginTop = '0.2rem';
+      bestDiv.textContent = `Best: ${bestWPM} WPM`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
+  }
+
+  async function fetchQuote() {
+      try {
+          // Public quote API (doesn't require key, CORS friendly usually)
+          const res = await fetch('https://api.quotable.io/random?minLength=100&maxLength=250');
+          if (!res.ok) throw new Error('API failed');
+          const data = await res.json();
+          return data.content;
+      } catch (e) {
+          console.log("Using fallback quote");
+          return FALLBACK_PASSAGES[Math.floor(Math.random() * FALLBACK_PASSAGES.length)];
+      }
+  }
+
+  async function initTest() {
+    startBtn.textContent = 'Loading...';
+    startBtn.disabled = true;
+    
+    text = await fetchQuote();
+    
+    startBtn.textContent = 'Start Test';
+    startBtn.disabled = false;
+    
     displayEl.innerHTML = '';
     text.split('').forEach((char, i) => {
         const span = document.createElement('span');
@@ -144,53 +179,73 @@ import Base from '../../layouts/Base.astro';
         if (i === 0) span.classList.add('current');
         displayEl.appendChild(span);
     });
+    
     inputEl.value = '';
     inputEl.disabled = false;
     wpmEl.textContent = '0';
     accEl.textContent = '100';
     active = false;
+    totalKeystrokes = 0;
+    correctKeystrokes = 0;
   }
 
-  inputEl.addEventListener('input', () => {
-    if (!active && inputEl.value.length > 0) {
+  inputEl.addEventListener('input', (e) => {
+    // Prevent typing further if the last character typed was wrong (forces correction)
+    const typed = inputEl.value;
+    
+    if (!active && typed.length > 0) {
         active = true;
         startTime = Date.now();
         timerInterval = setInterval(updateStats, 500);
     }
+    
+    if (e.inputType !== 'deleteContentBackward') totalKeystrokes++;
 
-    const typed = inputEl.value;
     const spans = displayEl.querySelectorAll('span');
     let mistakes = 0;
+    let isCurrentWrong = false;
 
     spans.forEach((span, i) => {
         span.className = '';
         if (i < typed.length) {
             if (typed[i] === text[i]) {
                 span.classList.add('correct');
+                if (i === typed.length - 1 && e.inputType !== 'deleteContentBackward') {
+                    correctKeystrokes++;
+                }
             } else {
                 span.classList.add('wrong');
                 mistakes++;
+                isCurrentWrong = true;
             }
         }
         if (i === typed.length) span.classList.add('current');
     });
 
-    const acc = Math.max(0, Math.round(((typed.length - mistakes) / typed.length) * 100)) || 100;
+    const acc = Math.max(0, Math.round((correctKeystrokes / totalKeystrokes) * 100)) || 100;
     accEl.textContent = String(acc);
-
-    if (typed.length >= text.length) endGame();
+    
+    // Stop progression if there's a mistake anywhere in the typed text
+    if (mistakes > 0) {
+        inputEl.style.borderColor = 'var(--error, #d9534f)';
+        inputEl.style.background = 'rgba(217, 83, 79, 0.05)';
+    } else {
+        inputEl.style.borderColor = 'var(--accent)';
+        inputEl.style.background = 'var(--paper)';
+        // Only end if everything is right
+        if (typed.length === text.length) endGame();
+    }
   });
 
   function updateStats() {
     const elapsed = (Date.now() - startTime) / 1000 / 60; // minutes
     const words = inputEl.value.length / 5;
     const wpm = Math.round(words / elapsed);
-    wpmEl.textContent = String(wpm);
+    wpmEl.textContent = String(wpm > 0 && wpm < 500 ? wpm : 0); // basic sanity check
   }
 
   function startGame() {
     overlay.classList.add('hidden');
-    initTest();
     inputEl.focus();
   }
 
@@ -199,10 +254,23 @@ import Base from '../../layouts/Base.astro';
     clearInterval(timerInterval);
     updateStats();
     inputEl.disabled = true;
+    
+    const finalWPM = parseInt(wpmEl.textContent);
+    let bestMsg = '';
+    
+    if (finalWPM > bestWPM) {
+        bestWPM = finalWPM;
+        localStorage.setItem('typing-best', bestWPM);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${bestWPM} WPM`;
+    }
+    
     overlay.classList.remove('hidden');
-    document.getElementById('overlay-title').textContent = `${wpmEl.textContent} WPM`;
-    document.getElementById('overlay-sub').textContent = `Accuracy: ${accEl.textContent}%`;
-    startBtn.textContent = 'Try Again';
+    overlayTitle.textContent = `${finalWPM} WPM`;
+    overlaySub.innerHTML = `Accuracy: ${accEl.textContent}%${bestMsg}`;
+    startBtn.textContent = 'Next Quote';
+    initTest(); // Pre-load next
   }
 
   startBtn.addEventListener('click', startGame);

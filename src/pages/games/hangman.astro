@@ -154,15 +154,38 @@ import Base from '../../layouts/Base.astro';
   let guessed = new Set();
   let mistakes = 0;
   let gameActive = false;
+  let streak = 0;
 
-  function initGame() {
-    currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+  async function initGame() {
     guessed = new Set();
     mistakes = 0;
     mistakesEl.textContent = '0';
+    wordEl.textContent = 'FETCHING...';
+    keyboardEl.innerHTML = '';
+    currentWord = '';
     
     document.querySelectorAll('.hangman-part').forEach(p => p.classList.add('hidden'));
-    
+
+    try {
+        const len = Math.floor(Math.random() * 5) + 6; // 6 to 10 letters
+        const pattern = '?'.repeat(len);
+        const res = await fetch(`https://api.datamuse.com/words?sp=${pattern}&md=f&max=100`);
+        const data = await res.json();
+        
+        if (data && data.length > 0) {
+            const valid = data.filter(w => !w.word.includes(' ') && !w.word.includes('-') && parseFloat(w.tags?.[0]?.replace('f:','') || 0) > 1);
+            if (valid.length > 0) {
+                currentWord = valid[Math.floor(Math.random() * valid.length)].word.toUpperCase();
+            }
+        }
+    } catch (e) {
+        console.error("API failed, using fallback:", e);
+    }
+
+    if (!currentWord) {
+        currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    }
+
     renderWord();
     renderKeyboard();
   }
@@ -173,14 +196,19 @@ import Base from '../../layouts/Base.astro';
     currentWord.split('').forEach(char => {
         const slot = document.createElement('div');
         slot.className = 'slot';
-        if (guessed.has(char)) {
+        if (guessed.has(char) || !gameActive) {
             slot.textContent = char;
         } else {
             win = false;
         }
         wordEl.appendChild(slot);
     });
-    if (win && gameActive) endGame(true);
+    if (win && gameActive) {
+        streak++;
+        const bestStreak = localStorage.getItem('hangman-streak') || 0;
+        if (streak > parseInt(bestStreak)) localStorage.setItem('hangman-streak', streak);
+        endGame(true);
+    }
   }
 
   function renderKeyboard() {
@@ -205,13 +233,17 @@ import Base from '../../layouts/Base.astro';
         document.getElementById(`part-${mistakes}`).classList.remove('hidden');
         mistakes++;
         mistakesEl.textContent = String(mistakes);
-        if (mistakes >= 6) endGame(false);
+        if (mistakes >= 6) {
+            streak = 0;
+            return endGame(false);
+        }
     }
     renderWord();
     renderKeyboard();
   }
 
   function startGame() {
+    streak = parseInt(localStorage.getItem('hangman-current-streak') || 0);
     overlay.classList.add('hidden');
     gameActive = true;
     initGame();
@@ -219,11 +251,34 @@ import Base from '../../layouts/Base.astro';
 
   function endGame(win) {
     gameActive = false;
-    overlay.classList.remove('hidden');
-    document.getElementById('overlay-title').textContent = win ? "Saved!" : "The End";
-    document.getElementById('overlay-sub').textContent = win ? `You found the word: ${currentWord}` : `The word was: ${currentWord}`;
-    startBtn.textContent = 'Play Again';
+    localStorage.setItem('hangman-current-streak', win ? streak : 0);
+    renderWord(); // Show all letters
+    
+    setTimeout(() => {
+        overlay.classList.remove('hidden');
+        document.getElementById('overlay-title').textContent = win ? `Streak: ${streak}!` : "The End";
+        document.getElementById('overlay-sub').textContent = win ? `You found the word: ${currentWord}` : `The word was: ${currentWord}`;
+        startBtn.textContent = 'Play Again';
+    }, 1000);
   }
 
   startBtn.addEventListener('click', startGame);
+
+  window.addEventListener('keydown', (e) => {
+    if (!gameActive) return;
+    const letter = e.key.toUpperCase();
+    if (/^[A-Z]$/.test(letter)) {
+        handleGuess(letter);
+    }
+  });
+
+  const best = localStorage.getItem('hangman-streak');
+  if (best) {
+      const hs = document.createElement('div');
+      hs.style.fontSize = '0.8rem';
+      hs.style.marginTop = '0.5rem';
+      hs.style.color = 'var(--ink-light)';
+      hs.textContent = `Best Streak: ${best}`;
+      document.querySelector('.score-wrap').appendChild(hs);
+  }
 </script>

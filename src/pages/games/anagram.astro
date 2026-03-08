@@ -164,8 +164,6 @@ import Base from '../../layouts/Base.astro';
   let score = 0;
   let gameActive = false;
 
-
-
   // Refined Logic
   let activeIndices = [];
 
@@ -177,7 +175,7 @@ import Base from '../../layouts/Base.astro';
         if (activeIndices.includes(idx)) tile.classList.add('used');
         tile.textContent = char;
         tile.addEventListener('click', () => {
-            if (!activeIndices.includes(idx)) {
+            if (!activeIndices.includes(idx) && userWord.length < currentWord.length) {
                 activeIndices.push(idx);
                 userWord += char;
                 updateDisplay();
@@ -187,17 +185,22 @@ import Base from '../../layouts/Base.astro';
     });
 
     answerRow.innerHTML = '';
-    userWord.split('').forEach(char => {
+    // Create empty slots for the entire word length
+    for (let i = 0; i < currentWord.length; i++) {
         const span = document.createElement('span');
         span.className = 'answer-letter';
-        span.textContent = char;
+        span.textContent = userWord[i] || '';
+        if (i === userWord.length) span.style.borderBottomColor = 'var(--accent)'; // Highlight active cursor
+        else span.style.borderBottomColor = 'var(--rule)';
         answerRow.appendChild(span);
-    });
+    }
   }
 
   function checkAnswer() {
+    if (!gameActive || userWord.length === 0) return;
+    
     if (userWord === currentWord) {
-        score += 10;
+        score += currentWord.length * 10;
         scoreEl.textContent = String(score);
         // celebration
         answerRow.animate([
@@ -205,7 +208,12 @@ import Base from '../../layouts/Base.astro';
             { transform: 'scale(1.1)', color: 'var(--accent)' },
             { transform: 'scale(1)' }
         ], { duration: 300 });
-        setTimeout(nextWord, 500);
+        
+        // Save high score
+        const best = localStorage.getItem('anagram-best') || 0;
+        if (score > parseInt(best)) localStorage.setItem('anagram-best', score);
+
+        setTimeout(nextWord, 800);
     } else {
         answerRow.animate([
             { transform: 'translateX(-10px)' },
@@ -216,9 +224,12 @@ import Base from '../../layouts/Base.astro';
   }
 
   function handleClear() {
-    userWord = '';
-    activeIndices = [];
-    updateDisplay();
+    if (userWord.length > 0) {
+        // Just pop the last letter like a backspace for better UX
+        const lastIdx = activeIndices.pop();
+        userWord = userWord.slice(0, -1);
+        updateDisplay();
+    }
   }
 
   function start() {
@@ -229,15 +240,82 @@ import Base from '../../layouts/Base.astro';
     nextWord();
   }
 
-  function nextWord() {
-    currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-    scrambled = currentWord.split('').sort(() => Math.random() - 0.5).join('');
+  async function nextWord() {
     userWord = '';
     activeIndices = [];
+    currentWord = '';
+    scrambled = '';
+    
+    // Loading state
+    letterGrid.innerHTML = '<div style="font-family: var(--font-sans); color: var(--ink-light); font-size: 0.9rem;">Fetching word...</div>';
+    answerRow.innerHTML = '';
+    btnSubmit.disabled = true;
+
+    try {
+        // Request a random word of length between 5 and 8 chars
+        const len = Math.floor(Math.random() * 4) + 5;
+        const pattern = '?'.repeat(len);
+        // Datamuse API: sp is spelled like, max is limit, md=f gets frequency. Adding 'a' or 'e' ensures it's a commonish word.
+        const res = await fetch(`https://api.datamuse.com/words?sp=${pattern}&md=f&max=100`);
+        const data = await res.json();
+        
+        if (data && data.length > 0) {
+            // Filter out words with spaces or hyphens, and ensure they are somewhat common
+            const valid = data.filter(w => !w.word.includes(' ') && !w.word.includes('-') && parseFloat(w.tags?.[0]?.replace('f:','') || 0) > 1);
+            if (valid.length > 0) {
+                currentWord = valid[Math.floor(Math.random() * valid.length)].word.toUpperCase();
+            }
+        }
+    } catch (e) {
+        console.error("API failed, using fallback dictionary:", e);
+    }
+
+    if (!currentWord) {
+        // Fallback to static dictionary
+        currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    }
+
+    // Scramble the word ensuring it's actually scrambled
+    do {
+        scrambled = currentWord.split('').sort(() => Math.random() - 0.5).join('');
+    } while (scrambled === currentWord && currentWord.length > 1);
+
+    btnSubmit.disabled = false;
     updateDisplay();
   }
 
   startBtn.addEventListener('click', start);
   btnClear.addEventListener('click', handleClear);
   btnSubmit.addEventListener('click', checkAnswer);
+
+  // Add keyboard support
+  window.addEventListener('keydown', (e) => {
+    if (!gameActive || !currentWord) return;
+    
+    if (e.key === 'Backspace') {
+        handleClear();
+    } else if (e.key === 'Enter') {
+        checkAnswer();
+    } else if (/^[a-zA-Z]$/.test(e.key)) {
+        const char = e.key.toUpperCase();
+        // Find if this character is available in the scrambled pool and not yet used
+        const availableIdx = scrambled.split('').findIndex((c, i) => c === char && !activeIndices.includes(i));
+        if (availableIdx !== -1 && userWord.length < currentWord.length) {
+            activeIndices.push(availableIdx);
+            userWord += char;
+            updateDisplay();
+        }
+    }
+  });
+
+  // Show previous high score on load
+  const bestScore = localStorage.getItem('anagram-best');
+  if (bestScore) {
+    const hs = document.createElement('div');
+    hs.style.fontSize = '0.8rem';
+    hs.style.marginTop = '0.5rem';
+    hs.style.color = 'var(--ink-light)';
+    hs.textContent = `Best: ${bestScore}`;
+    document.querySelector('.score-wrap').appendChild(hs);
+  }
 </script>

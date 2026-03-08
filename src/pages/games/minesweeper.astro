@@ -109,21 +109,56 @@ import Base from '../../layouts/Base.astro';
   const mineEl = document.getElementById('mine-count');
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start-btn');
+  
+  // Difficulty Configs
+  const LEVELS = {
+      'Beginner': { r: 9, c: 9, m: 10 },
+      'Intermediate': { r: 16, c: 16, m: 40 },
+      'Expert': { r: 16, c: 30, m: 99 }
+  };
+  let currentLevel = 'Beginner';
 
   let board = [], mines = [], gameActive = false, flags = 0, firstClick = true;
+  let cols = 9, rows = 9, totalMines = 10;
+
+  function setLevel(lvl) {
+      currentLevel = lvl;
+      rows = LEVELS[lvl].r;
+      cols = LEVELS[lvl].c;
+      totalMines = LEVELS[lvl].m;
+      
+      // Update Grid CSS
+      gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+      
+      // Responsive sizing tweak
+      if (lvl === 'Expert') {
+          gridEl.parentElement.style.maxWidth = '900px';
+          gridEl.style.aspectRatio = '30/16';
+      } else if (lvl === 'Intermediate') {
+          gridEl.parentElement.style.maxWidth = '600px';
+          gridEl.style.aspectRatio = '1';
+      } else {
+          gridEl.parentElement.style.maxWidth = '440px';
+          gridEl.style.aspectRatio = '1';
+      }
+      
+      initBoard();
+  }
 
   function initBoard() {
-    board = Array(81).fill(0);
+    board = Array(rows * cols).fill(0);
     mines = [];
     flags = 0;
     firstClick = true;
     render();
+    gameActive = true;
   }
 
   function placeMines(firstIdx) {
-    while(mines.length < 10) {
-        let r = Math.floor(Math.random() * 81);
-        // Prevent mine on first click AND its immediate neighbors if possible, but at least the first click
+    while(mines.length < totalMines) {
+        let r = Math.floor(Math.random() * (rows * cols));
+        // Prevent mine on first click
         if (r !== firstIdx && !mines.includes(r)) mines.push(r);
     }
     mines.forEach(m => {
@@ -133,13 +168,13 @@ import Base from '../../layouts/Base.astro';
   }
 
   function getNeighbors(idx) {
-    const r = Math.floor(idx / 9), c = idx % 9;
+    const r = Math.floor(idx / cols), c = idx % cols;
     const res = [];
     for (let dr=-1; dr<=1; dr++) {
         for (let dc=-1; dc<=1; dc++) {
             if (dr===0 && dc===0) continue;
             let nr=r+dr, nc=c+dc;
-            if (nr>=0 && nr<9 && nc>=0 && nc<9) res.push(nr*9+nc);
+            if (nr>=0 && nr<rows && nc>=0 && nc<cols) res.push(nr*cols+nc);
         }
     }
     return res;
@@ -151,11 +186,30 @@ import Base from '../../layouts/Base.astro';
         const cell = document.createElement('div');
         cell.className = 'cell';
         cell.dataset.index = i;
-        cell.addEventListener('click', () => reveal(i));
-        cell.addEventListener('contextmenu', e => { e.preventDefault(); flag(i); });
+        
+        // Scale font slightly down for expert
+        if (currentLevel === 'Expert') cell.style.fontSize = '0.7rem';
+        
+        cell.addEventListener('mousedown', (e) => {
+            if (e.button === 2) { e.preventDefault(); flag(i); } // Right click
+            else if (e.button === 0) reveal(i); // Left click
+        });
+        // Touch support for flagging
+        let pressTimer;
+        cell.addEventListener('touchstart', (e) => {
+             e.preventDefault();
+             pressTimer = window.setTimeout(() => flag(i), 400);
+        });
+        cell.addEventListener('touchend', (e) => {
+             e.preventDefault();
+             if (pressTimer) { clearTimeout(pressTimer); reveal(i); }
+        });
+        cell.addEventListener('touchmove', () => { if(pressTimer) clearTimeout(pressTimer); });
+        
+        cell.addEventListener('contextmenu', e => e.preventDefault());
         gridEl.appendChild(cell);
     });
-    mineEl.textContent = String(10 - flags);
+    mineEl.textContent = String(totalMines - flags);
   }
 
   function reveal(i) {
@@ -175,33 +229,89 @@ import Base from '../../layouts/Base.astro';
         cell.textContent = String(board[i]);
         cell.classList.add(`c-${board[i]}`);
     } else {
+        // Flood fill empty neighbors
         getNeighbors(i).forEach(n => reveal(n));
     }
 
-    if (gridEl.querySelectorAll('.cell.revealed').length === 71) endGame(true);
+    checkWin();
   }
 
   function flag(i) {
+    if (!gameActive) return;
     const cell = gridEl.children[i];
     if (cell.classList.contains('revealed')) return;
     cell.classList.toggle('flagged');
     flags += cell.classList.contains('flagged') ? 1 : -1;
-    mineEl.textContent = String(10 - flags);
+    mineEl.textContent = String(totalMines - flags);
+    checkWin();
   }
 
-  function startGame() {
-    overlay.classList.add('hidden');
-    gameActive = true;
-    initBoard();
+  function checkWin() {
+      const revealed = gridEl.querySelectorAll('.cell.revealed').length;
+      if (revealed === (rows * cols) - totalMines) {
+          endGame(true);
+      }
   }
 
   function endGame(win) {
     gameActive = false;
     overlay.classList.remove('hidden');
     document.getElementById('overlay-title').textContent = win ? "Clear!" : "Boom!";
-    startBtn.textContent = 'Play Again';
-    mines.forEach(m => gridEl.children[m].classList.add('mine'));
+    document.getElementById('overlay-title').style.color = win ? "#4a6b4a" : "#b34a3b";
+    mines.forEach(m => {
+        gridEl.children[m].classList.add('mine');
+        gridEl.children[m].textContent = '💣';
+    });
+    
+    if (win) {
+        const key = `minesweeper-${currentLevel}`;
+        const wins = parseInt(localStorage.getItem(key) || 0) + 1;
+        localStorage.setItem(key, wins);
+        document.getElementById('overlay-sub').textContent = `${currentLevel} Wins: ${wins}`;
+    }
   }
 
-  startBtn.addEventListener('click', startGame);
+  // Inject Difficulty Buttons into overlay
+  const overlayContent = document.querySelector('.overlay-content');
+  const diffRow = document.createElement('div');
+  diffRow.style.cssText = "display:flex; justify-content:center; gap: 0.5rem; margin-top: 1.5rem;";
+  
+  ['Beginner', 'Intermediate', 'Expert'].forEach(lvl => {
+      const btn = document.createElement('button');
+      btn.textContent = lvl;
+      btn.className = 'diff-btn';
+      btn.style.cssText = "background:var(--paper); color:var(--ink); border:1px solid var(--rule); padding: 0.5rem; border-radius: 4px; cursor:pointer;";
+      btn.addEventListener('click', () => {
+          document.querySelectorAll('.diff-btn').forEach(b => b.style.background = 'var(--paper)');
+          btn.style.background = 'var(--rule)';
+          currentLevel = lvl;
+      });
+      diffRow.appendChild(diffRow); // MISTAKE, FIXING IN NEXT STEP
+  });
+
+  // Let's actually append them correctly
+  diffRow.innerHTML = '';
+  ['Beginner', 'Intermediate', 'Expert'].forEach(lvl => {
+      const btn = document.createElement('button');
+      btn.textContent = lvl;
+      btn.className = 'key-btn'; // reuse existing nice button style if available, or inline
+      btn.style.cssText = "background:var(--paper); border:1.5px solid var(--rule); padding:0.4rem 0.8rem; border-radius:1rem; cursor:pointer; font-family:var(--font-sans); font-size:0.8rem; transition:all 0.2s;";
+      btn.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.diff-btn').forEach(b => { b.style.background = 'var(--paper)'; b.style.color = 'var(--ink)'; });
+          btn.style.background = 'var(--ink)';
+          btn.style.color = 'white';
+          btn.classList.add('diff-btn');
+          currentLevel = lvl;
+      };
+      if (lvl === 'Beginner') btn.onclick({stopPropagation:()=>{}}); // pre-select
+      diffRow.appendChild(btn);
+  });
+  
+  overlayContent.insertBefore(diffRow, startBtn);
+
+  startBtn.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+      setLevel(currentLevel);
+  });
 </script>

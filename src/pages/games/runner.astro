@@ -59,16 +59,18 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
-<script>
   const canvas = document.getElementById('runner-canvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
   const overlay = document.getElementById('overlay');
   const overlayTitle = document.getElementById('overlay-title');
+  const overlaySub = document.getElementById('overlay-sub');
   const startBtn = document.getElementById('start-btn');
 
   let runner, obstacles, particles, score, gameLoop, running = false, speed, groundY;
-  let clouds = [];
+  let parallaxLines = []; // mountains, trees
+  
+  let bestScore = parseInt(localStorage.getItem('runner-best') || 0);
 
   function resize() {
     const wrap = canvas.parentElement;
@@ -118,15 +120,18 @@ import Base from '../../layouts/Base.astro';
 
     // Legs (running animation)
     const legTime = Date.now() / 100;
-    const leg1 = Math.sin(legTime) * 8;
-    const leg2 = -Math.sin(legTime) * 8;
+    const leg1 = isOnGround ? Math.sin(legTime * (speed/2)) * 8 : (runner.vy > 0 ? 4 : -4);
+    const leg2 = isOnGround ? -Math.sin(legTime * (speed/2)) * 8 : (runner.vy > 0 ? -2 : 6);
+    
     ctx.strokeStyle = '#1c1814';
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
+    
     ctx.beginPath();
     ctx.moveTo(x + w / 2, y + h * 0.7);
     ctx.lineTo(x + w / 2 + leg1, y + h);
     ctx.stroke();
+    
     ctx.beginPath();
     ctx.moveTo(x + w / 2, y + h * 0.7);
     ctx.lineTo(x + w / 2 + leg2, y + h);
@@ -134,46 +139,119 @@ import Base from '../../layouts/Base.astro';
   }
 
   function init() {
-    runner = { x: canvas.width * 0.12, y: groundY - canvas.height * 0.25, w: canvas.width * 0.04, h: canvas.height * 0.35, vy: 0, jumps: 0 };
+    runner = { x: canvas.width * 0.12, y: groundY - canvas.height * 0.35, w: canvas.width * 0.04, h: canvas.height * 0.35, vy: 0, jumps: 0 };
     obstacles = [];
     particles = [];
     score = 0;
     speed = canvas.width * 0.007;
     scoreEl.textContent = '0';
-    clouds = [
-      { x: canvas.width * 0.3, y: canvas.height * 0.15, w: 60 },
-      { x: canvas.width * 0.7, y: canvas.height * 0.08, w: 80 },
+    
+    parallaxLines = [
+        { type: 'cloud', speedMulti: 0.1, y: canvas.height * 0.15, items: [] },
+        { type: 'mountain', speedMulti: 0.25, y: groundY, items: [] },
+        { type: 'tree', speedMulti: 0.5, y: groundY, items: [] }
     ];
+    
+    // Initially populate somewhat
+    for (let c of parallaxLines) {
+        for(let i=0; i<3; i++) spawnBgItem(c, Math.random() * canvas.width);
+    }
+  }
+
+  function spawnBgItem(layer, forceX = null) {
+      if (layer.type === 'cloud') {
+          layer.items.push({ x: forceX || canvas.width + 100, w: 40 + Math.random() * 40, h: 20 });
+      } else if (layer.type === 'mountain') {
+          const w = canvas.width * 0.3 + Math.random() * canvas.width * 0.2;
+          const h = (groundY - canvas.height * 0.3) + Math.random() * 40;
+          layer.items.push({ x: forceX || canvas.width + w, w, h });
+      } else if (layer.type === 'tree') {
+          const w = canvas.width * 0.05 + Math.random() * canvas.width * 0.05;
+          const h = canvas.height * 0.3 + Math.random() * 40;
+          layer.items.push({ x: forceX || canvas.width + w, w, h });
+      }
   }
 
   function spawnObstacle() {
-    const isTall = Math.random() < 0.3;
-    const h = isTall ? groundY * 0.55 : groundY * 0.28;
-    const w = canvas.width * 0.025 + Math.random() * canvas.width * 0.02;
-    obstacles.push({ x: canvas.width + w, y: groundY - h, w, h, isTall });
+    const typeRnd = Math.random();
+    let type = 'box'; // standard small box
+    let y = groundY;
+    let w = canvas.width * 0.025 + Math.random() * canvas.width * 0.02;
+    let h = groundY * 0.25;
+    
+    if (score > 200 && typeRnd > 0.7) {
+        type = 'tall_box';
+        h = groundY * 0.55;
+    } else if (score > 500 && typeRnd > 0.4 && typeRnd <= 0.7) {
+        type = 'bird';
+        y = groundY - runner.h * 1.5; // Requires ducking or jumping over, but we don't have duck. Make it jumpable but high
+        w = canvas.width * 0.04;
+        h = 10;
+        // Actually, if we don't have duck, make the bird fly low so you *must* double jump it, or high so you *must* stay on ground
+        y = Math.random() > 0.5 ? groundY - runner.h * 1.5 : groundY - runner.h * 0.6; // either high or low
+    }
+    
+    if (type !== 'bird') y -= h;
+    
+    obstacles.push({ x: canvas.width + w, y: y, w, h, type });
+  }
+
+  function drawBgLayers() {
+      // Clouds
+      const clouds = parallaxLines[0];
+      ctx.fillStyle = 'rgba(200,188,168,0.5)';
+      clouds.items.forEach(c => {
+          ctx.beginPath(); ctx.ellipse(c.x, c.y, c.w / 2, c.w / 4, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(c.x + c.w * 0.2, c.y - c.w * 0.1, c.w / 4, c.w / 5, 0, 0, Math.PI * 2); ctx.fill();
+      });
+      
+      // Mountains
+      const mtns = parallaxLines[1];
+      ctx.fillStyle = '#d8d0c0';
+      mtns.items.forEach(m => {
+          ctx.beginPath();
+          ctx.moveTo(m.x - m.w/2, groundY);
+          ctx.lineTo(m.x, groundY - m.h);
+          ctx.lineTo(m.x + m.w/2, groundY);
+          ctx.fill();
+      });
+      
+      // Trees
+      const trees = parallaxLines[2];
+      trees.items.forEach(t => {
+          ctx.fillStyle = '#8b7d6b'; // trunk
+          ctx.fillRect(t.x - t.w*0.1, groundY - t.h*0.3, t.w*0.2, t.h*0.3);
+          ctx.fillStyle = '#b8ac98'; // leaves
+          ctx.beginPath();
+          ctx.moveTo(t.x - t.w/2, groundY - t.h*0.2);
+          ctx.lineTo(t.x, groundY - t.h);
+          ctx.lineTo(t.x + t.w/2, groundY - t.h*0.2);
+          ctx.fill();
+      });
   }
 
   function draw() {
     ctx.fillStyle = '#e8e0d0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Clouds
-    clouds.forEach(c => {
-      ctx.fillStyle = 'rgba(200,188,168,0.5)';
-      ctx.beginPath();
-      ctx.ellipse(c.x, c.y, c.w / 2, c.w / 4, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.ellipse(c.x + c.w * 0.2, c.y - c.w * 0.1, c.w / 4, c.w / 5, 0, 0, Math.PI * 2);
-      ctx.fill();
-    });
+    drawBgLayers();
 
     // Obstacles
     obstacles.forEach(o => {
-      ctx.fillStyle = '#8b3a2a';
-      ctx.fillRect(o.x, o.y, o.w, o.h + 2);
-      ctx.fillStyle = '#6a2a1e';
-      ctx.fillRect(o.x - 3, o.y, o.w + 6, 6);
+      if (o.type === 'bird') {
+          ctx.fillStyle = '#1c1814';
+          ctx.beginPath();
+          ctx.moveTo(o.x, o.y);
+          ctx.lineTo(o.x + o.w/2, o.y + o.h);
+          ctx.lineTo(o.x + o.w, o.y);
+          ctx.lineTo(o.x + o.w/2, o.y + o.h/2);
+          ctx.fill();
+      } else {
+          ctx.fillStyle = '#8b3a2a';
+          ctx.fillRect(o.x, o.y, o.w, o.h + 2);
+          ctx.fillStyle = '#6a2a1e';
+          ctx.fillRect(o.x - 3, o.y, o.w + 6, 6);
+      }
     });
 
     drawGround();
@@ -209,30 +287,40 @@ import Base from '../../layouts/Base.astro';
       runner.jumps = 0;
     }
 
-    // Clouds
-    clouds.forEach(c => {
-      c.x -= speed * 0.3;
-      if (c.x + c.w < 0) c.x = canvas.width + c.w;
+    // Parallax
+    parallaxLines.forEach(layer => {
+        layer.items.forEach(item => { item.x -= speed * layer.speedMulti; });
+        layer.items = layer.items.filter(item => item.x + item.w > -canvas.width);
+        
+        // Spawn chance based on type
+        const spawnRates = { 'cloud': 0.01, 'mountain': 0.005, 'tree': 0.02 };
+        if (Math.random() < spawnRates[layer.type]) spawnBgItem(layer);
     });
 
     // Obstacles
-    obstacles.forEach(o => { o.x -= speed; });
+    obstacles.forEach(o => { 
+        o.x -= speed;
+        if (o.type === 'bird') o.x -= speed * 0.5; // Birds fly faster than ground obstacles
+    });
     
     // Collision
     for (const o of obstacles) {
       const margin = runner.w * 0.15;
+      
+      // Hitbox logic slightly more forgiving
       if (runner.x + margin < o.x + o.w &&
           runner.x + runner.w - margin > o.x &&
           runner.y + margin < o.y + o.h &&
           runner.y + runner.h - margin > o.y) {
+        
         spawnParticles();
         return endGame();
       }
     }
 
-    obstacles = obstacles.filter(o => o.x + o.w > 0);
-    const minGap = canvas.width * 0.4;
-    if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - minGap - Math.random() * canvas.width * 0.3) {
+    obstacles = obstacles.filter(o => o.x + o.w > -100);
+    const minGap = canvas.width * 0.4 + (speed * 10); // gap scales with speed
+    if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - minGap - Math.random() * canvas.width * 0.5) {
       spawnObstacle();
     }
 
@@ -245,10 +333,10 @@ import Base from '../../layouts/Base.astro';
   }
 
   function spawnParticles() {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 15; i++) {
       particles.push({
         x: runner.x + runner.w / 2, y: runner.y + runner.h / 2,
-        vx: (Math.random() - 0.5) * 5, vy: -Math.random() * 5,
+        vx: (Math.random() - 0.5) * 8, vy: -Math.random() * 8,
         life: 1
       });
     }
@@ -256,7 +344,7 @@ import Base from '../../layouts/Base.astro';
 
   function jump() {
     if (!running || runner.jumps >= 2) return;
-    runner.vy = -(canvas.height * 0.018);
+    runner.vy = -(canvas.height * 0.020);
     runner.jumps++;
   }
 
@@ -270,9 +358,31 @@ import Base from '../../layouts/Base.astro';
   function endGame() {
     running = false;
     cancelAnimationFrame(gameLoop);
+    
+    let bestMsg = '';
+    const finalScore = Math.floor(score / 10);
+    if (finalScore > bestScore) {
+        bestScore = finalScore;
+        localStorage.setItem('runner-best', bestScore);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${bestScore}m`;
+    }
+    
+    overlayTitle.textContent = `${finalScore}m`;
+    overlaySub.innerHTML = (finalScore > 100 ? 'Great run!' : 'Tripped up.') + bestMsg;
+    
     overlay.classList.remove('hidden');
-    overlayTitle.textContent = `${Math.floor(score / 10)}m`;
     startBtn.textContent = 'Run Again';
+  }
+
+  // Inject best score into header
+  if (bestScore > 0) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.textContent = `Best: ${bestScore}m`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
   }
 
   startBtn.addEventListener('click', startGame);

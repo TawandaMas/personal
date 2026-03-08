@@ -75,7 +75,6 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-<script>
   const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
   const canvas = document.getElementById('path-canvas');
   const ctx = canvas.getContext('2d');
@@ -83,28 +82,86 @@ import Base from '../../layouts/Base.astro';
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start-btn');
 
-  let grid = 5, cellSize, dots = [], paths = [], currentPath = null, level = 1;
+  let grid = 5, cellSize, dots = [], paths = [], currentPath = null;
+  let level = parseInt(localStorage.getItem('pathfinder-level') || 1);
+
+  function generateSolvableLevel() {
+      // Procedural Generation:
+      // We start with an empty grid. We pick a random empty cell, start a path of color C,
+      // and do a random walk until we hit a dead end or decide to stop.
+      // The start and end of that walk become the "dots" for color C.
+      // We repeat for 3 to 5 colors.
+      
+      const numColors = Math.min(3 + Math.floor(level / 3), 5); // scales up to 5 colors
+      grid = Math.min(5 + Math.floor(level / 5), 8); // grid grows slowly up to 8x8
+      
+      let generatedDots = [];
+      let attempts = 0;
+      
+      while(generatedDots.length < numColors * 2 && attempts < 50) {
+          attempts++;
+          generatedDots = [];
+          let occupied = Array(grid).fill(true).map(() => Array(grid).fill(false));
+          
+          for(let colorIdx=0; colorIdx<numColors; colorIdx++) {
+              // Find random empty start
+              let startR, startC;
+              let found = false;
+              for(let tries=0; tries<50; tries++) {
+                  startR = Math.floor(Math.random() * grid);
+                  startC = Math.floor(Math.random() * grid);
+                  if (!occupied[startR][startC]) { found = true; break; }
+              }
+              if (!found) break; // grid too full
+              
+              occupied[startR][startC] = true;
+              let currR = startR, currC = startC;
+              let pathLen = 0;
+              const targetLen = Math.floor(Math.random() * 4) + 3; // 3 to 6 steps
+              
+              while(pathLen < targetLen) {
+                  const dirs = [[-1,0],[1,0],[0,-1],[0,1]].sort(()=>Math.random()-0.5);
+                  let moved = false;
+                  for(let [dr, dc] of dirs) {
+                      const nr = currR+dr, nc = currC+dc;
+                      if (nr>=0 && nr<grid && nc>=0 && nc<grid && !occupied[nr][nc]) {
+                          occupied[nr][nc] = true;
+                          currR = nr; currC = nc;
+                          pathLen++;
+                          moved = true;
+                          break;
+                      }
+                  }
+                  if (!moved) break; // dead end
+              }
+              
+              // We need at least 1 step away to be a valid puzzle
+              if (pathLen > 0) {
+                  generatedDots.push({r: startR, c: startC, colorIdx});
+                  generatedDots.push({r: currR, c: currC, colorIdx});
+              } else {
+                  occupied[startR][startC] = false; // backtrack
+              }
+          }
+      }
+      
+      // Fallback if gen failed
+      if (generatedDots.length < 4) {
+          grid = 5;
+          return [
+              {r:0, c:0, colorIdx: 0}, {r:4, c:4, colorIdx: 0},
+              {r:0, c:4, colorIdx: 1}, {r:4, c:0, colorIdx: 1}
+          ];
+      }
+      return generatedDots;
+  }
 
   function initLevel() {
-    cellSize = canvas.width / grid;
+    dots = generateSolvableLevel();
+    resize(); // will set cellSize and draw
     paths = [];
     currentPath = null;
     levelEl.textContent = String(level);
-    
-    // Hardcoded level dots
-    if (level === 1) {
-        dots = [
-            {r:0, c:0, colorIdx: 0}, {r:4, c:4, colorIdx: 0},
-            {r:0, c:4, colorIdx: 1}, {r:4, c:0, colorIdx: 1},
-            {r:2, c:2, colorIdx: 2}, {r:3, c:3, colorIdx: 2}
-        ];
-    } else {
-        dots = [
-            {r:0, c:0, colorIdx: 0}, {r:4, c:4, colorIdx: 0},
-            {r:1, c:1, colorIdx: 1}, {r:3, c:3, colorIdx: 1}
-        ];
-    }
-    draw();
   }
 
   function draw() {
@@ -151,6 +208,7 @@ import Base from '../../layouts/Base.astro';
         // Clear existing path for this color
         paths = paths.filter(p => p.colorIdx !== dot.colorIdx);
         currentPath = {colorIdx: dot.colorIdx, points: [{r, c}]};
+        draw();
     }
   }
 
@@ -207,6 +265,7 @@ import Base from '../../layouts/Base.astro';
     document.getElementById('overlay-title').textContent = "Connected!";
     startBtn.textContent = 'Next Level';
     level++;
+    localStorage.setItem('pathfinder-level', level);
   }
 
   canvas.addEventListener('touchstart', e => { e.preventDefault(); handleStart(e); }, { passive: false });
@@ -218,7 +277,7 @@ import Base from '../../layouts/Base.astro';
     canvas.width = size;
     canvas.height = size;
     cellSize = size / grid;
-    if (!currentPath) draw();
+    draw();
   }
 
   canvas.width = 400; canvas.height = 400;
@@ -227,5 +286,7 @@ import Base from '../../layouts/Base.astro';
   window.addEventListener('mousemove', handleMove);
   window.addEventListener('mouseup', handleEnd);
   window.addEventListener('resize', resize);
-  resize();
+  
+  // Need to wait for fonts and CSS to settle before first measurement
+  setTimeout(resize, 100);
 </script>

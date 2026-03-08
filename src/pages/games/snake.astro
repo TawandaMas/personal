@@ -128,7 +128,6 @@ import Base from '../../layouts/Base.astro';
   }
 </style>
 
-<script>
   const canvas = document.getElementById('snake-canvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
@@ -138,7 +137,16 @@ import Base from '../../layouts/Base.astro';
   const startBtn = document.getElementById('start-btn');
 
   const GRID = 20;
-  let cellSize, snake, food, dir, nextDir, score, gameLoop, running = false;
+  let cellSize, snake, food, dir, nextDir, score;
+  let running = false;
+  let lastTime = 0;
+  let moveTimer = 0;
+  let moveInterval = 130;
+  
+  // Settings
+  let wrapWalls = false;
+  let useObstacles = false;
+  let obstacles = [];
 
   function resize() {
     const size = canvas.parentElement.clientWidth;
@@ -150,17 +158,30 @@ import Base from '../../layouts/Base.astro';
 
   function init() {
     snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
-    food = randomFood();
     dir = {x:1,y:0};
     nextDir = {x:1,y:0};
     score = 0;
     scoreEl.textContent = '0';
+    moveInterval = 130;
+    
+    obstacles = [];
+    if (useObstacles) {
+        for(let i=0; i<5; i++) obstacles.push(randomPos());
+    }
+    food = randomFood();
+  }
+
+  function randomPos() {
+      return {x:Math.floor(Math.random()*GRID), y:Math.floor(Math.random()*GRID)};
   }
 
   function randomFood() {
     let pos;
-    do { pos = {x:Math.floor(Math.random()*GRID), y:Math.floor(Math.random()*GRID)}; }
-    while (snake?.some(s => s.x===pos.x && s.y===pos.y));
+    let valid = false;
+    while (!valid) { 
+        pos = randomPos(); 
+        valid = !snake?.some(s => s.x===pos.x && s.y===pos.y) && !obstacles.some(o => o.x===pos.x && o.y===pos.y);
+    }
     return pos;
   }
 
@@ -176,11 +197,17 @@ import Base from '../../layouts/Base.astro';
       ctx.beginPath(); ctx.moveTo(i*cellSize,0); ctx.lineTo(i*cellSize,canvas.height); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0,i*cellSize); ctx.lineTo(canvas.width,i*cellSize); ctx.stroke();
     }
+    
+    // Obstacles
+    ctx.fillStyle = '#555';
+    obstacles.forEach(o => {
+        ctx.fillRect(o.x*cellSize+1, o.y*cellSize+1, cellSize-2, cellSize-2);
+    });
 
     // Food — small ink dot
     ctx.fillStyle = '#8b3a2a';
     ctx.beginPath();
-    ctx.arc(food.x*cellSize+cellSize/2, food.y*cellSize+cellSize/2, cellSize*0.28, 0, Math.PI*2);
+    ctx.arc(food.x*cellSize+cellSize/2, food.y*cellSize+cellSize/2, cellSize*0.35, 0, Math.PI*2);
     ctx.fill();
 
     // Snake
@@ -193,36 +220,103 @@ import Base from '../../layouts/Base.astro';
 
   function step() {
     dir = nextDir;
-    const head = {x: snake[0].x+dir.x, y: snake[0].y+dir.y};
-    if(head.x<0||head.x>=GRID||head.y<0||head.y>=GRID) return endGame();
+    let head = {x: snake[0].x+dir.x, y: snake[0].y+dir.y};
+    
+    if (wrapWalls) {
+        if (head.x < 0) head.x = GRID - 1;
+        if (head.x >= GRID) head.x = 0;
+        if (head.y < 0) head.y = GRID - 1;
+        if (head.y >= GRID) head.y = 0;
+    } else {
+        if(head.x<0||head.x>=GRID||head.y<0||head.y>=GRID) return endGame();
+    }
+    
     if(snake.some(s=>s.x===head.x&&s.y===head.y)) return endGame();
+    if(obstacles.some(o=>o.x===head.x&&o.y===head.y)) return endGame();
+    
     snake.unshift(head);
+    
     if(head.x===food.x&&head.y===food.y){
       score++;
       scoreEl.textContent = String(score);
       food = randomFood();
-    } else { snake.pop(); }
+      // Speed Curve: gets faster until a cap
+      if (moveInterval > 60) moveInterval -= 3;
+    } else { 
+        snake.pop(); 
+    }
     draw();
+  }
+  
+  function loop(timestamp) {
+      if (!running) return;
+      if (!lastTime) lastTime = timestamp;
+      
+      const dt = timestamp - lastTime;
+      lastTime = timestamp;
+      moveTimer += dt;
+      
+      if (moveTimer >= moveInterval) {
+          moveTimer = 0;
+          step();
+      }
+      
+      requestAnimationFrame(loop);
   }
 
   function startGame() {
     init();
     overlay.classList.add('hidden');
     running = true;
-    if(gameLoop) clearInterval(gameLoop);
-    gameLoop = setInterval(step, 130);
-    draw();
+    lastTime = 0;
+    moveTimer = 0;
+    requestAnimationFrame(loop);
   }
 
   function endGame() {
     running = false;
-    if(gameLoop) clearInterval(gameLoop);
-    gameLoop = null;
+    const mode = `${wrapWalls?'Wrap':'Solid'}-${useObstacles?'Obstacles':'Vanilla'}`;
+    const key = `snake-${mode}-best`;
+    const best = parseInt(localStorage.getItem(key) || 0);
+    let bestMsg = '';
+    
+    if (score > best) {
+        localStorage.setItem(key, score);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${best}`;
+    }
+    
     overlayTitle.textContent = `Score: ${score}`;
-    overlaySub.textContent = score > 10 ? 'Not bad.' : 'Better luck next time.';
+    overlaySub.innerHTML = (score > 10 ? 'Not bad.' : 'Better luck next time.') + bestMsg;
     startBtn.textContent = 'Play again';
     overlay.classList.remove('hidden');
   }
+
+  // Setup UI toggles
+  const overlayContent = document.querySelector('.overlay-content');
+  
+  function createToggle(label, initial, onChange) {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = "display:flex; justify-content:space-between; align-items:center; max-width: 200px; margin: 10px auto; font-family:var(--font-sans); font-size:0.85rem;";
+      const lbl = document.createElement('span'); lbl.textContent = label;
+      const btn = document.createElement('button');
+      btn.textContent = initial ? 'ON' : 'OFF';
+      btn.style.cssText = "background:var(--paper); border:1.5px solid var(--rule); padding:4px 12px; border-radius:1rem; cursor:pointer;";
+      if (initial) { btn.style.background = 'var(--ink)'; btn.style.color = 'white'; }
+      btn.onclick = () => {
+          const state = btn.textContent === 'OFF';
+          btn.textContent = state ? 'ON' : 'OFF';
+          btn.style.background = state ? 'var(--ink)' : 'var(--paper)';
+          btn.style.color = state ? 'white' : 'var(--ink)';
+          onChange(state);
+      };
+      wrap.appendChild(lbl); wrap.appendChild(btn);
+      overlayContent.insertBefore(wrap, startBtn);
+  }
+  
+  createToggle('Wrap Walls', wrapWalls, val => wrapWalls = val);
+  createToggle('Obstacles', useObstacles, val => useObstacles = val);
 
   startBtn.addEventListener('click', startGame);
 

@@ -131,7 +131,6 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
-<script>
   const COLOURS = [
     { name: 'RED', hex: '#b34a3b' },
     { name: 'BLUE', hex: '#4a6bb3' },
@@ -142,7 +141,10 @@ import Base from '../../layouts/Base.astro';
     { name: 'CYAN', hex: '#4a95b3' },
     { name: 'PINK', hex: '#b34a8b' },
     { name: 'BROWN', hex: '#7a5a4a' },
-    { name: 'GRAY', hex: '#7a7a7a' }
+    { name: 'GRAY', hex: '#7a7a7a' },
+    { name: 'TEAL', hex: '#207e80' },
+    { name: 'LIME', hex: '#8cb83f' },
+    { name: 'MAROON', hex: '#802626' },
   ];
 
   const wordEl = document.getElementById('colour-word');
@@ -161,16 +163,22 @@ import Base from '../../layouts/Base.astro';
   let currentWord = null;
   let currentInk = null;
   let timerInterval = null;
+  let roundStartTime = 0;
+  
+  let bestScore = parseInt(localStorage.getItem('colour-best') || 0);
 
   function nextRound() {
-    const wordIdx = Math.floor(Math.random() * COLOURS.length);
+    // Reveal more colors as score increases
+    const availableColors = Math.min(COLOURS.length, 4 + Math.floor(score / 5));
+    
+    const wordIdx = Math.floor(Math.random() * availableColors);
     let inkIdx;
     
     // 50% chance of matching
     if (Math.random() > 0.5) {
       inkIdx = wordIdx;
     } else {
-      do { inkIdx = Math.floor(Math.random() * COLOURS.length); } while (inkIdx === wordIdx);
+      do { inkIdx = Math.floor(Math.random() * availableColors); } while (inkIdx === wordIdx);
     }
 
     currentWord = COLOURS[wordIdx];
@@ -182,26 +190,47 @@ import Base from '../../layouts/Base.astro';
     // Pop animation
     wordEl.style.transform = 'scale(1.1)';
     setTimeout(() => { wordEl.style.transform = 'scale(1)'; }, 100);
+    
+    roundStartTime = performance.now();
   }
 
   function handleChoice(isYes) {
     if (!gameActive) return;
     
+    const reactionTime = performance.now() - roundStartTime;
     const isCorrect = (currentWord === currentInk) === isYes;
+    
     if (isCorrect) {
       score++;
+      
+      // Time bonus
+      if (reactionTime < 800) timeLeft += 1;
+      timerEl.style.color = 'var(--accent)';
+      setTimeout(() => timerEl.style.color = '', 200);
+      
     } else {
-      score = Math.max(0, score - 1);
+      // Time penalty
+      timeLeft = Math.max(0, timeLeft - 3);
+      
       // shake world
       wordEl.parentElement.animate([
         { transform: 'translateX(-10px)' },
         { transform: 'translateX(10px)' },
         { transform: 'translateX(0)' }
       ], { duration: 200 });
+      
+      timerEl.style.color = 'var(--error, #d9534f)';
+      setTimeout(() => timerEl.style.color = '', 200);
     }
     
     scoreEl.textContent = String(score);
-    nextRound();
+    timerEl.textContent = String(timeLeft);
+    
+    if (timeLeft <= 0) {
+        endGame();
+    } else {
+        nextRound();
+    }
   }
 
   function startGame() {
@@ -224,17 +253,36 @@ import Base from '../../layouts/Base.astro';
   function endGame() {
     gameActive = false;
     clearInterval(timerInterval);
+    
+    let bestMsg = '';
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('colour-best', bestScore);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${bestScore}`;
+    }
+    
     overlay.classList.remove('hidden');
     overlayTitle.textContent = `Score: ${score}`;
-    overlaySub.textContent = `A fine effort. Accuracy is key!`;
+    overlaySub.innerHTML = `A fine effort. Accuracy is key!${bestMsg}`;
     startBtn.textContent = 'Play Again';
+  }
+
+  // Inject best score into header
+  if (bestScore > 0) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.textContent = `Best: ${bestScore}`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
   }
 
   startBtn.addEventListener('click', startGame);
   btnYes.addEventListener('click', () => handleChoice(true));
   btnNo.addEventListener('click', () => handleChoice(false));
 
-  // Keyboard support
+  // Keyboard support with touch compatibility disabled to prevent double taps when pressing buttons
   window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') handleChoice(false);
     if (e.key === 'ArrowRight') handleChoice(true);

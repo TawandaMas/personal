@@ -65,7 +65,6 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
-<script>
   const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3904a', '#7a4ab3'];
   const canvas = document.getElementById('bubble-canvas');
   const ctx = canvas.getContext('2d');
@@ -77,6 +76,18 @@ import Base from '../../layouts/Base.astro';
   const ROWS = 9;
   let R, grid, shooter, score, gameActive, animFrame;
   let nextColor;
+  
+  let bestScore = parseInt(localStorage.getItem('bubbles-best') || 0);
+  
+  // Aiming logic
+  let pointerX = 0;
+  let pointerY = 0;
+  let isPointerDown = false;
+  
+  // Ceiling mechanics
+  let ceilingOffset = 0;
+  let shotsFired = 0;
+  let dropThreshold = 5; // Drop ceiling every N shots
 
   function resize() {
     const wrap = canvas.parentElement;
@@ -95,11 +106,14 @@ import Base from '../../layouts/Base.astro';
     return (col + 0.5 + (row % 2) * 0.5) * R * 2;
   }
   function hexY(row) {
-    return row * R * 1.7 + R;
+    return row * R * 1.7 + R + ceilingOffset;
   }
 
   function initGame() {
     grid = [];
+    ceilingOffset = 0;
+    shotsFired = 0;
+    
     for (let row = 0; row < 6; row++) {
       const cols = COLS - (row % 2 === 1 ? 1 : 0);
       for (let col = 0; col < cols; col++) {
@@ -127,18 +141,61 @@ import Base from '../../layouts/Base.astro';
     ctx.fill();
   }
 
+  function drawAimLine() {
+      if (!isPointerDown || shooter || !gameActive) return;
+      const bx = canvas.width / 2;
+      const by = canvas.height - R;
+      
+      const angle = Math.atan2(pointerY - by, pointerX - bx);
+      if (Math.sin(angle) > -0.1) return; // Don't aim downwards
+      
+      ctx.strokeStyle = nextColor;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 8]);
+      
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      
+      // Calculate basic bounce
+      let endX = bx + Math.cos(angle) * 1000;
+      let endY = by + Math.sin(angle) * 1000;
+      
+      // Simplistic wall bounce preview
+      if (endX < 0) {
+          const m = (endY - by) / (endX - bx);
+          const bounceY = by + m * (0 - bx);
+          ctx.lineTo(0, bounceY);
+          ctx.moveTo(0, bounceY);
+          endX = canvas.width;
+          endY = bounceY + (-m) * canvas.width;
+      } else if (endX > canvas.width) {
+          const m = (endY - by) / (endX - bx);
+          const bounceY = by + m * (canvas.width - bx);
+          ctx.lineTo(canvas.width, bounceY);
+          ctx.moveTo(canvas.width, bounceY);
+          endX = 0;
+          endY = bounceY + (-m) * (-canvas.width);
+      }
+      
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+  }
+
   function draw() {
     ctx.fillStyle = '#e8e0d0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw guide line
-    ctx.strokeStyle = 'rgba(139,58,42,0.15)';
-    ctx.setLineDash([4, 8]);
+    // Ceiling drop warning area
+    ctx.fillStyle = 'rgba(139,58,42,0.1)';
+    ctx.fillRect(0, 0, canvas.width, ceilingOffset);
+    ctx.strokeStyle = 'rgba(139,58,42,0.5)';
     ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, canvas.height - R * 2);
-    ctx.lineTo(canvas.width / 2, canvas.height / 2);
+    ctx.moveTo(0, ceilingOffset);
+    ctx.lineTo(canvas.width, ceilingOffset);
     ctx.stroke();
-    ctx.setLineDash([]);
+
+    drawAimLine();
 
     grid.forEach(b => drawBubble(b.x, b.y, b.color));
 
@@ -152,9 +209,13 @@ import Base from '../../layouts/Base.astro';
 
   function snapToGrid(x, y) {
     let bestRow = -1, bestCol = -1, bestDist = Infinity;
-    for (let row = 0; row < ROWS; row++) {
+    // Search a bit deeper to accommodate dropped ceiling
+    for (let row = 0; row < ROWS + Math.floor(ceilingOffset / R); row++) {
       const cols = COLS - (row % 2 === 1 ? 1 : 0);
       for (let col = 0; col < cols; col++) {
+        // Skip if there's already a bubble here
+        if (grid.some(b => b.row === row && b.col === col)) continue;
+        
         const gx = hexX(col, row), gy = hexY(row);
         const d = Math.hypot(x - gx, y - gy);
         if (d < bestDist) { bestDist = d; bestRow = row; bestCol = col; }
@@ -175,7 +236,7 @@ import Base from '../../layouts/Base.astro';
     for (const b of grid) {
       if (Math.hypot(shooter.x - b.x, shooter.y - b.y) < R * 1.9) { hit = true; break; }
     }
-    if (shooter.y < R * 1.5) hit = true;
+    if (shooter.y < ceilingOffset + R) hit = true;
 
     if (hit) {
       const snap = snapToGrid(shooter.x, shooter.y);
@@ -184,39 +245,119 @@ import Base from '../../layouts/Base.astro';
         x: hexX(snap.col, snap.row), y: hexY(snap.row),
         color: shooter.color
       };
-      grid.push(newBubble);
+      
+      // Failsafe if grid is full
+      if (snap.row !== -1) grid.push(newBubble);
+      
       shooter = null;
-      popMatches(newBubble);
+      shotsFired++;
+      
+      const popped = popMatches(newBubble);
+      
+      if (!popped && shotsFired % dropThreshold === 0) {
+          dropCeiling();
+      }
+      
       nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
       checkGameOver();
+      
+      if (!gameActive) return; // Prevent draw/update cycle if over
     }
 
     draw();
-    if (gameActive) animFrame = requestAnimationFrame(update);
+    if (gameActive && shooter) animFrame = requestAnimationFrame(update);
+  }
+
+  function getNeighbors(curr) {
+      return grid.filter(b => {
+          if (b === curr) return false;
+          // Check physical distance because row/col logical adjacencies depend on odd/even row logic
+          return Math.hypot(b.x - curr.x, b.y - curr.y) < R * 2.2;
+      });
   }
 
   function popMatches(start) {
+    if (!start || start.row === -1) return false;
+
+    // 1. Find matching colors
     const visited = new Set();
-    const stack = [start];
     const matches = [];
+    const stack = [start];
+    
     while (stack.length) {
       const curr = stack.pop();
       const key = `${curr.row},${curr.col}`;
       if (visited.has(key)) continue;
       visited.add(key);
-      if (curr.color !== start.color) continue;
-      matches.push(curr);
-      grid.forEach(b => {
-        if (!visited.has(`${b.row},${b.col}`) && Math.hypot(b.x - curr.x, b.y - curr.y) < R * 2.2) {
-          stack.push(b);
-        }
-      });
+      
+      if (curr.color === start.color) {
+          matches.push(curr);
+          const neighbors = getNeighbors(curr);
+          neighbors.forEach(n => {
+              if (!visited.has(`${n.row},${n.col}`)) stack.push(n);
+          });
+      }
     }
+
+    let popped = false;
     if (matches.length >= 3) {
       grid = grid.filter(b => !matches.includes(b));
       score += matches.length * 10;
       scoreEl.textContent = String(score);
+      popped = true;
+      
+      // 2. Remove orphaned bubbles (not connected to ceiling)
+      removeOrphans();
     }
+    return popped;
+  }
+
+  function removeOrphans() {
+      const connected = new Set();
+      const stack = grid.filter(b => b.y <= ceilingOffset + R * 1.5); // Top row bubbles
+      
+      while (stack.length > 0) {
+          const curr = stack.pop();
+          const key = `${curr.row},${curr.col}`;
+          if (connected.has(key)) continue;
+          connected.add(key);
+          
+          const neighbors = getNeighbors(curr);
+          neighbors.forEach(n => {
+              if (!connected.has(`${n.row},${n.col}`)) stack.push(n);
+          });
+      }
+      
+      const orphans = grid.filter(b => !connected.has(`${b.row},${b.col}`));
+      if (orphans.length > 0) {
+          grid = grid.filter(b => connected.has(`${b.row},${b.col}`));
+          score += orphans.length * 20; // Bonus for dropping
+          scoreEl.textContent = String(score);
+      }
+  }
+
+  function dropCeiling() {
+      // Add a new row of bubbles to the top and push everything down
+      grid.forEach(b => {
+          b.row += 1;
+          b.y = hexY(b.row);
+      });
+      
+      // Determine if new row is odd or even based on offset
+      const isOdd = Math.floor(ceilingOffset / (R*1.7)) % 2 === 1;
+      const cols = COLS - (isOdd ? 1 : 0);
+      
+      for (let col = 0; col < cols; col++) {
+          grid.push({ 
+              row: 0, 
+              col, 
+              x: hexX(col, 0), 
+              y: hexY(0), 
+              color: COLORS[Math.floor(Math.random() * 4)] 
+          });
+      }
+      // Push actual drawing boundary down as visual feedback
+      ceilingOffset += 5;
   }
 
   function checkGameOver() {
@@ -229,7 +370,11 @@ import Base from '../../layouts/Base.astro';
     if (!gameActive || shooter) return;
     const bx = canvas.width / 2, by = canvas.height - R;
     const angle = Math.atan2(ey - by, ex - bx);
-    const speed = 10;
+    
+    // Prevent shooting downwards
+    if (Math.sin(angle) > -0.1) return;
+    
+    const speed = 12;
     shooter = {
       x: bx, y: by,
       vx: Math.cos(angle) * speed,
@@ -249,12 +394,58 @@ import Base from '../../layouts/Base.astro';
     }
     return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
   }
+  
+  function handlePointerMove(e) {
+      if (!isPointerDown) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      pointerX = pos.x;
+      pointerY = pos.y;
+      if (!shooter && gameActive) draw();
+  }
+  
+  function handlePointerDown(e) {
+      if (!gameActive) return;
+      isPointerDown = true;
+      const pos = getPos(e);
+      pointerX = pos.x;
+      pointerY = pos.y;
+      if (!shooter) draw();
+  }
+  
+  function handlePointerUp(e) {
+      if (!isPointerDown || !gameActive) return;
+      isPointerDown = false;
+      const pos = getPos(e);
+      fire(pos.x, pos.y);
+  }
 
   function endGame() {
     gameActive = false;
+    cancelAnimationFrame(animFrame);
+    
+    let bestMsg = '';
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('bubbles-best', bestScore);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${bestScore}`;
+    }
+    
     overlay.classList.remove('hidden');
     document.getElementById('overlay-title').textContent = `Score: ${score}`;
+    document.getElementById('overlay-sub').innerHTML = 'Game over!' + bestMsg;
     startBtn.textContent = 'Play Again';
+  }
+
+  // Inject best score into header
+  if (bestScore > 0) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.textContent = `Best: ${bestScore}`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
   }
 
   startBtn.addEventListener('click', () => {
@@ -264,16 +455,13 @@ import Base from '../../layouts/Base.astro';
     draw();
   });
 
-  canvas.addEventListener('click', e => {
-    e.preventDefault();
-    const pos = getPos(e);
-    fire(pos.x, pos.y);
-  });
-  canvas.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const pos = getPos(e);
-    fire(pos.x, pos.y);
-  }, { passive: false });
+  canvas.addEventListener('mousedown', handlePointerDown);
+  window.addEventListener('mousemove', handlePointerMove);
+  window.addEventListener('mouseup', handlePointerUp);
+  
+  canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
+  window.addEventListener('touchmove', handlePointerMove, { passive: false });
+  window.addEventListener('touchend', handlePointerUp);
 
   window.addEventListener('resize', resize);
   resize();

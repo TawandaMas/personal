@@ -125,10 +125,36 @@ import Base from '../../layouts/Base.astro';
   let foundWords = [];
   let selection = [];
 
-  function initGame() {
-    targetWords = WORD_SETS[Math.floor(Math.random() * WORD_SETS.length)];
+  async function initGame() {
     foundWords = [];
     foundEl.textContent = '0';
+    totalEl.textContent = '...';
+    gridEl.innerHTML = '<div style="color:var(--ink-light); grid-column: span 10; text-align: center; margin-top: 50%;">Generating...</div>';
+    listEl.innerHTML = '';
+    targetWords = [];
+
+    try {
+        // Fetch random words of varying lengths (4 to 8 letters max to fit in 10x10)
+        const res = await fetch(`https://api.datamuse.com/words?sp=??????&md=f&max=100`);
+        const data = await res.json();
+        const res2 = await fetch(`https://api.datamuse.com/words?sp=????&md=f&max=100`);
+        const data2 = await res2.json();
+        
+        let allWords = [...(data||[]), ...(data2||[])]
+            .filter(w => !w.word.includes(' ') && !w.word.includes('-') && w.word.length <= 8 && parseFloat(w.tags?.[0]?.replace('f:','') || 0) > 1)
+            .map(w => w.word.toUpperCase());
+            
+        // Shuffle and pick 6 unique
+        allWords.sort(() => Math.random() - 0.5);
+        targetWords = [...new Set(allWords)].slice(0, 6);
+    } catch (e) {
+        console.error("API failed, using fallback:", e);
+    }
+
+    if (targetWords.length < 6) {
+        targetWords = WORD_SETS[Math.floor(Math.random() * WORD_SETS.length)];
+    }
+
     totalEl.textContent = String(targetWords.length);
     
     // Create empty grid
@@ -137,7 +163,9 @@ import Base from '../../layouts/Base.astro';
     // Place words
     targetWords.forEach(word => {
         let placed = false;
-        while (!placed) {
+        let attempts = 0;
+        while (!placed && attempts < 100) {
+            attempts++;
             const dir = Math.random() > 0.5 ? 'H' : 'V';
             const r = Math.floor(Math.random() * 10);
             const c = Math.floor(Math.random() * 10);
@@ -148,6 +176,11 @@ import Base from '../../layouts/Base.astro';
                 }
                 placed = true;
             }
+        }
+        // If it failed to place after 100 tries (unlikely but possible), remove it from targets to prevent hanging
+        if (!placed) {
+            targetWords = targetWords.filter(w => w !== word);
+            totalEl.textContent = String(targetWords.length);
         }
     });
 

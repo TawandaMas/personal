@@ -59,7 +59,6 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
-<script>
   const canvas = document.getElementById('catch-canvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
@@ -68,6 +67,11 @@ import Base from '../../layouts/Base.astro';
   const startBtn = document.getElementById('start-btn');
 
   let basket, items, score, lives, gameLoop, running = false, speed = 2;
+  let wind = 0;
+  let targetWind = 0;
+  let lastTime = 0;
+  let bestScore = parseInt(localStorage.getItem('catch-best') || 0);
+
   const BASKET_W = 100, BASKET_H = 14, ITEM_R = 8;
 
   function resize() {
@@ -106,17 +110,40 @@ import Base from '../../layouts/Base.astro';
     score = 0;
     lives = 3;
     speed = 2;
+    wind = 0;
+    targetWind = 0;
+    lastTime = 0;
     scoreEl.textContent = '0';
     livesEl.textContent = '3';
   }
 
   function spawnItem() {
-    const isBad = Math.random() < 0.2;
+    const rnd = Math.random();
+    let type = 'good';
+    let r = ITEM_R;
+    let color = '#1c1814';
+    let weight = 1;
+
+    if (rnd < 0.05) {
+        type = 'gold';
+        r = ITEM_R * 1.2;
+        color = '#d4af37';
+        weight = 1.2;
+    } else if (rnd < 0.15) {
+        type = 'heavy-bad';
+        r = ITEM_R * 1.5;
+        color = '#6a2a1e';
+        weight = 2; // Falls faster, less affected by wind
+    } else if (rnd < 0.3) {
+        type = 'bad';
+        r = ITEM_R;
+        color = '#b34a3b';
+        weight = 1;
+    }
+
     items.push({
-      x: Math.max(ITEM_R, Math.min(canvas.width - ITEM_R, Math.random() * canvas.width)),
-      y: -ITEM_R, r: isBad ? 10 : ITEM_R,
-      bad: isBad,
-      color: isBad ? '#b34a3b' : '#1c1814'
+      x: Math.max(r, Math.min(canvas.width - r, Math.random() * canvas.width)),
+      y: -r, r, type, color, weight
     });
   }
 
@@ -124,58 +151,101 @@ import Base from '../../layouts/Base.astro';
     ctx.fillStyle = '#e8e0d0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Wind indicator
+    if (Math.abs(wind) > 0.5) {
+        ctx.fillStyle = 'rgba(180, 165, 140, 0.2)';
+        for (let i = 0; i < 5; i++) {
+            const wx = (Date.now() / 10 * wind + i * 100) % canvas.width;
+            ctx.fillRect(wx < 0 ? canvas.width + wx : wx, 100 + i * 50, 40, 2);
+        }
+    }
+
     items.forEach(item => {
       ctx.fillStyle = item.color;
       ctx.beginPath();
       ctx.arc(item.x, item.y, item.r, 0, Math.PI * 2);
       ctx.fill();
-      if (!item.bad) {
-        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      
+      // Highlight for good / gold
+      if (item.type === 'good' || item.type === 'gold') {
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
         ctx.beginPath();
         ctx.arc(item.x - item.r * 0.3, item.y - item.r * 0.3, item.r * 0.35, 0, Math.PI * 2);
         ctx.fill();
+      }
+      
+      // Star shape inside gold
+      if (item.type === 'gold') {
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
+          ctx.font = '10px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('+', item.x, item.y);
       }
     });
 
     drawBasket();
   }
 
-  function update() {
+  function loop(timestamp) {
     if (!running) return;
-    speed += 0.0005;
+    if (!lastTime) lastTime = timestamp;
+    const dt = timestamp - lastTime;
+    lastTime = timestamp;
+
+    // Slowly adjust wind
+    if (Math.random() < 0.01) {
+        targetWind = (Math.random() - 0.5) * 6; // -3 to 3 horizontal shift
+    }
+    wind += (targetWind - wind) * 0.01;
+
+    speed += 0.0002;
     if (Math.random() < 0.015 + score * 0.0002) spawnItem();
 
-    items = items.filter(item => {
-      item.y += speed;
+    let nextItems = [];
+    
+    for (const item of items) {
+      // Apply gravity & wind based on weight
+      item.y += speed * (item.weight === 2 ? 1.5 : 1);
+      item.x += wind / item.weight;
+      
+      // Bounce off walls
+      if (item.x - item.r < 0) { item.x = item.r; item.x += Math.abs(wind)/item.weight; }
+      if (item.x + item.r > canvas.width) { item.x = canvas.width - item.r; item.x -= Math.abs(wind)/item.weight; }
+
       const basketY = canvas.height - 40;
       const caught = item.y + item.r >= basketY && item.y - item.r < basketY + BASKET_H &&
                      item.x + item.r > basket.x - 10 && item.x - item.r < basket.x + BASKET_W + 10;
       const missed = item.y - item.r > canvas.height;
 
       if (caught) {
-        if (item.bad) {
-          lives = Math.max(0, lives - 1);
+        if (item.type === 'bad' || item.type === 'heavy-bad') {
+          lives = Math.max(0, lives - (item.type === 'heavy-bad' ? 2 : 1));
           livesEl.textContent = String(lives);
-          if (lives <= 0) { endGame(); return false; }
+          if (lives <= 0) return endGame();
+        } else if (item.type === 'gold') {
+          score += 5;
+          if (lives < 5) lives++; // max 5 lives
+          livesEl.textContent = String(lives);
+          scoreEl.textContent = String(score);
         } else {
           score++;
           scoreEl.textContent = String(score);
         }
-        return false;
-      }
-      if (missed) {
-        if (!item.bad) {
+      } else if (missed) {
+        if (item.type === 'good' || item.type === 'gold') {
           lives = Math.max(0, lives - 1);
           livesEl.textContent = String(lives);
-          if (lives <= 0) { endGame(); return false; }
+          if (lives <= 0) return endGame();
         }
-        return false;
+      } else {
+        nextItems.push(item);
       }
-      return true;
-    });
+    }
+    items = nextItems;
 
     draw();
-    gameLoop = requestAnimationFrame(update);
+    gameLoop = requestAnimationFrame(loop);
   }
 
   function getX(e) {
@@ -196,22 +266,41 @@ import Base from '../../layouts/Base.astro';
     running = true;
     overlay.classList.add('hidden');
     init();
-    update();
+    gameLoop = requestAnimationFrame(loop);
   }
 
   function endGame() {
     running = false;
     cancelAnimationFrame(gameLoop);
+    
+    let bestMsg = '';
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('catch-best', bestScore);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${bestScore}`;
+    }
+    
     overlay.classList.remove('hidden');
     document.getElementById('overlay-title').textContent = `Score: ${score}`;
-    document.getElementById('overlay-sub').textContent = lives <= 0 ? 'No lives left. Try again!' : 'Game over!';
+    document.getElementById('overlay-sub').innerHTML = (lives <= 0 ? 'No lives left. Try again!' : 'Game over!') + bestMsg;
     startBtn.textContent = 'Play Again';
   }
 
+  // Header display max
+  if (bestScore > 0) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.textContent = `Best: ${bestScore}`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
+  }
+
   startBtn.addEventListener('click', startGame);
-  window.addEventListener('mousemove', moveBasket);
-  canvas.addEventListener('touchmove', moveBasket, { passive: false });
-  canvas.addEventListener('touchstart', moveBasket, { passive: false });
+  document.addEventListener('mousemove', moveBasket); // Document-level to prevent pointer losing canvas
+  document.addEventListener('touchmove', moveBasket, { passive: false });
+  document.addEventListener('touchstart', moveBasket, { passive: false });
   window.addEventListener('resize', resize);
   resize();
 </script>

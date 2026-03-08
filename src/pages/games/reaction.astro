@@ -121,7 +121,6 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
 </style>
 
-<script>
   const clickArea = document.getElementById('click-area');
   const statusText = document.getElementById('status-text');
   const roundEl = document.getElementById('round');
@@ -135,6 +134,8 @@ import Base from '../../layouts/Base.astro';
   let startTime = 0;
   let timer = null;
   let results = [];
+  
+  let bestAverage = parseInt(localStorage.getItem('reaction-best')) || Infinity;
 
   function startRound() {
     state = 'counting';
@@ -160,15 +161,18 @@ import Base from '../../layouts/Base.astro';
     } else if (state === 'testing') {
       const reaction = Math.round(performance.now() - startTime);
       results.push(reaction);
+      
+      clickArea.className = 'game-wrap'; // reset bg immediately
+      statusText.textContent = `${reaction}ms`;
+      state = 'waiting';
+      
       round++;
       
       if (round < 5) {
         roundEl.textContent = String(round + 1);
-        statusText.textContent = `${reaction}ms`;
-        state = 'waiting';
         setTimeout(startRound, 800);
       } else {
-        endGame();
+        setTimeout(endGame, 800);
       }
     }
   }
@@ -176,6 +180,16 @@ import Base from '../../layouts/Base.astro';
   function endGame() {
     state = 'waiting';
     const avg = Math.round(results.reduce((a, b) => a + b) / results.length);
+    
+    let bestMsg = '';
+    if (avg < bestAverage) {
+        bestAverage = avg;
+        localStorage.setItem('reaction-best', bestAverage);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else if (bestAverage !== Infinity) {
+        bestMsg = `<br/>Best: ${bestAverage}ms`;
+    }
+    
     overlay.classList.remove('hidden');
     resultTitle.textContent = `${avg}ms`;
     
@@ -183,8 +197,17 @@ import Base from '../../layouts/Base.astro';
     if (avg > 300) rank = "Keep practicing!";
     else if (avg < 200) rank = "God-like reflexes!";
     
-    resultSub.textContent = `Average reaction time over 5 rounds. ${rank}`;
+    resultSub.innerHTML = `Average reaction time over 5 rounds. ${rank}${bestMsg}`;
     startBtn.textContent = 'Try again';
+  }
+
+  // Inject best score into header
+  if (bestAverage !== Infinity) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.textContent = `Best: ${bestAverage}ms`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
   }
 
   startBtn.addEventListener('click', () => {
@@ -200,4 +223,3 @@ import Base from '../../layouts/Base.astro';
     e.preventDefault();
     handleInteraction();
   }, { passive: false });
-</script>

@@ -60,7 +60,6 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
-<script>
   const canvas = document.getElementById('flappy-canvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
@@ -71,6 +70,17 @@ import Base from '../../layouts/Base.astro';
 
   let bird, pipes, score, gameLoop, running = false;
   let GRAVITY, FLAP, PIPE_W, GAP, PIPE_SPEED;
+  
+  let bestScore = parseInt(localStorage.getItem('flappy-best') || 0);
+
+  // Day/Night colors based on score
+  const THEMES = [
+      { bg: '#e8e0d0', ground: '#c8bca8', pipeTop: '#4a6b4a', pipeLip: '#3a5a3a' }, // Day
+      { bg: '#d0b0a0', ground: '#a89080', pipeTop: '#4a3a30', pipeLip: '#2a1a10' }, // Dusk
+      { bg: '#2a3b4c', ground: '#1a2b3c', pipeTop: '#2a5b6c', pipeLip: '#1a4b5c' }, // Night
+      { bg: '#100820', ground: '#050210', pipeTop: '#6a1b9a', pipeLip: '#4a148c' }  // Deep Space
+  ];
+  let currentThemeIdx = 0;
 
   function resize() {
     const wrap = canvas.parentElement;
@@ -84,11 +94,18 @@ import Base from '../../layouts/Base.astro';
     if (!running) { drawBg(); drawBird(); }
   }
 
+  function getTheme() {
+      // Advance theme every 10 points, maxing out at Deep Space
+      const targetIdx = Math.min(Math.floor(score / 10), THEMES.length - 1);
+      return THEMES[targetIdx];
+  }
+
   function drawBg() {
-    ctx.fillStyle = '#e8e0d0';
+    const theme = getTheme();
+    ctx.fillStyle = theme.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // Ground line
-    ctx.fillStyle = '#c8bca8';
+    ctx.fillStyle = theme.ground;
     ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
   }
 
@@ -125,7 +142,7 @@ import Base from '../../layouts/Base.astro';
     ctx.fill();
 
     // Beak
-    ctx.fillStyle = '#b37a4a';
+    ctx.fillStyle = score > 20 ? '#d4af37' : '#b37a4a'; // Gold beak at high scores
     ctx.beginPath();
     ctx.moveTo(r * 0.9, 0);
     ctx.lineTo(r * 1.4, r * 0.15);
@@ -140,39 +157,59 @@ import Base from '../../layouts/Base.astro';
     pipes = [];
     score = 0;
     scoreEl.textContent = '0';
+    GAP = canvas.height * 0.28; // reset gap
+    PIPE_SPEED = canvas.width * 0.006;
   }
 
   function spawnPipe() {
+    // Gap decreases by 1% per point, down to a minimum of 20% height
+    const dynamicGap = Math.max(canvas.height * 0.20, GAP - (canvas.height * 0.003 * score));
     const minH = canvas.height * 0.1;
-    const maxH = canvas.height - GAP - minH - 20;
-    const h = minH + Math.random() * (maxH - minH);
-    pipes.push({ x: canvas.width, h });
+    const maxH = canvas.height - dynamicGap - minH - 20;
+    
+    // As score increases, allow wilder swings in pipe height difference from previous
+    let h;
+    if (pipes.length > 0 && score < 15) {
+        // Restrict delta early on
+        const lastH = pipes[pipes.length-1].h;
+        const maxDelta = canvas.height * 0.3;
+        const minBound = Math.max(minH, lastH - maxDelta);
+        const maxBound = Math.min(maxH, lastH + maxDelta);
+        h = minBound + Math.random() * (maxBound - minBound);
+    } else {
+        // Totally random later
+        h = minH + Math.random() * (maxH - minH);
+    }
+    
+    pipes.push({ x: canvas.width, h, gap: dynamicGap, passed: false });
   }
 
   function draw() {
     drawBg();
+    const theme = getTheme();
 
     // Pipes
     pipes.forEach(p => {
-      ctx.fillStyle = '#4a6b4a';
+      ctx.fillStyle = theme.pipeTop;
       // Top pipe
       ctx.fillRect(p.x, 0, PIPE_W, p.h);
-      ctx.fillStyle = '#3a5a3a';
+      ctx.fillStyle = theme.pipeLip;
       ctx.fillRect(p.x - 4, p.h - 20, PIPE_W + 8, 20);
+      
       // Bottom pipe
-      ctx.fillStyle = '#4a6b4a';
-      ctx.fillRect(p.x, p.h + GAP, PIPE_W, canvas.height - p.h - GAP);
-      ctx.fillStyle = '#3a5a3a';
-      ctx.fillRect(p.x - 4, p.h + GAP, PIPE_W + 8, 20);
+      ctx.fillStyle = theme.pipeTop;
+      ctx.fillRect(p.x, p.h + p.gap, PIPE_W, canvas.height - p.h - p.gap);
+      ctx.fillStyle = theme.pipeLip;
+      ctx.fillRect(p.x - 4, p.h + p.gap, PIPE_W + 8, 20);
     });
 
     drawBird();
 
     // Score on canvas
-    ctx.fillStyle = '#1c1814';
+    ctx.fillStyle = getTheme() === THEMES[0] ? '#1c1814' : 'rgba(255,255,255,0.8)';
     ctx.font = `bold ${canvas.width * 0.08}px sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText(score, canvas.width / 2, canvas.height * 0.1);
+    ctx.fillText(score, canvas.width / 2, canvas.height * 0.15);
   }
 
   function update() {
@@ -183,18 +220,28 @@ import Base from '../../layouts/Base.astro';
 
     for (const p of pipes) {
       p.x -= PIPE_SPEED;
+      
+      // Collision
       if (bird.x + bird.r > p.x && bird.x - bird.r < p.x + PIPE_W) {
-        if (bird.y - bird.r < p.h || bird.y + bird.r > p.h + GAP) return endGame();
+        if (bird.y - bird.r < p.h || bird.y + bird.r > p.h + p.gap) return endGame();
       }
-      if (Math.abs(p.x + PIPE_W / 2 - bird.x) < 2) {
+      
+      // Scoring (only once per pipe)
+      if (!p.passed && p.x + PIPE_W < bird.x - bird.r) {
         score++;
+        p.passed = true;
         scoreEl.textContent = String(score);
-        PIPE_SPEED = canvas.width * 0.006 + score * 0.0003 * canvas.width;
+        PIPE_SPEED = canvas.width * 0.006 + score * 0.00015 * canvas.width;
       }
     }
 
     pipes = pipes.filter(p => p.x + PIPE_W > 0);
-    if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - canvas.width * 0.55) spawnPipe();
+    
+    // Spawn logic based on speed so they don't overlap or space too far
+    const lastPipe = pipes[pipes.length - 1];
+    if (!lastPipe || lastPipe.x < canvas.width - canvas.width * 0.55 - (score * 2)) {
+        spawnPipe();
+    }
 
     draw();
     gameLoop = requestAnimationFrame(update);
@@ -216,10 +263,29 @@ import Base from '../../layouts/Base.astro';
   function endGame() {
     running = false;
     cancelAnimationFrame(gameLoop);
+    
+    let bestMsg = '';
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('flappy-best', bestScore);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${bestScore}`;
+    }
+    
     overlay.classList.remove('hidden');
     overlayTitle.textContent = `Score: ${score}`;
-    overlaySub.textContent = score >= 5 ? 'Decent flying!' : 'Watch those pipes!';
+    overlaySub.innerHTML = (score >= 5 ? 'Decent flying!' : 'Watch those pipes!') + bestMsg;
     startBtn.textContent = 'Try Again';
+  }
+
+  // Header display max
+  if (bestScore > 0) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.textContent = `Best: ${bestScore}`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
   }
 
   startBtn.addEventListener('click', startGame);

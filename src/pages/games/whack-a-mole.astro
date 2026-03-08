@@ -78,11 +78,24 @@ import Base from '../../layouts/Base.astro';
     height: 80%;
     background: #8b3a2a; /* var(--accent) */
     border-radius: 50% 50% 0 0;
-    transition: top 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: top 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.15s;
     cursor: pointer;
   }
+  
+  .mole[data-type="decoy"] {
+      background: #4a5b6c; /* Cool blue/gray for decoys */
+  }
+  
+  .mole[data-type="decoy"]::after {
+      content: '';
+      position: absolute;
+      top: -10%; left: 20%; right: 20%; height: 20%;
+      background: inherit;
+      clip-path: polygon(10% 100%, 25% 0, 40% 100%, 55% 0, 70% 100%, 85% 0, 100% 100%);
+  }
+
   .mole.up { top: 20%; }
-  .mole.whacked { background: #1c1814; }
+  .mole.whacked { background: #1c1814 !important; }
 
   .overlay {
     position: absolute;
@@ -115,7 +128,6 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-<script>
   const holes = document.querySelectorAll('.hole');
   const scoreEl = document.getElementById('score');
   const timerEl = document.getElementById('timer');
@@ -129,6 +141,8 @@ import Base from '../../layouts/Base.astro';
   let lastHole;
   let gameActive = false;
   let timerInterval;
+  
+  let bestScore = parseInt(localStorage.getItem('whack-best') || 0);
 
   function randomTime(min, max) { return Math.round(Math.random() * (max - min) + min); }
   function randomHole(holes) {
@@ -140,11 +154,31 @@ import Base from '../../layouts/Base.astro';
   }
 
   function peep() {
-    const time = randomTime(600, 1000);
+    // Speed increases as score increases
+    const speedMultiplier = Math.max(0.4, 1 - (score * 0.02));
+    const minTime = 400 * speedMultiplier;
+    const maxTime = 1000 * speedMultiplier;
+    const time = randomTime(minTime, maxTime);
+    
     const hole = randomHole(holes);
     const mole = hole.querySelector('.mole');
+    
+    // 20% chance for a decoy (creates negative score if hit)
+    const isDecoy = Math.random() < 0.2;
+    mole.dataset.type = isDecoy ? 'decoy' : 'normal';
+    
     mole.classList.remove('whacked');
     mole.classList.add('up');
+    
+    // Sometimes pop up two moles if score is high
+    if (score > 10 && Math.random() < 0.3) {
+        const h2 = randomHole(holes);
+        const m2 = h2.querySelector('.mole');
+        m2.dataset.type = Math.random() < 0.3 ? 'decoy' : 'normal';
+        m2.classList.remove('whacked');
+        m2.classList.add('up');
+        setTimeout(() => { m2.classList.remove('up'); }, time * 1.2);
+    }
     
     setTimeout(() => {
         mole.classList.remove('up');
@@ -154,9 +188,18 @@ import Base from '../../layouts/Base.astro';
 
   function whack(e) {
     if (!e.isTrusted || !this.classList.contains('up')) return;
-    score++;
+    
     this.classList.remove('up');
     this.classList.add('whacked');
+    
+    if (this.dataset.type === 'decoy') {
+        score = Math.max(0, score - 3);
+        scoreEl.style.color = 'var(--error, #d9534f)';
+        setTimeout(() => scoreEl.style.color = 'var(--accent)', 300);
+    } else {
+        score++;
+    }
+    
     scoreEl.textContent = String(score);
   }
 
@@ -180,10 +223,29 @@ import Base from '../../layouts/Base.astro';
   function endGame() {
     gameActive = false;
     clearInterval(timerInterval);
+    
+    let bestMsg = '';
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('whack-best', bestScore);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${bestScore}`;
+    }
+    
     overlay.classList.remove('hidden');
     overlayTitle.textContent = `Score: ${score}`;
-    overlaySub.textContent = "Great reflexes! Those moles didn't stand a chance.";
+    overlaySub.innerHTML = (score > 15 ? "Great reflexes!" : "Too slow!") + bestMsg;
     startBtn.textContent = 'Play Again';
+  }
+
+  // Inject best score into header
+  if (bestScore > 0) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.textContent = `Best: ${bestScore}`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
   }
 
   document.querySelectorAll('.mole').forEach(mole => {

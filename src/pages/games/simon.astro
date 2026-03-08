@@ -101,27 +101,38 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-<script>
   const btns = document.querySelectorAll('.simon-btn');
   const scoreEl = document.getElementById('score');
   const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlaySub = document.getElementById('overlay-sub');
   const startBtn = document.getElementById('start-btn');
 
   let sequence = [];
   let userSequence = [];
   let gameActive = false;
   let showingSequence = false;
+  
+  let bestScore = parseInt(localStorage.getItem('simon-best') || 0);
 
-  function flash(btn) {
+  function flash(btn, duration = 400) {
+    // Play sound here if adding audio later
     btn.classList.add('active');
-    setTimeout(() => btn.classList.remove('active'), 400);
+    setTimeout(() => btn.classList.remove('active'), duration);
   }
 
   async function showSequence() {
     showingSequence = true;
+    
+    // Dynamic speed based on round
+    const baseDelay = 600;
+    const speedMultiplier = Math.max(0.4, 1 - (sequence.length * 0.03));
+    const delay = baseDelay * speedMultiplier;
+    const flashDur = 400 * speedMultiplier;
+
     for (let colorIdx of sequence) {
-        await new Promise(r => setTimeout(r, 600));
-        flash(btns[colorIdx]);
+        await new Promise(r => setTimeout(r, delay));
+        flash(btns[colorIdx], flashDur);
     }
     showingSequence = false;
   }
@@ -130,19 +141,22 @@ import Base from '../../layouts/Base.astro';
     sequence.push(Math.floor(Math.random() * 4));
     userSequence = [];
     scoreEl.textContent = String(sequence.length);
-    showSequence();
+    setTimeout(showSequence, 500); // Small pause before starting next sequence
   }
 
-  function handleTap(idx) {
+  function handleTap(e, idx) {
     if (!gameActive || showingSequence) return;
     
-    flash(btns[idx]);
+    // Simple tactile feedback simulation (since no audio yet)
+    flash(btns[idx], 200);
     userSequence.push(idx);
 
-    if (userSequence[userSequence.length - 1] !== sequence[userSequence.length - 1]) return endGame();
+    if (userSequence.length > 0 && userSequence[userSequence.length - 1] !== sequence[userSequence.length - 1]) {
+        return endGame();
+    }
 
     if (userSequence.length === sequence.length) {
-        setTimeout(nextRound, 1000);
+        setTimeout(nextRound, 800);
     }
   }
 
@@ -155,12 +169,39 @@ import Base from '../../layouts/Base.astro';
 
   function endGame() {
     gameActive = false;
+    
+    let bestMsg = '';
+    const roundReached = sequence.length;
+    
+    if (roundReached > bestScore) {
+        bestScore = roundReached;
+        localStorage.setItem('simon-best', bestScore);
+        bestMsg = `<br/><span style="color:var(--accent);">New Best!</span>`;
+    } else {
+        bestMsg = `<br/>Best: ${bestScore}`;
+    }
+    
     overlay.classList.remove('hidden');
-    document.getElementById('overlay-title').textContent = `Round: ${sequence.length}`;
-    document.getElementById('overlay-sub').textContent = "Don't blink! The sequence was getting tricky.";
+    overlayTitle.textContent = `Round: ${roundReached}`;
+    overlaySub.innerHTML = "Don't blink! The sequence was getting tricky." + bestMsg;
     startBtn.textContent = 'Play Again';
   }
 
-  btns.forEach((btn, i) => btn.addEventListener('click', () => handleTap(i)));
+  // Inject best score into header
+  if (bestScore > 0) {
+      const bestDiv = document.createElement('div');
+      bestDiv.style.fontSize = '0.75rem';
+      bestDiv.style.color = 'var(--ink-light)';
+      bestDiv.textContent = `Best: Round ${bestScore}`;
+      document.querySelector('.score-wrap').appendChild(bestDiv);
+  }
+
+  btns.forEach((btn, i) => {
+      // Use pointerdown for responsive tactile feel
+      btn.addEventListener('pointerdown', (e) => {
+          e.preventDefault(); // Prevent double firing from touch
+          handleTap(e, i);
+      });
+  });
+  
   startBtn.addEventListener('click', startGame);
-</script>

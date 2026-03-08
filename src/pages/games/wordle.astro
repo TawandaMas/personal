@@ -144,6 +144,13 @@ import Base from '../../layouts/Base.astro';
     'BRAIN', 'HEART', 'BLOOD', 'BONE', 'FLESH', 'SMILE', 'FROWN', 'LAUGH', 'TEARS', 'SWEAT',
     'CHAIR', 'TABLE', 'HOUSE', 'BRICK', 'GLASS', 'STEEL', 'WOOD', 'STONE', 'CLOTH', 'PAPER'
   ];
+  const WORDS = [
+    'BOOKS', 'IDEAS', 'PAPER', 'LOGIC', 'PIXEL', 'SPACE', 'CODES', 'STUDY', 'WRITE', 'LEARN',
+    'SOUND', 'LIGHT', 'VOICE', 'MUSIC', 'DREAM', 'NIGHT', 'STARS', 'EARTH', 'WATER', 'FLAME',
+    'APPLE', 'BREAD', 'GRAPE', 'LEMON', 'MANGO', 'MELON', 'PEACH', 'PLAIN', 'SUGAR', 'SWEET',
+    'BRAIN', 'HEART', 'BLOOD', 'BONE', 'FLESH', 'SMILE', 'FROWN', 'LAUGH', 'TEARS', 'SWEAT',
+    'CHAIR', 'TABLE', 'HOUSE', 'BRICK', 'GLASS', 'STEEL', 'WOOD', 'STONE', 'CLOTH', 'PAPER'
+  ];
   const gridEl = document.getElementById('grid');
   const kbEl = document.getElementById('keyboard');
   const attemptEl = document.getElementById('attempt');
@@ -154,12 +161,36 @@ import Base from '../../layouts/Base.astro';
   let guesses = [];
   let currentGuess = '';
   let gameActive = false;
+  let streak = 0;
 
-  function initGame() {
-    target = WORDS[Math.floor(Math.random() * WORDS.length)].toUpperCase();
+  async function initGame() {
     guesses = [];
     currentGuess = '';
     attemptEl.textContent = '1';
+    target = '';
+    
+    // Loading State
+    gridEl.innerHTML = '<div style="color:var(--ink-light); grid-column: span 5; text-align: center; margin-top: 2rem;">Fetching...</div>';
+    kbEl.innerHTML = '';
+
+    try {
+        const res = await fetch(`https://api.datamuse.com/words?sp=?????&md=f&max=300`);
+        const data = await res.json();
+        
+        if (data && data.length > 0) {
+            const valid = data.filter(w => !w.word.includes(' ') && !w.word.includes('-') && parseFloat(w.tags?.[0]?.replace('f:','') || 0) > 2);
+            if (valid.length > 0) {
+                target = valid[Math.floor(Math.random() * valid.length)].word.toUpperCase();
+            }
+        }
+    } catch (e) {
+        console.error("API failed, using fallback:", e);
+    }
+
+    if (!target) {
+        target = WORDS[Math.floor(Math.random() * WORDS.length)].toUpperCase();
+    }
+
     render();
     renderKeyboard();
   }
@@ -177,7 +208,7 @@ import Base from '../../layouts/Base.astro';
             tile.textContent = char;
             if (char) tile.classList.add('filled');
             if (i < guesses.length) {
-                const status = checkChar(char, j);
+                const status = checkChar(char, j, guesses[i]);
                 tile.classList.add(status);
             }
             row.appendChild(tile);
@@ -186,9 +217,21 @@ import Base from '../../layouts/Base.astro';
     }
   }
 
-  function checkChar(char, pos) {
+  function checkChar(char, pos, wordStr) {
     if (target[pos] === char) return 'correct';
-    if (target.includes(char)) return 'present';
+    
+    // More accurate Wordle logic handling duplicate letters
+    let targetArr = target.split('');
+    let guessArr = wordStr.split('');
+    
+    // First pass: mark corrects
+    for (let i=0; i<5; i++) {
+        if (targetArr[i] === guessArr[i]) {
+            targetArr[i] = null;
+        }
+    }
+    
+    if (targetArr.includes(char)) return 'present';
     return 'absent';
   }
 
@@ -214,7 +257,7 @@ import Base from '../../layouts/Base.astro';
             guesses.forEach(g => {
                 g.split('').forEach((c, idx) => {
                     if (c === key) {
-                        const s = checkChar(c, idx);
+                        const s = checkChar(c, idx, g);
                         if (s === 'correct') status = 'correct';
                         else if (s === 'present' && status !== 'correct') status = 'present';
                         else if (s === 'absent' && !status) status = 'absent';
@@ -231,12 +274,20 @@ import Base from '../../layouts/Base.astro';
   }
 
   function handleInput(key) {
-    if (!gameActive) return;
+    if (!gameActive || !target) return;
     if (key === 'ENTER') {
         if (currentGuess.length === 5) {
             guesses.push(currentGuess);
-            if (currentGuess === target) return endGame(true);
-            if (guesses.length === 6) return endGame(false);
+            if (currentGuess === target) {
+                streak++;
+                const bestStreak = localStorage.getItem('wordle-streak') || 0;
+                if (streak > parseInt(bestStreak)) localStorage.setItem('wordle-streak', streak);
+                return endGame(true);
+            }
+            if (guesses.length === 6) {
+                streak = 0;
+                return endGame(false);
+            }
             currentGuess = '';
             attemptEl.textContent = String(guesses.length + 1);
         }
@@ -250,6 +301,7 @@ import Base from '../../layouts/Base.astro';
   }
 
   function startGame() {
+    streak = parseInt(localStorage.getItem('wordle-current-streak') || 0);
     overlay.classList.add('hidden');
     gameActive = true;
     initGame();
@@ -257,13 +309,19 @@ import Base from '../../layouts/Base.astro';
 
   function endGame(win) {
     gameActive = false;
-    overlay.classList.remove('hidden');
-    document.getElementById('overlay-title').textContent = win ? "Genius!" : "The Word Was";
-    document.getElementById('overlay-sub').textContent = win ? `Solved in ${guesses.length} attempts.` : `${target}`;
-    startBtn.textContent = 'Play Again';
+    localStorage.setItem('wordle-current-streak', win ? streak : 0);
+    render();
+    
+    setTimeout(() => {
+        overlay.classList.remove('hidden');
+        document.getElementById('overlay-title').textContent = win ? `Streak: ${streak}!` : "The Word Was";
+        document.getElementById('overlay-sub').textContent = win ? `Solved in ${guesses.length} attempts.` : `${target}`;
+        startBtn.textContent = 'Play Again';
+    }, 1500);
   }
 
   window.addEventListener('keydown', e => {
+      if (!gameActive) return;
       let k = e.key.toUpperCase();
       if (k === 'ENTER') handleInput('ENTER');
       if (k === 'BACKSPACE') handleInput('DEL');
@@ -271,4 +329,14 @@ import Base from '../../layouts/Base.astro';
   });
 
   startBtn.addEventListener('click', startGame);
+
+  const best = localStorage.getItem('wordle-streak');
+  if (best) {
+      const hs = document.createElement('div');
+      hs.style.fontSize = '0.8rem';
+      hs.style.marginTop = '0.5rem';
+      hs.style.color = 'var(--ink-light)';
+      hs.textContent = `Best Streak: ${best}`;
+      document.querySelector('.score-wrap').appendChild(hs);
+  }
 </script>

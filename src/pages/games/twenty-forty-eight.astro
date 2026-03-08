@@ -110,21 +110,39 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-<script>
   const gridEl = document.getElementById('grid');
   const scoreEl = document.getElementById('score');
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start-btn');
+  
+  // Add Undo and Best Score UI
+  const headerWrap = document.querySelector('.score-wrap');
+  const bestEl = document.createElement('div');
+  bestEl.style.fontSize = '0.75rem';
+  bestEl.style.color = 'var(--ink-light)';
+  bestEl.textContent = `Best: ${localStorage.getItem('2048-best') || 0}`;
+  headerWrap.appendChild(bestEl);
+
+  const undoBtn = document.createElement('button');
+  undoBtn.textContent = 'Undo';
+  undoBtn.style.cssText = 'background:var(--rule); border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-family:var(--font-sans); font-size:0.75rem; color:var(--ink); margin-top:4px;';
+  undoBtn.onclick = undoMove;
+  headerWrap.appendChild(undoBtn);
 
   let board = [];
   let score = 0;
+  let history = []; // stores {board, score}
+  let bestScore = parseInt(localStorage.getItem('2048-best') || 0);
 
   function initBoard() {
     board = Array(4).fill().map(() => Array(4).fill(0));
     score = 0;
+    history = [];
     addTile();
     addTile();
     render();
+    undoBtn.disabled = true;
+    undoBtn.style.opacity = '0.5';
   }
 
   function addTile() {
@@ -154,6 +172,27 @@ import Base from '../../layouts/Base.astro';
       });
     });
     scoreEl.textContent = String(score);
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('2048-best', bestScore);
+        bestEl.textContent = `Best: ${bestScore}`;
+    }
+    undoBtn.disabled = history.length === 0;
+    undoBtn.style.opacity = history.length === 0 ? '0.5' : '1';
+  }
+
+  function saveState() {
+      history.push({ board: JSON.parse(JSON.stringify(board)), score: score });
+      if (history.length > 5) history.shift(); // keep last 5
+  }
+
+  function undoMove() {
+      if (history.length > 0) {
+          const prev = history.pop();
+          board = prev.board;
+          score = prev.score;
+          render();
+      }
   }
 
   function slide(row) {
@@ -171,28 +210,35 @@ import Base from '../../layouts/Base.astro';
 
   function move(dir) {
     let oldBoard = JSON.stringify(board);
+    saveState(); // push current before changes
+    
+    let newBoard = Array(4).fill().map(() => Array(4).fill(0));
+
     if (dir === 'left') {
-        board = board.map(row => slide(row));
+        newBoard = board.map(row => slide([...row]));
     } else if (dir === 'right') {
-        board = board.map(row => slide([...row].reverse()).reverse());
+        newBoard = board.map(row => slide([...row].reverse()).reverse());
     } else if (dir === 'up') {
         for (let c = 0; c < 4; c++) {
             let col = [board[0][c], board[1][c], board[2][c], board[3][c]];
             col = slide(col);
-            for (let r = 0; r < 4; r++) board[r][c] = col[r];
+            for (let r = 0; r < 4; r++) newBoard[r][c] = col[r];
         }
     } else if (dir === 'down') {
         for (let c = 0; c < 4; c++) {
             let col = [board[3][c], board[2][c], board[1][c], board[0][c]];
             col = slide(col);
-            for (let r = 0; r < 4; r++) board[3-r][c] = col[r];
+            for (let r = 0; r < 4; r++) newBoard[3-r][c] = col[r];
         }
     }
 
-    if (oldBoard !== JSON.stringify(board)) {
+    if (oldBoard !== JSON.stringify(newBoard)) {
+        board = newBoard;
         addTile();
         render();
         if (isGameOver()) endGame();
+    } else {
+        history.pop(); // unused state
     }
   }
 
@@ -219,10 +265,14 @@ import Base from '../../layouts/Base.astro';
   }
 
   startBtn.addEventListener('click', startGame);
+  let isThrottled = false;
   window.addEventListener('keydown', e => {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-      move(e.key.replace('Arrow', '').toLowerCase());
       e.preventDefault();
+      if (isThrottled) return;
+      isThrottled = true;
+      setTimeout(() => isThrottled = false, 100);
+      move(e.key.replace('Arrow', '').toLowerCase());
     }
   });
 
