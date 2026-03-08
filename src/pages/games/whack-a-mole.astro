@@ -1,0 +1,176 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Whack-a-Mole">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Whack-a-Mole</h1>
+      <div class="score-wrap">Score: <span id="score">0</span> · Time: <span id="timer">30</span>s</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div class="mole-grid">
+        {[...Array(9)].map((_, i) => (
+            <div class="hole" data-index={i}>
+                <div class="mole"></div>
+            </div>
+        ))}
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Whack-a-Mole</div>
+        <div id="overlay-sub" class="overlay-sub">Tap the moles before they disappear!</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap moles to whack them</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #score, #timer { color: var(--accent); font-weight: 500; font-size: 1rem; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mole-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hole {
+    background: #3d362d; /* var(--rule) but darker */
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.3);
+  }
+
+  .mole {
+    position: absolute;
+    top: 100%;
+    left: 15%;
+    width: 70%;
+    height: 80%;
+    background: #8b3a2a; /* var(--accent) */
+    border-radius: 50% 50% 0 0;
+    transition: top 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+  }
+  .mole.up { top: 20%; }
+  .mole.whacked { background: #1c1814; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const holes = document.querySelectorAll('.hole');
+  const scoreEl = document.getElementById('score');
+  const timerEl = document.getElementById('timer');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlaySub = document.getElementById('overlay-sub');
+  const startBtn = document.getElementById('start-btn');
+
+  let score = 0;
+  let timeLeft = 30;
+  let lastHole;
+  let gameActive = false;
+  let timerInterval;
+
+  function randomTime(min, max) { return Math.round(Math.random() * (max - min) + min); }
+  function randomHole(holes) {
+    const idx = Math.floor(Math.random() * holes.length);
+    const hole = holes[idx];
+    if (hole === lastHole) return randomHole(holes);
+    lastHole = hole;
+    return hole;
+  }
+
+  function peep() {
+    const time = randomTime(600, 1000);
+    const hole = randomHole(holes);
+    const mole = hole.querySelector('.mole');
+    mole.classList.remove('whacked');
+    mole.classList.add('up');
+    
+    setTimeout(() => {
+        mole.classList.remove('up');
+        if (gameActive) peep();
+    }, time);
+  }
+
+  function whack(e) {
+    if (!e.isTrusted || !this.classList.contains('up')) return;
+    score++;
+    this.classList.remove('up');
+    this.classList.add('whacked');
+    scoreEl.textContent = String(score);
+  }
+
+  function startGame() {
+    score = 0;
+    timeLeft = 30;
+    gameActive = true;
+    scoreEl.textContent = '0';
+    timerEl.textContent = '30';
+    overlay.classList.add('hidden');
+    
+    peep();
+    
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = String(timeLeft);
+        if (timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  function endGame() {
+    gameActive = false;
+    clearInterval(timerInterval);
+    overlay.classList.remove('hidden');
+    overlayTitle.textContent = `Score: ${score}`;
+    overlaySub.textContent = "Great reflexes! Those moles didn't stand a chance.";
+    startBtn.textContent = 'Play Again';
+  }
+
+  document.querySelectorAll('.mole').forEach(mole => mole.addEventListener('click', whack));
+  startBtn.addEventListener('click', startGame);
+</script>

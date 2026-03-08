@@ -1,0 +1,151 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Simon Says">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Simon Says</h1>
+      <div class="score-wrap">Round: <span id="score">0</span></div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div class="simon-grid">
+        <div class="simon-btn" data-color="0" style="background: #8b3a2a;"></div>
+        <div class="simon-btn" data-color="1" style="background: #4a6b4a;"></div>
+        <div class="simon-btn" data-color="2" style="background: #4a6bb3;"></div>
+        <div class="simon-btn" data-color="3" style="background: #c8bca8;"></div>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Simon Says</div>
+        <div id="overlay-sub" class="overlay-sub">Watch the sequence, then repeat it back.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Watch carefully · Pattern grows longer each round</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #score { color: var(--accent); font-weight: 500; font-size: 1rem; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .simon-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    height: 100%;
+  }
+
+  .simon-btn {
+    border-radius: 12px;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: opacity 0.2s, transform 0.1s;
+    border: 2px solid rgba(0,0,0,0.1);
+  }
+  .simon-btn.active { opacity: 1; transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const btns = document.querySelectorAll('.simon-btn');
+  const scoreEl = document.getElementById('score');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let sequence = [];
+  let userSequence = [];
+  let gameActive = false;
+  let showingSequence = false;
+
+  function flash(btn) {
+    btn.classList.add('active');
+    setTimeout(() => btn.classList.remove('active'), 400);
+  }
+
+  async function showSequence() {
+    showingSequence = true;
+    for (let colorIdx of sequence) {
+        await new Promise(r => setTimeout(r, 600));
+        flash(btns[colorIdx]);
+    }
+    showingSequence = false;
+  }
+
+  function nextRound() {
+    sequence.push(Math.floor(Math.random() * 4));
+    userSequence = [];
+    scoreEl.textContent = String(sequence.length);
+    showSequence();
+  }
+
+  function handleTap(idx) {
+    if (!gameActive || showingSequence) return;
+    
+    flash(btns[idx]);
+    userSequence.push(idx);
+
+    if (userSequence[userSequence.length - 1] !== sequence[userSequence.length - 1]) return endGame();
+
+    if (userSequence.length === sequence.length) {
+        setTimeout(nextRound, 1000);
+    }
+  }
+
+  function startGame() {
+    sequence = [];
+    gameActive = true;
+    overlay.classList.add('hidden');
+    nextRound();
+  }
+
+  function endGame() {
+    gameActive = false;
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = `Round: ${sequence.length}`;
+    document.getElementById('overlay-sub').textContent = "Don't blink! The sequence was getting tricky.";
+    startBtn.textContent = 'Play Again';
+  }
+
+  btns.forEach((btn, i) => btn.addEventListener('click', () => handleTap(i)));
+  startBtn.addEventListener('click', startGame);
+</script>

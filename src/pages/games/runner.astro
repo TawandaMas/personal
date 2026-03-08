@@ -1,0 +1,162 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Endless Runner">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Endless Runner</h1>
+      <div class="score-wrap">Distance: <span id="score">0</span>m</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <canvas id="runner-canvas"></canvas>
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Paper Run</div>
+        <div id="overlay-sub" class="overlay-sub">Tap to jump over obstacles.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap or Space to Jump · Double Tap to Double Jump</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #score { color: var(--accent); font-weight: 500; font-size: 1rem; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    aspect-ratio: 2.5;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    overflow: hidden;
+  }
+
+  #runner-canvas { display: block; width: 100%; height: 100%; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const canvas = document.getElementById('runner-canvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let runner, obstacles, score, gameLoop, running = false, speed = 5;
+  const GRAVITY = 0.6;
+  const JUMP_FORCE = -12;
+
+  function init() {
+    runner = { x: 50, y: canvas.height - 40, w: 20, h: 40, vy: 0, jumps: 0 };
+    obstacles = [];
+    score = 0;
+    speed = 5;
+    scoreEl.textContent = '0';
+  }
+
+  function spawnObstacle() {
+    const w = 15 + Math.random() * 20;
+    const h = 20 + Math.random() * 30;
+    obstacles.push({ x: canvas.width, y: canvas.height - h, w, h });
+  }
+
+  function draw() {
+    ctx.fillStyle = '#e8e0d0';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Floor line
+    ctx.strokeStyle = 'var(--rule)';
+    ctx.beginPath(); ctx.moveTo(0, canvas.height); ctx.lineTo(canvas.width, canvas.height); ctx.stroke();
+
+    // Runner
+    ctx.fillStyle = '#1c1814';
+    ctx.fillRect(runner.x, runner.y, runner.w, runner.h);
+
+    // Obstacles
+    ctx.fillStyle = '#8b3a2a';
+    obstacles.forEach(o => { ctx.fillRect(o.x, o.y, o.w, o.h); });
+  }
+
+  function update() {
+    runner.vy += GRAVITY;
+    runner.y += runner.vy;
+
+    if (runner.y + runner.h > canvas.height) {
+        runner.y = canvas.height - runner.h;
+        runner.vy = 0;
+        runner.jumps = 0;
+    }
+
+    speed += 0.001;
+    score += Math.floor(speed / 5);
+    scoreEl.textContent = String(Math.floor(score / 10));
+
+    obstacles.forEach(o => {
+        o.x -= speed;
+        // Collision
+        if (runner.x < o.x + o.w && runner.x + runner.w > o.x && runner.y < o.y + o.h && runner.y + runner.h > o.y) return endGame();
+    });
+
+    obstacles = obstacles.filter(o => o.x + o.w > 0);
+    if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - (200 + Math.random() * 300)) spawnObstacle();
+
+    draw();
+    gameLoop = requestAnimationFrame(update);
+  }
+
+  function jump() {
+    if (!running || runner.jumps >= 2) return;
+    runner.vy = JUMP_FORCE;
+    runner.jumps++;
+  }
+
+  function startGame() {
+    running = true;
+    overlay.classList.add('hidden');
+    init();
+    update();
+  }
+
+  function endGame() {
+    running = false;
+    cancelAnimationFrame(gameLoop);
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = `Distance: ${Math.floor(score/10)}m`;
+    startBtn.textContent = 'Play Again';
+  }
+
+  canvas.width = 600;
+  canvas.height = 200;
+  draw();
+
+  startBtn.addEventListener('click', startGame);
+  window.addEventListener('keydown', e => { if (e.code === 'Space' || e.code === 'ArrowUp') jump(); });
+  canvas.addEventListener('mousedown', jump);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); jump(); }, { passive: false });
+</script>
