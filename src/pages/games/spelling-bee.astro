@@ -1,0 +1,215 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Spelling Bee">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Spelling Bee</h1>
+      <div class="score-wrap">Score: <span id="score">0</span></div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div class="bee-pane">
+        <div id="hive" class="hive"></div>
+        <div class="input-display">
+            <span id="input-word" class="word-text"></span>
+        </div>
+        <div class="bee-controls">
+            <button id="btn-delete" class="bee-btn">Delete</button>
+            <button id="btn-shuffle" class="bee-btn">Shuffle</button>
+            <button id="btn-enter" class="bee-btn primary">Enter</button>
+        </div>
+    </div>
+    <div class="word-list-pane">
+        <h3>Found Words:</h3>
+        <ul id="word-list"></ul>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Spelling Bee</div>
+        <div id="overlay-sub" class="overlay-sub">Make words of 4+ letters. Must use center letter.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Center letter is required · 4 letter minimum</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #score { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    display: flex;
+    overflow: hidden;
+  }
+  @media (max-width: 600px) { .game-wrap { flex-direction: column; } }
+
+  .bee-pane { flex: 1.5; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+
+  .hive { position: relative; width: 240px; height: 260px; }
+  .hex {
+    position: absolute;
+    width: 80px;
+    height: 92px;
+    background: var(--paper);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.1s;
+    user-select: none;
+    border: none;
+  }
+  .hex:active { transform: scale(0.95); opacity: 0.8; }
+  .hex.center { background: var(--accent); color: white; }
+
+  /* Hexagon Positioning */
+  .hex:nth-child(1) { top: 84px; left: 80px; } /* Center */
+  .hex:nth-child(2) { top: 0; left: 80px; }
+  .hex:nth-child(3) { top: 42px; left: 153px; }
+  .hex:nth-child(4) { top: 126px; left: 153px; }
+  .hex:nth-child(5) { top: 168px; left: 80px; }
+  .hex:nth-child(6) { top: 126px; left: 7px; }
+  .hex:nth-child(7) { top: 42px; left: 7px; }
+
+  .input-display { min-height: 2.5rem; border-bottom: 2px solid var(--rule); width: 80%; text-align: center; }
+  .word-text { font-family: var(--font-sans); font-size: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .bee-controls { display: flex; gap: 0.5rem; }
+  .bee-btn { 
+    background: var(--paper); 
+    border: 1px solid var(--rule); 
+    padding: 0.5rem 1rem; 
+    border-radius: 20px; 
+    font-size: 0.75rem; 
+    font-family: var(--font-sans); 
+    cursor: pointer; 
+  }
+  .bee-btn.primary { background: var(--ink); color: white; border: none; }
+
+  .word-list-pane { flex: 1; background: var(--paper); padding: 1.5rem; border-left: 1px solid var(--rule); font-family: var(--font-sans); }
+  .word-list-pane h3 { font-size: 0.85rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.5rem; margin-bottom: 0.75rem; }
+  #word-list { list-style: none; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const PUZZLES = [
+      { center: 'H', outer: 'EILNRT', words: ['HINT', 'THEN', 'THERE', 'HEIR', 'HIRE', 'NEITHER', 'HITHER', 'THETHER'] },
+      { center: 'A', outer: 'BCELOT', words: ['ABLE', 'TABLE', 'BALE', 'BEAT', 'BELT', 'COAL', 'COBALT', 'TREAT'] }
+  ];
+
+  const hiveEl = document.getElementById('hive');
+  const inputEl = document.getElementById('input-word');
+  const listEl = document.getElementById('word-list');
+  const scoreEl = document.getElementById('score');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let activePuzzle = null;
+  let currentWord = '';
+  let foundWords = [];
+  let score = 0;
+
+  function initGame() {
+    activePuzzle = PUZZLES[Math.floor(Math.random() * PUZZLES.length)];
+    foundWords = [];
+    score = 0;
+    currentWord = '';
+    scoreEl.textContent = '0';
+    renderHive();
+    renderList();
+    inputEl.textContent = '';
+  }
+
+  function renderHive() {
+    hiveEl.innerHTML = '';
+    const letters = [activePuzzle.center, ...activePuzzle.outer];
+    letters.forEach((l, i) => {
+        const h = document.createElement('div');
+        h.className = `hex ${i === 0 ? 'center' : ''}`;
+        h.textContent = l;
+        h.addEventListener('click', () => {
+            currentWord += l;
+            inputEl.textContent = currentWord;
+        });
+        hiveEl.appendChild(h);
+    });
+  }
+
+  function renderList() {
+    listEl.innerHTML = '';
+    foundWords.forEach(w => {
+        const li = document.createElement('li');
+        li.textContent = w;
+        listEl.appendChild(li);
+    });
+  }
+
+  function handleEnter() {
+    const w = currentWord.toUpperCase();
+    if (w.length < 4) return alert('Word too short');
+    if (!w.includes(activePuzzle.center)) return alert('Must use center letter');
+    if (foundWords.includes(w)) return;
+    
+    // Naive check against puzzle word list
+    if (activePuzzle.words.includes(w)) {
+        foundWords.push(w);
+        score += w.length;
+        scoreEl.textContent = String(score);
+        renderList();
+    }
+    currentWord = '';
+    inputEl.textContent = '';
+  }
+
+  function startGame() {
+    overlay.classList.add('hidden');
+    initGame();
+  }
+
+  startBtn.addEventListener('click', startGame);
+  document.getElementById('btn-delete').addEventListener('click', () => {
+    currentWord = currentWord.slice(0, -1);
+    inputEl.textContent = currentWord;
+  });
+  document.getElementById('btn-enter').addEventListener('click', handleEnter);
+  document.getElementById('btn-shuffle').addEventListener('click', () => {
+    activePuzzle.outer = activePuzzle.outer.split('').sort(() => Math.random() - 0.5).join('');
+    renderHive();
+  });
+</script>

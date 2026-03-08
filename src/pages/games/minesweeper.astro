@@ -1,0 +1,167 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Minesweeper">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Minesweeper</h1>
+      <div class="score-wrap">Mines: <span id="mine-count">10</span></div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div id="grid" class="mine-grid"></div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Minesweeper</div>
+        <div id="overlay-sub" class="overlay-sub">Uncover all safe squares. Long-press to flag mines.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap to uncover · Long-press/Right-click to flag</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #mine-count { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+  }
+
+  .mine-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    width: 100%;
+    height: 100%;
+    background: var(--rule);
+    gap: 1px;
+  }
+
+  .cell {
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .cell.revealed { background: var(--paper-dark); cursor: default; }
+  .cell.mine { background: var(--accent); }
+  .cell.flagged::after { content: '🚩'; font-size: 0.8rem; }
+  
+  .c-1 { color: blue; }
+  .c-2 { color: green; }
+  .c-3 { color: red; }
+  .c-4 { color: darkblue; }
+</style>
+
+<script>
+  const gridEl = document.getElementById('grid');
+  const mineEl = document.getElementById('mine-count');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let board = [], mines = [], gameActive = false, flags = 0;
+
+  function initBoard() {
+    board = Array(81).fill(0);
+    mines = [];
+    flags = 0;
+    while(mines.length < 10) {
+        let r = Math.floor(Math.random() * 81);
+        if (!mines.includes(r)) mines.push(r);
+    }
+    mines.forEach(m => {
+        const neighbors = getNeighbors(m);
+        neighbors.forEach(n => board[n]++);
+    });
+    render();
+  }
+
+  function getNeighbors(idx) {
+    const r = Math.floor(idx / 9), c = idx % 9;
+    const res = [];
+    for (let dr=-1; dr<=1; dr++) {
+        for (let dc=-1; dc<=1; dc++) {
+            if (dr===0 && dc===0) continue;
+            let nr=r+dr, nc=c+dc;
+            if (nr>=0 && nr<9 && nc>=0 && nc<9) res.push(nr*9+nc);
+        }
+    }
+    return res;
+  }
+
+  function render() {
+    gridEl.innerHTML = '';
+    board.forEach((val, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+        cell.addEventListener('click', () => reveal(i));
+        cell.addEventListener('contextmenu', e => { e.preventDefault(); flag(i); });
+        gridEl.appendChild(cell);
+    });
+    mineEl.textContent = String(10 - flags);
+  }
+
+  function reveal(i) {
+    if (!gameActive) return;
+    const cell = gridEl.children[i];
+    if (cell.classList.contains('revealed') || cell.classList.contains('flagged')) return;
+    
+    if (mines.includes(i)) return endGame(false);
+    
+    cell.classList.add('revealed');
+    if (board[i] > 0) {
+        cell.textContent = String(board[i]);
+        cell.classList.add(`c-${board[i]}`);
+    } else {
+        getNeighbors(i).forEach(n => reveal(n));
+    }
+
+    if (gridEl.querySelectorAll('.cell.revealed').length === 71) endGame(true);
+  }
+
+  function flag(i) {
+    const cell = gridEl.children[i];
+    if (cell.classList.contains('revealed')) return;
+    cell.classList.toggle('flagged');
+    flags += cell.classList.contains('flagged') ? 1 : -1;
+    mineEl.textContent = String(10 - flags);
+  }
+
+  function startGame() {
+    overlay.classList.add('hidden');
+    gameActive = true;
+    initBoard();
+  }
+
+  function endGame(win) {
+    gameActive = false;
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = win ? "Clear!" : "Boom!";
+    startBtn.textContent = 'Play Again';
+    mines.forEach(m => gridEl.children[m].classList.add('mine'));
+  }
+
+  startBtn.addEventListener('click', startGame);
+</script>

@@ -1,0 +1,220 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Match 3">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Match 3</h1>
+      <div class="score-wrap">Score: <span id="score">0</span> · Time: <span id="timer">60</span>s</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div id="grid" class="match3-grid"></div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Jewel Match</div>
+        <div id="overlay-sub" class="overlay-sub">Swap adjacent gems to match 3 or more in a row.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap a gem then an adjacent one to swap</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #score, #timer { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    padding: 0.5rem;
+  }
+
+  .match3-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .gem {
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+    user-select: none;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  .gem.selected { transform: scale(1.15); box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 5; border-color: var(--accent); }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
+  const gridEl = document.getElementById('grid');
+  const scoreEl = document.getElementById('score');
+  const timerEl = document.getElementById('timer');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let board = [];
+  let score = 0;
+  let timeLeft = 60;
+  let selected = null;
+  let gameActive = false;
+
+  function initBoard() {
+    board = Array(7).fill().map(() => Array(7).fill(0).map(() => Math.floor(Math.random() * COLORS.length)));
+    // Avoid initial matches
+    while(hasMatches()) {
+        board = Array(7).fill().map(() => Array(7).fill(0).map(() => Math.floor(Math.random() * COLORS.length)));
+    }
+    render();
+  }
+
+  function hasMatches() {
+    for (let r=0; r<7; r++) {
+        for (let c=0; c<7; c++) {
+            if (c < 5 && board[r][c] === board[r][c+1] && board[r][c] === board[r][c+2]) return true;
+            if (r < 5 && board[r][c] === board[r+1][c] && board[r][c] === board[r+2][c]) return true;
+        }
+    }
+    return false;
+  }
+
+  function getMatches() {
+    let toRemove = new Set();
+    for (let r=0; r<7; r++) {
+        for (let c=0; c<7; c++) {
+            if (c < 5 && board[r][c] === board[r][c+1] && board[r][c] === board[r][c+2]) {
+                toRemove.add(`${r},${c}`); toRemove.add(`${r},${c+1}`); toRemove.add(`${r},${c+2}`);
+            }
+            if (r < 5 && board[r][c] === board[r+1][c] && board[r][c] === board[r+2][c]) {
+                toRemove.add(`${r},${c}`); toRemove.add(`${r+1},${c}`); toRemove.add(`${r+2},${c}`);
+            }
+        }
+    }
+    return toRemove;
+  }
+
+  function render() {
+    gridEl.innerHTML = '';
+    board.forEach((row, r) => {
+        row.forEach((colorIdx, c) => {
+            const gem = document.createElement('div');
+            gem.className = 'gem';
+            gem.style.background = COLORS[colorIdx];
+            if (selected?.r === r && selected?.c === c) gem.classList.add('selected');
+            gem.addEventListener('click', () => handleTap(r, c));
+            gridEl.appendChild(gem);
+        });
+    });
+    scoreEl.textContent = String(score);
+  }
+
+  async function handleTap(r, c) {
+    if (!gameActive) return;
+    if (!selected) {
+        selected = {r, c};
+        render();
+    } else {
+        const dist = Math.abs(selected.r - r) + Math.abs(selected.c - c);
+        if (dist === 1) {
+            // Swap
+            [board[r][c], board[selected.r][selected.c]] = [board[selected.r][selected.c], board[r][c]];
+            if (!hasMatches()) {
+                // Swap back
+                [board[r][c], board[selected.r][selected.c]] = [board[selected.r][selected.c], board[r][c]];
+            } else {
+                await processMatches();
+            }
+        }
+        selected = null;
+        render();
+    }
+  }
+
+  async function processMatches() {
+    let matches = getMatches();
+    while (matches.size > 0) {
+        score += matches.size * 10;
+        matches.forEach(m => {
+            const [r, c] = m.split(',').map(Number);
+            board[r][c] = -1;
+        });
+        render();
+        await new Promise(r => setTimeout(r, 200));
+        
+        // Let fall
+        for (let c=0; c<7; c++) {
+            let col = [];
+            for (let r=6; r>=0; r--) {
+                if (board[r][c] !== -1) col.push(board[r][c]);
+            }
+            while (col.length < 7) col.push(Math.floor(Math.random() * COLORS.length));
+            for (let r=0; r<7; r++) board[6-r][c] = col[r];
+        }
+        render();
+        await new Promise(r => setTimeout(r, 200));
+        matches = getMatches();
+    }
+  }
+
+  function startGame() {
+    score = 0;
+    timeLeft = 60;
+    gameActive = true;
+    overlay.classList.add('hidden');
+    initBoard();
+    const interval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = String(timeLeft);
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            endGame();
+        }
+    }, 1000);
+  }
+
+  function endGame() {
+    gameActive = false;
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = `Score: ${score}`;
+    startBtn.textContent = 'Play Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+</script>
