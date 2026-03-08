@@ -1,0 +1,188 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Number Sequence">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Number Sequence</h1>
+      <div class="score-wrap">Next: <span id="next-num">1</span> · Time: <span id="timer">0.00</span>s</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div id="grid" class="number-grid"></div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">1 to 25</div>
+        <div id="overlay-sub" class="overlay-sub">Tap the numbers in order as fast as you can.</div>
+        <button id="start-btn" class="start-btn">Start</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Focus on the center · Use peripheral vision</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  .score-wrap { font-family: var(--font-sans); font-size: 0.8rem; color: var(--ink-light); }
+  #next-num, #timer { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+  }
+
+  .number-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    width: 100%;
+    height: 100%;
+    gap: 1px;
+    background: var(--rule);
+  }
+
+  .number-cell {
+    background: var(--paper-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.1s;
+  }
+  .number-cell:hover { background: var(--paper-crease); }
+  .number-cell:active { background: var(--accent-light); color: white; }
+  .number-cell.correct { background: var(--paper); color: var(--ink-light); cursor: default; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn {
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  const grid = document.getElementById('grid');
+  const nextEl = document.getElementById('next-num');
+  const timerEl = document.getElementById('timer');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlaySub = document.getElementById('overlay-sub');
+  const startBtn = document.getElementById('start-btn');
+
+  let nextNum = 1;
+  let startTime = 0;
+  let timerInterval = null;
+  let gameActive = false;
+
+  function initGrid() {
+    grid.innerHTML = '';
+    const nums = Array.from({length: 25}, (_, i) => i + 1);
+    // Shuffle
+    for (let i = nums.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+
+    nums.forEach(n => {
+      const cell = document.createElement('div');
+      cell.className = 'number-cell';
+      cell.textContent = String(n);
+      cell.dataset.num = String(n);
+      cell.addEventListener('click', () => handleTap(cell, n));
+      grid.appendChild(cell);
+    });
+  }
+
+  function handleTap(cell, n) {
+    if (!gameActive) return;
+    if (n === nextNum) {
+      cell.classList.add('correct');
+      nextNum++;
+      if (nextNum > 25) {
+        endGame();
+      } else {
+        nextEl.textContent = String(nextNum);
+      }
+    } else {
+        // penalty flash
+        cell.animate([
+            { background: '#b34a3b', color: 'white' },
+            { background: 'var(--paper-dark)', color: 'var(--ink)' }
+        ], { duration: 200 });
+    }
+  }
+
+  function startGame() {
+    nextNum = 1;
+    gameActive = true;
+    nextEl.textContent = '1';
+    timerEl.textContent = '0.00';
+    overlay.classList.add('hidden');
+    initGrid();
+    
+    startTime = performance.now();
+    timerInterval = setInterval(() => {
+      const elapsed = (performance.now() - startTime) / 1000;
+      timerEl.textContent = elapsed.toFixed(2);
+    }, 10);
+  }
+
+  function endGame() {
+    gameActive = false;
+    clearInterval(timerInterval);
+    const finalTime = timerEl.textContent;
+    overlay.classList.remove('hidden');
+    overlayTitle.textContent = `${finalTime}s`;
+    
+    let msg = "Fast!";
+    if (parseFloat(finalTime) < 15) msg = "Elite speed!";
+    else if (parseFloat(finalTime) > 30) msg = "Take your time.";
+    
+    overlaySub.textContent = msg;
+    startBtn.textContent = 'Play Again';
+
+    const best = localStorage.getItem('best-numbers');
+    if (!best || parseFloat(finalTime) < parseFloat(best)) {
+        localStorage.setItem('best-numbers', finalTime);
+        overlaySub.textContent = `New Best! ${msg}`;
+    }
+  }
+
+  startBtn.addEventListener('click', startGame);
+</script>

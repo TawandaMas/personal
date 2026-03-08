@@ -1,0 +1,200 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Reaction Test">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Reaction Test</h1>
+      <div class="score-wrap">Round: <span id="round">1</span>/5</div>
+    </div>
+  </div>
+
+  <div class="game-wrap" id="click-area">
+    <div id="status-text" class="status-msg">Tap to start</div>
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="result-title" class="overlay-title">Ready?</div>
+        <div id="result-sub" class="overlay-sub">Wait for green, then tap as fast as you can.</div>
+        <button id="start-btn" class="start-btn">Start Test</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Wait for green · Don't tap early</div>
+</Base>
+
+<style>
+  .game-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.75rem;
+  }
+  .back {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .game-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .game-title-row h1 {
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .score-wrap {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--ink-light);
+  }
+  #round {
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 540px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .game-wrap.waiting { background: #d4c9b4; }
+  .game-wrap.ready { background: #4a6b4a; }
+  .game-wrap.early { background: #8b3a2a; }
+
+  .status-msg {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-style: italic;
+    color: var(--ink);
+    text-align: center;
+    pointer-events: none;
+  }
+  :root.dark .status-msg { color: #f2ede4; }
+  .ready .status-msg, .early .status-msg { color: white; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; max-width: 80%; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); margin-bottom: 0.5rem; }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); line-height: 1.6; }
+  .start-btn {
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .start-btn:hover { background: var(--accent); color: white; }
+  .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+</style>
+
+<script>
+  const clickArea = document.getElementById('click-area');
+  const statusText = document.getElementById('status-text');
+  const roundEl = document.getElementById('round');
+  const overlay = document.getElementById('overlay');
+  const resultTitle = document.getElementById('result-title');
+  const resultSub = document.getElementById('result-sub');
+  const startBtn = document.getElementById('start-btn');
+
+  let state = 'waiting'; // waiting, testing, counting
+  let round = 0;
+  let startTime = 0;
+  let timer = null;
+  let results = [];
+
+  function startRound() {
+    state = 'counting';
+    clickArea.className = 'game-wrap waiting';
+    statusText.textContent = 'Wait for green...';
+    
+    const delay = 1500 + Math.random() * 3500;
+    timer = setTimeout(() => {
+      state = 'testing';
+      clickArea.className = 'game-wrap ready';
+      statusText.textContent = 'TAP!';
+      startTime = performance.now();
+    }, delay);
+  }
+
+  function handleInteraction() {
+    if (state === 'counting') {
+      clearTimeout(timer);
+      state = 'waiting';
+      clickArea.className = 'game-wrap early';
+      statusText.textContent = 'Too early!';
+      setTimeout(startRound, 1000);
+    } else if (state === 'testing') {
+      const reaction = Math.round(performance.now() - startTime);
+      results.push(reaction);
+      round++;
+      
+      if (round < 5) {
+        roundEl.textContent = String(round + 1);
+        statusText.textContent = `${reaction}ms`;
+        state = 'waiting';
+        setTimeout(startRound, 800);
+      } else {
+        endGame();
+      }
+    }
+  }
+
+  function endGame() {
+    state = 'waiting';
+    const avg = Math.round(results.reduce((a, b) => a + b) / results.length);
+    overlay.classList.remove('hidden');
+    resultTitle.textContent = `${avg}ms`;
+    
+    let rank = "Impressive!";
+    if (avg > 300) rank = "Keep practicing!";
+    else if (avg < 200) rank = "God-like reflexes!";
+    
+    resultSub.textContent = `Average reaction time over 5 rounds. ${rank}`;
+    startBtn.textContent = 'Try again';
+  }
+
+  startBtn.addEventListener('click', () => {
+    round = 0;
+    results = [];
+    roundEl.textContent = '1';
+    overlay.classList.add('hidden');
+    startRound();
+  });
+
+  clickArea.addEventListener('mousedown', handleInteraction);
+  clickArea.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleInteraction();
+  }, { passive: false });
+</script>

@@ -1,0 +1,243 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Anagram">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Anagram</h1>
+      <div class="score-wrap">Score: <span id="score">0</span></div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div class="anagram-pane">
+        <div id="scrambled-letters" class="letter-grid"></div>
+        <div id="answer-slots" class="answer-row"></div>
+        <div class="action-row">
+            <button id="btn-clear" class="action-btn">Clear</button>
+            <button id="btn-submit" class="action-btn primary">Submit</button>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Anagram</div>
+        <div id="overlay-sub" class="overlay-sub">Unscramble the letters to reveal the hidden word.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap letters to build word · 5 to 7 characters</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  .score-wrap { font-family: var(--font-sans); font-size: 0.8rem; color: var(--ink-light); }
+  #score { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    aspect-ratio: 1.2;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .anagram-pane { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; gap: 2rem; }
+
+  .letter-grid { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
+
+  .letter-tile {
+    width: 3.5rem;
+    height: 3.5rem;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-bottom-width: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .letter-tile:hover { transform: translateY(-2px); border-bottom-color: var(--accent); }
+  .letter-tile:active { transform: translateY(0); }
+  .letter-tile.used { opacity: 0.3; cursor: default; pointer-events: none; }
+
+  .answer-row { display: flex; gap: 0.5rem; min-height: 4rem; border-bottom: 2px solid var(--rule); padding: 0 1rem; align-items: center; width: 100%; justify-content: center; }
+  .answer-letter { 
+    font-family: var(--font-serif); 
+    font-size: 2rem; 
+    font-weight: 700; 
+    color: var(--ink); 
+    text-transform: uppercase;
+    border-bottom: 3px solid var(--accent);
+    min-width: 1.5rem;
+    text-align: center;
+  }
+
+  .action-row { display: flex; gap: 1rem; width: 100%; }
+  .action-btn { 
+    flex: 1; 
+    padding: 0.75rem; 
+    font-family: var(--font-sans); 
+    text-transform: uppercase; 
+    letter-spacing: 0.1em; 
+    background: transparent; 
+    border: 1.5px solid var(--rule);
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .action-btn.primary { border-color: var(--accent); color: var(--accent); }
+  .action-btn:hover { background: var(--rule); }
+  .action-btn.primary:hover { background: var(--accent); color: white; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const WORDS = ['ASTRONOMY', 'PHANTOM', 'RHYTHM', 'WHISPER', 'JOURNEY', 'SILENCE', 'CRIMSON', 'MYSTERY', 'HARVEST', 'THUNDER'];
+  
+  const letterGrid = document.getElementById('scrambled-letters');
+  const answerRow = document.getElementById('answer-slots');
+  const scoreEl = document.getElementById('score');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlaySub = document.getElementById('overlay-sub');
+  const startBtn = document.getElementById('start-btn');
+  const btnClear = document.getElementById('btn-clear');
+  const btnSubmit = document.getElementById('btn-submit');
+
+  let currentWord = '';
+  let scrambled = '';
+  let userWord = '';
+  let score = 0;
+  let gameActive = false;
+
+  function nextWord() {
+    currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    scrambled = currentWord.split('').sort(() => Math.random() - 0.5).join('');
+    userWord = '';
+    render();
+  }
+
+  function render() {
+    letterGrid.innerHTML = '';
+    scrambled.split('').forEach((l, i) => {
+        const tile = document.createElement('div');
+        tile.className = 'letter-tile';
+        tile.textContent = l;
+        // Logic to check if this specific instance of letter is used
+        const usedCount = userWord.split('').filter(char => char === l).length;
+        const totalInScrambled = scrambled.split('').filter(char => char === l).length;
+        
+        // This is a bit naive for duplicate letters, let's track by index instead
+    });
+    
+    // Better rendering with index tracking
+    letterGrid.innerHTML = '';
+    const usedIndices = []; // we need to track which scrambled index is used
+  }
+
+  // Refined Logic
+  let activeIndices = [];
+
+  function updateDisplay() {
+    letterGrid.innerHTML = '';
+    scrambled.split('').forEach((char, idx) => {
+        const tile = document.createElement('div');
+        tile.className = 'letter-tile';
+        if (activeIndices.includes(idx)) tile.classList.add('used');
+        tile.textContent = char;
+        tile.addEventListener('click', () => {
+            if (!activeIndices.includes(idx)) {
+                activeIndices.push(idx);
+                userWord += char;
+                updateDisplay();
+            }
+        });
+        letterGrid.appendChild(tile);
+    });
+
+    answerRow.innerHTML = '';
+    userWord.split('').forEach(char => {
+        const span = document.createElement('span');
+        span.className = 'answer-letter';
+        span.textContent = char;
+        answerRow.appendChild(span);
+    });
+  }
+
+  function checkAnswer() {
+    if (userWord === currentWord) {
+        score += 10;
+        scoreEl.textContent = String(score);
+        // celebration
+        answerRow.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.1)', color: 'var(--accent)' },
+            { transform: 'scale(1)' }
+        ], { duration: 300 });
+        setTimeout(nextWord, 500);
+    } else {
+        answerRow.animate([
+            { transform: 'translateX(-10px)' },
+            { transform: 'translateX(10px)' },
+            { transform: 'translateX(0)' }
+        ], { duration: 200 });
+    }
+  }
+
+  function handleClear() {
+    userWord = '';
+    activeIndices = [];
+    updateDisplay();
+  }
+
+  function start() {
+    score = 0;
+    scoreEl.textContent = '0';
+    overlay.classList.add('hidden');
+    gameActive = true;
+    nextWord();
+  }
+
+  function nextWord() {
+    currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    scrambled = currentWord.split('').sort(() => Math.random() - 0.5).join('');
+    userWord = '';
+    activeIndices = [];
+    updateDisplay();
+  }
+
+  startBtn.addEventListener('click', start);
+  btnClear.addEventListener('click', handleClear);
+  btnSubmit.addEventListener('click', checkAnswer);
+</script>

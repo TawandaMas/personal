@@ -1,0 +1,228 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Colour Match">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Colour Match</h1>
+      <div class="score-wrap">Score: <span id="score">0</span> · Time: <span id="timer">30</span>s</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div id="game-container" class="game-pane">
+        <div class="word-box">
+            <h2 id="colour-word">READY?</h2>
+        </div>
+        <div class="controls">
+            <button id="btn-no" class="game-btn no">No</button>
+            <button id="btn-yes" class="game-btn yes">Yes</button>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Colour Match</div>
+        <div id="overlay-sub" class="overlay-sub">Does the word match the ink colour?</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap Yes if name matches ink · Otherwise No</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  .score-wrap { font-family: var(--font-sans); font-size: 0.8rem; color: var(--ink-light); }
+  #score, #timer { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 540px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .game-pane { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+
+  .word-box { 
+    flex: 1; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+  }
+  #colour-word {
+    font-family: var(--font-serif);
+    font-size: 4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: transform 0.1s;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    width: 100%;
+    padding-bottom: 1rem;
+  }
+
+  .game-btn {
+    padding: 1.5rem;
+    border: 2px solid var(--rule);
+    background: var(--paper);
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .game-btn.yes { color: #4a6b4a; border-color: #4a6b4a; }
+  .game-btn.no { color: #b34a3b; border-color: #b34a3b; }
+  .game-btn:active { transform: scale(0.95); opacity: 0.8; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn {
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
+</style>
+
+<script>
+  const COLOURS = [
+    { name: 'RED', hex: '#b34a3b' },
+    { name: 'BLUE', hex: '#4a6bb3' },
+    { name: 'GREEN', hex: '#4a6b4a' },
+    { name: 'PURPLE', hex: '#7a4ab3' },
+    { name: 'ORANGE', hex: '#b37a4a' }
+  ];
+
+  const wordEl = document.getElementById('colour-word');
+  const scoreEl = document.getElementById('score');
+  const timerEl = document.getElementById('timer');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlaySub = document.getElementById('overlay-sub');
+  const startBtn = document.getElementById('start-btn');
+  const btnYes = document.getElementById('btn-yes');
+  const btnNo = document.getElementById('btn-no');
+
+  let score = 0;
+  let timeLeft = 30;
+  let gameActive = false;
+  let currentWord = null;
+  let currentInk = null;
+  let timerInterval = null;
+
+  function nextRound() {
+    const wordIdx = Math.floor(Math.random() * COLOURS.length);
+    let inkIdx;
+    
+    // 50% chance of matching
+    if (Math.random() > 0.5) {
+      inkIdx = wordIdx;
+    } else {
+      do { inkIdx = Math.floor(Math.random() * COLOURS.length); } while (inkIdx === wordIdx);
+    }
+
+    currentWord = COLOURS[wordIdx];
+    currentInk = COLOURS[inkIdx];
+    
+    wordEl.textContent = currentWord.name;
+    wordEl.style.color = currentInk.hex;
+    
+    // Pop animation
+    wordEl.style.transform = 'scale(1.1)';
+    setTimeout(() => { wordEl.style.transform = 'scale(1)'; }, 100);
+  }
+
+  function handleChoice(isYes) {
+    if (!gameActive) return;
+    
+    const isCorrect = (currentWord === currentInk) === isYes;
+    if (isCorrect) {
+      score++;
+    } else {
+      score = Math.max(0, score - 1);
+      // shake world
+      wordEl.parentElement.animate([
+        { transform: 'translateX(-10px)' },
+        { transform: 'translateX(10px)' },
+        { transform: 'translateX(0)' }
+      ], { duration: 200 });
+    }
+    
+    scoreEl.textContent = String(score);
+    nextRound();
+  }
+
+  function startGame() {
+    score = 0;
+    timeLeft = 30;
+    gameActive = true;
+    scoreEl.textContent = '0';
+    timerEl.textContent = '30';
+    overlay.classList.add('hidden');
+    
+    nextRound();
+    
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = String(timeLeft);
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  function endGame() {
+    gameActive = false;
+    clearInterval(timerInterval);
+    overlay.classList.remove('hidden');
+    overlayTitle.textContent = `Score: ${score}`;
+    overlaySub.textContent = `A fine effort. Accuracy is key!`;
+    startBtn.textContent = 'Play Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+  btnYes.addEventListener('click', () => handleChoice(true));
+  btnNo.addEventListener('click', () => handleChoice(false));
+
+  // Keyboard support
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') handleChoice(false);
+    if (e.key === 'ArrowRight') handleChoice(true);
+  });
+</script>

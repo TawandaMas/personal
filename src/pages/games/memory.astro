@@ -1,0 +1,215 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Memory">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Memory</h1>
+      <div class="score-wrap">Moves: <span id="moves">0</span> · Time: <span id="timer">0</span>s</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div id="grid" class="memory-grid"></div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Concentration</div>
+        <div id="overlay-sub" class="overlay-sub">Find all 8 matching pairs.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap a card to flip it · Match symbols to clear</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  .score-wrap { font-family: var(--font-sans); font-size: 0.8rem; color: var(--ink-light); }
+  #moves, #timer { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+  }
+
+  .memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    width: 100%;
+    height: 100%;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .card {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    perspective: 1000px;
+  }
+
+  .card.flipped { transform: rotateY(180deg); }
+  .card.matched { cursor: default; transform: rotateY(180deg) scale(0.95); opacity: 0.6; }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border-radius: 4px;
+    border: 1px solid var(--rule);
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .card-back {
+    background: var(--paper);
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(139, 58, 42, 0.05) 10px, rgba(139, 58, 42, 0.05) 11px);
+  }
+
+  .card-front {
+    background: white;
+    transform: rotateY(180deg);
+    font-family: var(--font-serif);
+    color: var(--accent);
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn {
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  const SYMBOLS = ['★', '♠', '♣', '♦', '♥', '☀', '☽', '⚓'];
+  const grid = document.getElementById('grid');
+  const movesEl = document.getElementById('moves');
+  const timerEl = document.getElementById('timer');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlaySub = document.getElementById('overlay-sub');
+  const startBtn = document.getElementById('start-btn');
+
+  let cards = [];
+  let flippedCards = [];
+  let moves = 0;
+  let matches = 0;
+  let gameActive = false;
+  let startTime = 0;
+  let timerInterval = null;
+
+  function initGame() {
+    grid.innerHTML = '';
+    const deck = [...SYMBOLS, ...SYMBOLS];
+    // Shuffle
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+
+    deck.forEach((symbol, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-face card-back"></div>
+        <div class="card-face card-front">${symbol}</div>
+      `;
+      card.addEventListener('click', () => flipCard(card, symbol));
+      grid.appendChild(card);
+    });
+  }
+
+  function flipCard(card, symbol) {
+    if (!gameActive || card.classList.contains('flipped') || flippedCards.length === 2) return;
+
+    card.classList.add('flipped');
+    flippedCards.push({ card, symbol });
+
+    if (flippedCards.length === 2) {
+      moves++;
+      movesEl.textContent = String(moves);
+      checkMatch();
+    }
+  }
+
+  function checkMatch() {
+    const [c1, c2] = flippedCards;
+    if (c1.symbol === c2.symbol) {
+      c1.card.classList.add('matched');
+      c2.card.classList.add('matched');
+      matches++;
+      flippedCards = [];
+      if (matches === SYMBOLS.length) endGame();
+    } else {
+      setTimeout(() => {
+        c1.card.classList.remove('flipped');
+        c2.card.classList.remove('flipped');
+        flippedCards = [];
+      }, 1000);
+    }
+  }
+
+  function startGame() {
+    moves = 0;
+    matches = 0;
+    flippedCards = [];
+    gameActive = true;
+    movesEl.textContent = '0';
+    timerEl.textContent = '0';
+    overlay.classList.add('hidden');
+    initGame();
+    
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+      timerEl.textContent = String(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+  }
+
+  function endGame() {
+    gameActive = false;
+    clearInterval(timerInterval);
+    const finalTime = timerEl.textContent;
+    overlay.classList.remove('hidden');
+    overlayTitle.textContent = "Matched!";
+    overlaySub.textContent = `Completed in ${moves} moves and ${finalTime} seconds.`;
+    startBtn.textContent = 'Play Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+</script>
