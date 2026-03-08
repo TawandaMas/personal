@@ -28,6 +28,13 @@ const queue = books.filter(b => b.status === 'queue');
               <div class="card-content">
                 <h3 class="book-title">{book.title}</h3>
                 <p class="book-author">{book.author} — {book.year}</p>
+                {book.rating > 0 && (
+                  <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                    {[...Array(5)].map((_, i) => (
+                      <span class:list={['star', { filled: i < book.rating }]}>★</span>
+                    ))}
+                  </div>
+                )}
                 <div class="card-rule"></div>
                 {book.note && <p class="book-note">{book.note}</p>}
               </div>
@@ -50,6 +57,13 @@ const queue = books.filter(b => b.status === 'queue');
               <div class="card-content">
                 <h3 class="book-title">{book.title}</h3>
                 <p class="book-author">{book.author} — {book.year}</p>
+                {book.rating > 0 && (
+                  <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                    {[...Array(5)].map((_, i) => (
+                      <span class:list={['star', { filled: i < book.rating }]}>★</span>
+                    ))}
+                  </div>
+                )}
                 <div class="card-rule"></div>
                 {book.note && <p class="book-note">{book.note}</p>}
               </div>
@@ -72,6 +86,13 @@ const queue = books.filter(b => b.status === 'queue');
               <div class="card-content">
                 <h3 class="book-title">{book.title}</h3>
                 <p class="book-author">{book.author} — {book.year}</p>
+                {book.rating > 0 && (
+                  <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                    {[...Array(5)].map((_, i) => (
+                      <span class:list={['star', { filled: i < book.rating }]}>★</span>
+                    ))}
+                  </div>
+                )}
                 <div class="card-rule"></div>
                 {book.note && <p class="book-note">{book.note}</p>}
               </div>
@@ -181,7 +202,23 @@ const queue = books.filter(b => b.status === 'queue');
     color: var(--ink-light);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .book-rating {
+    display: flex;
+    gap: 2px;
     margin-bottom: 1rem;
+    color: var(--rule);
+    font-size: 0.85rem;
+  }
+
+  .star.filled {
+    color: #ccac00;
+  }
+
+  :root.dark .star.filled {
+    color: #ffd700;
   }
 
   .card-rule {

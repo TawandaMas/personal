@@ -43,6 +43,7 @@ collections:
         options: [reading, read, queue]
         default: queue
       - { label: Note, name: note, widget: string, required: false, hint: "A short personal note or quote" }
+      - { label: Rating, name: rating, widget: number, min: 0, max: 5, default: 0, hint: "Star rating (0-5)" }
       - { label: Order, name: order, widget: number, default: 99 }
 
   - name: games
@@ -56,3 +57,13 @@ collections:
       - { label: Tag, name: tag, widget: string, hint: "e.g. Arcade, Puzzle" }
       - { label: Description, name: description, widget: text }
       - { label: Order, name: order, widget: number, default: 99 }
+
+  - name: thoughts
+    label: Thoughts
+    folder: src/content/thoughts
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime }
+      - { label: Body, name: body, widget: markdown }

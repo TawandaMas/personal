@@ -1,0 +1,122 @@
+---
+import Base from '../layouts/Base.astro';
+
+const thoughtFiles = await Astro.glob('../content/thoughts/*.md');
+const thoughts = thoughtFiles
+  .map(t => ({ 
+    ...t.frontmatter,
+    Content: t.Content 
+  }))
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+---
+
+<Base title="Thoughts">
+  <div class="page-header">
+    <h1>Thoughts</h1>
+    <p>Occasional reflections on software, life, and building cool things.</p>
+  </div>
+
+  <div class="thoughts-list">
+    {thoughts.length > 0 ? (
+      thoughts.map(thought => (
+        <article class="thought-entry">
+          <header class="thought-header">
+            <h2 class="thought-title">{thought.title}</h2>
+            <time class="thought-date" datetime={thought.date}>
+              {formatDate(thought.date)}
+            </time>
+          </header>
+          <div class="thought-content prose">
+            <thought.Content />
+          </div>
+          <div class="thought-divider"></div>
+        </article>
+      ))
+    ) : (
+      <p class="empty-state">Nothing here yet. I'm busy thinking.</p>
+    )}
+  </div>
+</Base>
+
+<style>
+  .thoughts-list {
+    max-width: 650px;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+  }
+
+  .thought-entry {
+    margin-bottom: 4rem;
+    position: relative;
+  }
+
+  .thought-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .thought-title {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+  }
+
+  .thought-date {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .thought-content {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--ink);
+  }
+
+  .thought-divider {
+    height: 1px;
+    background: var(--rule);
+    margin-top: 3rem;
+    opacity: 0.4;
+    position: relative;
+  }
+
+  .thought-divider::after {
+    content: '§';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--paper);
+    padding: 0 1rem;
+    color: var(--ink-light);
+    font-family: var(--font-serif);
+    font-size: 0.8rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--ink-light);
+    padding: 4rem 0;
+  }
+
+  :root.dark .thought-divider::after {
+    background: var(--paper);
+  }
+</style>
