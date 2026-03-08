@@ -1,0 +1,190 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Typing Test">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Typing Test</h1>
+      <div class="score-wrap">WPM: <span id="wpm">0</span> · Acc: <span id="acc">100</span>%</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div id="text-display" class="typing-text"></div>
+    <textarea id="input-field" class="typing-input" placeholder="Start typing here..." autofocus></textarea>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Typing Test</div>
+        <div id="overlay-sub" class="overlay-sub">Type the passage as fast and accurately as you can.</div>
+        <button id="start-btn" class="start-btn">Start Test</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Focus on accuracy first · The timer starts on your first keypress</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #wpm, #acc { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .typing-text {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--ink-mid);
+    user-select: none;
+    background: var(--paper);
+    padding: 1rem;
+    border: 1px solid var(--rule);
+    min-height: 150px;
+  }
+
+  .typing-text span { position: relative; }
+  .typing-text span.correct { color: #4a6b4a; }
+  .typing-text span.wrong { color: #b34a3b; border-bottom: 2px solid #b34a3b; }
+  .typing-text span.current { background: rgba(139, 58, 42, 0.1); border-left: 2px solid var(--accent); }
+
+  .typing-input {
+    width: 100%;
+    height: 100px;
+    background: var(--paper);
+    border: 1.5px solid var(--rule);
+    padding: 1rem;
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    color: var(--ink);
+    resize: none;
+    outline: none;
+  }
+  .typing-input:focus { border-color: var(--accent); }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const PASSAGES = [
+    "The library was a silent cathedral of paper and ink, where every shelf held a thousand lives waiting to be relived through the eyes of a reader.",
+    "Technology is a mirror that reflects our own creativity, yet at its best, it acts as a lens that clarifies the complexities of the human condition.",
+    "Design is not just what it looks like and feels like. Design is how it works, and how it makes the user feel in the moment of interaction.",
+    "A journey of a thousand miles begins with a single step, but the most important steps are the ones we take when we are tired and want to turn back.",
+    "The stars above have fascinated humanity since we first looked up, reminding us that we are part of something vast, ancient, and beautiful."
+  ];
+
+  const displayEl = document.getElementById('text-display');
+  const inputEl = document.getElementById('input-field');
+  const wpmEl = document.getElementById('wpm');
+  const accEl = document.getElementById('acc');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let text = '';
+  let startTime = 0;
+  let timerInterval = null;
+  let active = false;
+
+  function initTest() {
+    text = PASSAGES[Math.floor(Math.random() * PASSAGES.length)];
+    displayEl.innerHTML = '';
+    text.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char;
+        if (i === 0) span.classList.add('current');
+        displayEl.appendChild(span);
+    });
+    inputEl.value = '';
+    inputEl.disabled = false;
+    wpmEl.textContent = '0';
+    accEl.textContent = '100';
+    active = false;
+  }
+
+  inputEl.addEventListener('input', () => {
+    if (!active && inputEl.value.length > 0) {
+        active = true;
+        startTime = Date.now();
+        timerInterval = setInterval(updateStats, 500);
+    }
+
+    const typed = inputEl.value;
+    const spans = displayEl.querySelectorAll('span');
+    let mistakes = 0;
+
+    spans.forEach((span, i) => {
+        span.className = '';
+        if (i < typed.length) {
+            if (typed[i] === text[i]) {
+                span.classList.add('correct');
+            } else {
+                span.classList.add('wrong');
+                mistakes++;
+            }
+        }
+        if (i === typed.length) span.classList.add('current');
+    });
+
+    const acc = Math.max(0, Math.round(((typed.length - mistakes) / typed.length) * 100)) || 100;
+    accEl.textContent = String(acc);
+
+    if (typed.length >= text.length) endGame();
+  });
+
+  function updateStats() {
+    const elapsed = (Date.now() - startTime) / 1000 / 60; // minutes
+    const words = inputEl.value.length / 5;
+    const wpm = Math.round(words / elapsed);
+    wpmEl.textContent = String(wpm);
+  }
+
+  function startGame() {
+    overlay.classList.add('hidden');
+    initTest();
+    inputEl.focus();
+  }
+
+  function endGame() {
+    active = false;
+    clearInterval(timerInterval);
+    updateStats();
+    inputEl.disabled = true;
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = `${wpmEl.textContent} WPM`;
+    document.getElementById('overlay-sub').textContent = `Accuracy: ${accEl.textContent}%`;
+    startBtn.textContent = 'Try Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+  initTest();
+</script>

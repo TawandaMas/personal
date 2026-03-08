@@ -1,0 +1,206 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Hangman">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Hangman</h1>
+      <div class="score-wrap">Mistakes: <span id="mistakes">0</span>/6</div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div class="hangman-display">
+        <svg viewBox="0 0 100 100" class="gallows">
+            <!-- Gallows -->
+            <line x1="10" y1="95" x2="90" y2="95" stroke="var(--ink)" stroke-width="2"/>
+            <line x1="20" y1="95" x2="20" y2="10" stroke="var(--ink)" stroke-width="2"/>
+            <line x1="20" y1="10" x2="60" y2="10" stroke="var(--ink)" stroke-width="2"/>
+            <line x1="60" y1="10" x2="60" y2="25" stroke="var(--ink)" stroke-width="2"/>
+            
+            <!-- Body Parts -->
+            <circle cx="60" cy="35" r="10" fill="none" stroke="var(--accent)" stroke-width="2" id="part-0" class="hangman-part hidden"/>
+            <line x1="60" y1="45" x2="60" y2="70" stroke="var(--accent)" stroke-width="2" id="part-1" class="hangman-part hidden"/>
+            <line x1="60" y1="50" x2="40" y2="60" stroke="var(--accent)" stroke-width="2" id="part-2" class="hangman-part hidden"/>
+            <line x1="60" y1="50" x2="80" y2="60" stroke="var(--accent)" stroke-width="2" id="part-3" class="hangman-part hidden"/>
+            <line x1="60" y1="70" x2="45" y2="90" stroke="var(--accent)" stroke-width="2" id="part-4" class="hangman-part hidden"/>
+            <line x1="60" y1="70" x2="75" y2="90" stroke="var(--accent)" stroke-width="2" id="part-5" class="hangman-part hidden"/>
+        </svg>
+    </div>
+
+    <div id="word-display" class="word-slots"></div>
+    <div id="keyboard" class="keyboard"></div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">Hangman</div>
+        <div id="overlay-sub" class="overlay-sub">Guess the word before the gallows is full.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap letters to guess · 6 wrong guesses max</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #mistakes { color: var(--accent); font-weight: 500; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    aspect-ratio: 0.8;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .hangman-display { flex: 1; display: flex; justify-content: center; }
+  .gallows { height: 100%; max-width: 250px; }
+  .hangman-part.hidden { opacity: 0; }
+
+  .word-slots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .slot { border-bottom: 3px solid var(--rule); min-width: 1.5rem; text-align: center; }
+
+  .keyboard {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 0.4rem;
+  }
+  .key {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 0.5rem 0;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.1s;
+  }
+  .key.used { opacity: 0.3; pointer-events: none; }
+  .key.wrong { background: #fee; color: #b34a3b; }
+  .key.correct { background: #efe; color: #4a6b4a; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const WORDS = ['ASTRONOMY', 'LITERATURE', 'PHILOSOPHY', 'UNIVERSE', 'SYMPHONY', 'ARCHITECT', 'KNOWLEDGE', 'EVOLUTION', 'CALIGRAPHY', 'DISCOVERY'];
+  
+  const wordEl = document.getElementById('word-display');
+  const keyboardEl = document.getElementById('keyboard');
+  const mistakesEl = document.getElementById('mistakes');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let currentWord = '';
+  let guessed = new Set();
+  let mistakes = 0;
+  let gameActive = false;
+
+  function initGame() {
+    currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    guessed = new Set();
+    mistakes = 0;
+    mistakesEl.textContent = '0';
+    
+    document.querySelectorAll('.hangman-part').forEach(p => p.classList.add('hidden'));
+    
+    renderWord();
+    renderKeyboard();
+  }
+
+  function renderWord() {
+    wordEl.innerHTML = '';
+    let win = true;
+    currentWord.split('').forEach(char => {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        if (guessed.has(char)) {
+            slot.textContent = char;
+        } else {
+            win = false;
+        }
+        wordEl.appendChild(slot);
+    });
+    if (win && gameActive) endGame(true);
+  }
+
+  function renderKeyboard() {
+    keyboardEl.innerHTML = '';
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(char => {
+        const key = document.createElement('div');
+        key.className = 'key';
+        key.textContent = char;
+        if (guessed.has(char)) {
+            key.classList.add('used');
+            key.classList.add(currentWord.includes(char) ? 'correct' : 'wrong');
+        }
+        key.addEventListener('click', () => handleGuess(char));
+        keyboardEl.appendChild(key);
+    });
+  }
+
+  function handleGuess(char) {
+    if (!gameActive || guessed.has(char)) return;
+    guessed.add(char);
+    if (!currentWord.includes(char)) {
+        document.getElementById(`part-${mistakes}`).classList.remove('hidden');
+        mistakes++;
+        mistakesEl.textContent = String(mistakes);
+        if (mistakes >= 6) endGame(false);
+    }
+    renderWord();
+    renderKeyboard();
+  }
+
+  function startGame() {
+    overlay.classList.add('hidden');
+    gameActive = true;
+    initGame();
+  }
+
+  function endGame(win) {
+    gameActive = false;
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = win ? "Saved!" : "The End";
+    document.getElementById('overlay-sub').textContent = win ? `You found the word: ${currentWord}` : `The word was: ${currentWord}`;
+    startBtn.textContent = 'Play Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+</script>

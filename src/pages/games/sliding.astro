@@ -1,0 +1,175 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Sliding Puzzle">
+  <div class="game-header">
+    <a href="/games" class="back">← Games</a>
+    <div class="game-title-row">
+      <h1>Sliding Puzzle</h1>
+      <div class="score-wrap">Moves: <span id="moves">0</span></div>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <div id="grid" class="slide-grid"></div>
+
+    <div id="overlay" class="overlay">
+      <div class="overlay-content">
+        <div id="overlay-title" class="overlay-title">15 Puzzle</div>
+        <div id="overlay-sub" class="overlay-sub">Slide the tiles to put them in numerical order.</div>
+        <button id="start-btn" class="start-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">Tap a tile adjacent to the empty slot</div>
+</Base>
+
+<style>
+  .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
+  .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
+  .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .game-title-row h1 { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; font-weight: 400; }
+  #moves { color: var(--accent); font-weight: 500; font-size: 1rem; }
+
+  .game-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--rule);
+    background: var(--paper-dark);
+  }
+
+  .slide-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--rule);
+    width: 100%;
+    height: 100%;
+  }
+
+  .tile {
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+  .tile:hover { background: var(--paper-dark); }
+  .tile.empty { background: transparent; cursor: default; pointer-events: none; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(242, 237, 228, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  .overlay-content { text-align: center; }
+  .overlay-title { font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--accent); }
+  .overlay-sub { font-family: var(--font-sans); font-size: 0.85rem; color: var(--ink-light); margin-top: 0.5rem; }
+  .start-btn { margin-top: 1.5rem; padding: 0.6rem 1.5rem; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); font-family: var(--font-sans); text-transform: uppercase; cursor: pointer; }
+</style>
+
+<script>
+  const gridEl = document.getElementById('grid');
+  const movesEl = document.getElementById('moves');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start-btn');
+
+  let tiles = [];
+  let moves = 0;
+  const SIZE = 4;
+
+  function initBoard() {
+    tiles = Array.from({length: SIZE * SIZE}, (_, i) => i === SIZE * SIZE - 1 ? null : i + 1);
+    shuffle();
+    moves = 0;
+    movesEl.textContent = '0';
+    render();
+  }
+
+  function shuffle() {
+    // Solvable shuffle (simulate random moves from win state)
+    let emptyIdx = SIZE * SIZE - 1;
+    for (let i = 0; i < 200; i++) {
+        const neighbors = getNeighbors(emptyIdx);
+        const nextIdx = neighbors[Math.floor(Math.random() * neighbors.length)];
+        [tiles[emptyIdx], tiles[nextIdx]] = [tiles[nextIdx], tiles[emptyIdx]];
+        emptyIdx = nextIdx;
+    }
+  }
+
+  function getNeighbors(idx) {
+    const r = Math.floor(idx / SIZE);
+    const c = idx % SIZE;
+    const neighbors = [];
+    if (r > 0) neighbors.push(idx - SIZE);
+    if (r < SIZE - 1) neighbors.push(idx + SIZE);
+    if (c > 0) neighbors.push(idx - 1);
+    if (c < SIZE - 1) neighbors.push(idx + 1);
+    return neighbors;
+  }
+
+  function render() {
+    gridEl.innerHTML = '';
+    tiles.forEach((val, idx) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        if (val === null) {
+            tile.classList.add('empty');
+        } else {
+            tile.textContent = String(val);
+            tile.addEventListener('click', () => move(idx));
+        }
+        gridEl.appendChild(tile);
+    });
+  }
+
+  function move(idx) {
+    const emptyIdx = tiles.indexOf(null);
+    const neighbors = getNeighbors(emptyIdx);
+    if (neighbors.includes(idx)) {
+        [tiles[emptyIdx], tiles[idx]] = [tiles[idx], tiles[emptyIdx]];
+        moves++;
+        movesEl.textContent = String(moves);
+        render();
+        if (checkWin()) endGame();
+    }
+  }
+
+  function checkWin() {
+    for (let i = 0; i < tiles.length - 1; i++) {
+        if (tiles[i] !== i + 1) return false;
+    }
+    return true;
+  }
+
+  function startGame() {
+    overlay.classList.add('hidden');
+    initBoard();
+  }
+
+  function endGame() {
+    overlay.classList.remove('hidden');
+    document.getElementById('overlay-title').textContent = "Solved!";
+    document.getElementById('overlay-sub').textContent = `Magnificent. You did it in ${moves} moves.`;
+    startBtn.textContent = 'Play Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+</script>
