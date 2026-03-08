@@ -194,16 +194,39 @@ import Base from '../../layouts/Base.astro';
     render();
   }
 
-  function submitWord() {
+  async function submitWord() {
+    if (!gameActive) return;
     const word = currentSelection.map(s => s.char).join('');
-    if (word.length >= 3 && !found.includes(word)) {
-        found.push(word);
-        score += word.length === 3 ? 1 : (word.length === 4 ? 2 : word.length);
-        scoreEl.textContent = String(score);
-        renderList();
-    }
     currentSelection = [];
     render();
+    
+    if (word.length >= 3 && !found.includes(word)) {
+        submitBtn.textContent = 'Checking...';
+        submitBtn.disabled = true;
+        
+        try {
+            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
+            if (res.ok) {
+                found.push(word);
+                score += word.length === 3 ? 1 : (word.length === 4 ? 2 : word.length);
+                scoreEl.textContent = String(score);
+                renderList();
+            } else {
+                // Not a word
+                wordDisplay.textContent = 'INVALID WORD';
+                wordDisplay.style.color = '#b34a3b';
+                setTimeout(() => { wordDisplay.style.color = 'var(--ink)'; wordDisplay.textContent = ''; }, 1000);
+            }
+        } catch(e) {
+            // Fallback if API fails
+            found.push(word);
+            score += word.length;
+            scoreEl.textContent = String(score);
+            renderList();
+        }
+        submitBtn.textContent = 'Submit';
+        submitBtn.disabled = false;
+    }
   }
 
   function renderList() {

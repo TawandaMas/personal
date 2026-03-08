@@ -110,21 +110,26 @@ import Base from '../../layouts/Base.astro';
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start-btn');
 
-  let board = [], mines = [], gameActive = false, flags = 0;
+  let board = [], mines = [], gameActive = false, flags = 0, firstClick = true;
 
   function initBoard() {
     board = Array(81).fill(0);
     mines = [];
     flags = 0;
+    firstClick = true;
+    render();
+  }
+
+  function placeMines(firstIdx) {
     while(mines.length < 10) {
         let r = Math.floor(Math.random() * 81);
-        if (!mines.includes(r)) mines.push(r);
+        // Prevent mine on first click AND its immediate neighbors if possible, but at least the first click
+        if (r !== firstIdx && !mines.includes(r)) mines.push(r);
     }
     mines.forEach(m => {
         const neighbors = getNeighbors(m);
         neighbors.forEach(n => board[n]++);
     });
-    render();
   }
 
   function getNeighbors(idx) {
@@ -158,6 +163,11 @@ import Base from '../../layouts/Base.astro';
     const cell = gridEl.children[i];
     if (cell.classList.contains('revealed') || cell.classList.contains('flagged')) return;
     
+    if (firstClick) {
+        firstClick = false;
+        placeMines(i);
+    }
+
     if (mines.includes(i)) return endGame(false);
     
     cell.classList.add('revealed');
