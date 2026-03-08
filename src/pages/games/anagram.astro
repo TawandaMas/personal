@@ -141,30 +141,7 @@ import Base from '../../layouts/Base.astro';
   let score = 0;
   let gameActive = false;
 
-  function nextWord() {
-    currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-    scrambled = currentWord.split('').sort(() => Math.random() - 0.5).join('');
-    userWord = '';
-    render();
-  }
 
-  function render() {
-    letterGrid.innerHTML = '';
-    scrambled.split('').forEach((l, i) => {
-        const tile = document.createElement('div');
-        tile.className = 'letter-tile';
-        tile.textContent = l;
-        // Logic to check if this specific instance of letter is used
-        const usedCount = userWord.split('').filter(char => char === l).length;
-        const totalInScrambled = scrambled.split('').filter(char => char === l).length;
-        
-        // This is a bit naive for duplicate letters, let's track by index instead
-    });
-    
-    // Better rendering with index tracking
-    letterGrid.innerHTML = '';
-    const usedIndices = []; // we need to track which scrambled index is used
-  }
 
   // Refined Logic
   let activeIndices = [];
