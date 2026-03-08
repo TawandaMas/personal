@@ -30,9 +30,13 @@ const queue = books.filter(b => b.status === 'queue');
                 <p class="book-author">{book.author} — {book.year}</p>
                 {book.rating > 0 && (
                   <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                    {[...Array(5)].map((_, i) => (
-                      <span class:list={['star', { filled: i < book.rating }]}>★</span>
-                    ))}
+                    {[...Array(5)].map((_, i) => {
+                      const full = i < Math.floor(book.rating);
+                      const half = !full && i < book.rating;
+                      return (
+                        <span class:list={['star', { filled: full, half: half }]}>★</span>
+                      );
+                    })}
                   </div>
                 )}
                 <div class="card-rule"></div>
@@ -59,9 +63,13 @@ const queue = books.filter(b => b.status === 'queue');
                 <p class="book-author">{book.author} — {book.year}</p>
                 {book.rating > 0 && (
                   <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                    {[...Array(5)].map((_, i) => (
-                      <span class:list={['star', { filled: i < book.rating }]}>★</span>
-                    ))}
+                    {[...Array(5)].map((_, i) => {
+                      const full = i < Math.floor(book.rating);
+                      const half = !full && i < book.rating;
+                      return (
+                        <span class:list={['star', { filled: full, half: half }]}>★</span>
+                      );
+                    })}
                   </div>
                 )}
                 <div class="card-rule"></div>
@@ -88,9 +96,13 @@ const queue = books.filter(b => b.status === 'queue');
                 <p class="book-author">{book.author} — {book.year}</p>
                 {book.rating > 0 && (
                   <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                    {[...Array(5)].map((_, i) => (
-                      <span class:list={['star', { filled: i < book.rating }]}>★</span>
-                    ))}
+                    {[...Array(5)].map((_, i) => {
+                      const full = i < Math.floor(book.rating);
+                      const half = !full && i < book.rating;
+                      return (
+                        <span class:list={['star', { filled: full, half: half }]}>★</span>
+                      );
+                    })}
                   </div>
                 )}
                 <div class="card-rule"></div>
@@ -217,7 +229,23 @@ const queue = books.filter(b => b.status === 'queue');
     color: #ccac00;
   }
 
-  :root.dark .star.filled {
+  .star.half {
+    position: relative;
+    color: var(--rule);
+  }
+
+  .star.half::after {
+    content: '★';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    overflow: hidden;
+    color: #ccac00;
+  }
+
+  :root.dark .star.filled,
+  :root.dark .star.half::after {
     color: #ffd700;
   }
 

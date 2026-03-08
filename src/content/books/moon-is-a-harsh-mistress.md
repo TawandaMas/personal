@@ -5,5 +5,6 @@ year: 1966
 genre: Science Fiction
 status: read
 note: "TANSTAAFL. Mike is the best AI character ever written."
+rating: 4.5
 order: 1
 ---

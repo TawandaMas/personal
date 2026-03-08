@@ -5,5 +5,6 @@ year: 1961
 genre: Science Fiction
 status: read
 note: ""
+rating: 4
 order: 2
 ---
