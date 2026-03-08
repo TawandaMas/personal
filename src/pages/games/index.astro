@@ -1,9 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
 
-const gameFiles = await Astro.glob('../../content/games/*.md');
+const gameFiles = await getCollection('games');
 const games = gameFiles
-  .map(g => ({ ...g.frontmatter }))
+  .map(g => ({ slug: g.slug, ...g.data }))
   .sort((a, b) => (a.order || 99) - (b.order || 99));
 ---
 
