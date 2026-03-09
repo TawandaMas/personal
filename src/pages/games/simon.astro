@@ -101,7 +101,8 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-  const btns = document.querySelectorAll('.simon-btn');
+<script>
+const btns = document.querySelectorAll('.simon-btn');
   const scoreEl = document.getElementById('score');
   const overlay = document.getElementById('overlay');
   const overlayTitle = document.getElementById('overlay-title');
@@ -205,3 +206,4 @@ import Base from '../../layouts/Base.astro';
   });
   
   startBtn.addEventListener('click', startGame);
+

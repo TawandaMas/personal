@@ -65,7 +65,8 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
-  const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3904a', '#7a4ab3'];
+<script>
+const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3904a', '#7a4ab3'];
   const canvas = document.getElementById('bubble-canvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
@@ -466,3 +467,4 @@ import Base from '../../layouts/Base.astro';
   window.addEventListener('resize', resize);
   resize();
 </script>
+

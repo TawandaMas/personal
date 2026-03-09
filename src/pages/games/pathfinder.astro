@@ -75,7 +75,8 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-  const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
+<script>
+const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
   const canvas = document.getElementById('path-canvas');
   const ctx = canvas.getContext('2d');
   const levelEl = document.getElementById('level');
@@ -86,12 +87,6 @@ import Base from '../../layouts/Base.astro';
   let level = parseInt(localStorage.getItem('pathfinder-level') || 1);
 
   function generateSolvableLevel() {
-      // Procedural Generation:
-      // We start with an empty grid. We pick a random empty cell, start a path of color C,
-      // and do a random walk until we hit a dead end or decide to stop.
-      // The start and end of that walk become the "dots" for color C.
-      // We repeat for 3 to 5 colors.
-      
       const numColors = Math.min(3 + Math.floor(level / 3), 5); // scales up to 5 colors
       grid = Math.min(5 + Math.floor(level / 5), 8); // grid grows slowly up to 8x8
       
@@ -101,9 +96,14 @@ import Base from '../../layouts/Base.astro';
       while(generatedDots.length < numColors * 2 && attempts < 50) {
           attempts++;
           generatedDots = [];
+          
+          // Initialise grid with false for tracking path occupied state
           let occupied = Array(grid).fill(true).map(() => Array(grid).fill(false));
           
-          for(let colorIdx=0; colorIdx<numColors; colorIdx++) {
+          let colorIdx = 0;
+          let colorAttempts = 0;
+          
+          while(colorIdx < numColors && colorAttempts < 50) {
               // Find random empty start
               let startR, startC;
               let found = false;
@@ -112,13 +112,19 @@ import Base from '../../layouts/Base.astro';
                   startC = Math.floor(Math.random() * grid);
                   if (!occupied[startR][startC]) { found = true; break; }
               }
-              if (!found) break; // grid too full
+              
+              if (!found) {
+                  colorAttempts++;
+                  continue; 
+              }
               
               occupied[startR][startC] = true;
               let currR = startR, currC = startC;
               let pathLen = 0;
               const targetLen = Math.floor(Math.random() * 4) + 3; // 3 to 6 steps
               
+              let pathCoords = [{r: startR, c: startC}];
+
               while(pathLen < targetLen) {
                   const dirs = [[-1,0],[1,0],[0,-1],[0,1]].sort(()=>Math.random()-0.5);
                   let moved = false;
@@ -127,6 +133,7 @@ import Base from '../../layouts/Base.astro';
                       if (nr>=0 && nr<grid && nc>=0 && nc<grid && !occupied[nr][nc]) {
                           occupied[nr][nc] = true;
                           currR = nr; currC = nc;
+                          pathCoords.push({r: nr, c: nc});
                           pathLen++;
                           moved = true;
                           break;
@@ -135,22 +142,26 @@ import Base from '../../layouts/Base.astro';
                   if (!moved) break; // dead end
               }
               
-              // We need at least 1 step away to be a valid puzzle
               if (pathLen > 0) {
                   generatedDots.push({r: startR, c: startC, colorIdx});
                   generatedDots.push({r: currR, c: currC, colorIdx});
+                  colorIdx++;
+                  colorAttempts = 0; // reset for next color
               } else {
-                  occupied[startR][startC] = false; // backtrack
+                  // backtrack strictly the start point since length is 0
+                  occupied[startR][startC] = false; 
+                  colorAttempts++;
               }
           }
       }
       
       // Fallback if gen failed
-      if (generatedDots.length < 4) {
+      if (generatedDots.length < numColors * 2) {
           grid = 5;
           return [
-              {r:0, c:0, colorIdx: 0}, {r:4, c:4, colorIdx: 0},
-              {r:0, c:4, colorIdx: 1}, {r:4, c:0, colorIdx: 1}
+              {r:0, c:0, colorIdx: 0}, {r:0, c:4, colorIdx: 0},
+              {r:2, c:0, colorIdx: 1}, {r:2, c:4, colorIdx: 1},
+              {r:4, c:0, colorIdx: 2}, {r:4, c:4, colorIdx: 2}
           ];
       }
       return generatedDots;
@@ -290,3 +301,4 @@ import Base from '../../layouts/Base.astro';
   // Need to wait for fonts and CSS to settle before first measurement
   setTimeout(resize, 100);
 </script>
+

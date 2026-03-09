@@ -100,7 +100,8 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-  const gridEl = document.getElementById('grid');
+<script>
+const gridEl = document.getElementById('grid');
   const movesEl = document.getElementById('moves');
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start-btn');
@@ -235,3 +236,4 @@ import Base from '../../layouts/Base.astro';
       setSize(SIZE, currentLevel);
   });
 </script>
+

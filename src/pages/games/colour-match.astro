@@ -131,7 +131,8 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
-  const COLOURS = [
+<script>
+const COLOURS = [
     { name: 'RED', hex: '#b34a3b' },
     { name: 'BLUE', hex: '#4a6bb3' },
     { name: 'GREEN', hex: '#4a6b4a' },
@@ -288,3 +289,4 @@ import Base from '../../layouts/Base.astro';
     if (e.key === 'ArrowRight') handleChoice(true);
   });
 </script>
+

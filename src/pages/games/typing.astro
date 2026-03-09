@@ -109,7 +109,8 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-  const FALLBACK_PASSAGES = [
+<script>
+const FALLBACK_PASSAGES = [
     "The library was a silent cathedral of paper and ink, where every shelf held a thousand lives waiting to be relived through the eyes of a reader.",
     "Technology is a mirror that reflects our own creativity, yet at its best, it acts as a lens that clarifies the complexities of the human condition.",
     "Design is not just what it looks like and feels like. Design is how it works, and how it makes the user feel in the moment of interaction.",
@@ -276,3 +277,4 @@ import Base from '../../layouts/Base.astro';
   startBtn.addEventListener('click', startGame);
   initTest();
 </script>
+

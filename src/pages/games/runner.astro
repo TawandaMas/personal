@@ -59,7 +59,8 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
 </style>
 
-  const canvas = document.getElementById('runner-canvas');
+<script>
+const canvas = document.getElementById('runner-canvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
   const overlay = document.getElementById('overlay');
@@ -394,3 +395,4 @@ import Base from '../../layouts/Base.astro';
   window.addEventListener('resize', resize);
   resize();
 </script>
+

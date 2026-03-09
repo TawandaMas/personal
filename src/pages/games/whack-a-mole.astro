@@ -128,7 +128,8 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-  const holes = document.querySelectorAll('.hole');
+<script>
+const holes = document.querySelectorAll('.hole');
   const scoreEl = document.getElementById('score');
   const timerEl = document.getElementById('timer');
   const overlay = document.getElementById('overlay');
@@ -257,3 +258,4 @@ import Base from '../../layouts/Base.astro';
   });
   startBtn.addEventListener('click', startGame);
 </script>
+

@@ -121,7 +121,8 @@ import Base from '../../layouts/Base.astro';
   .hint { font-family: var(--font-sans); font-size: 0.65rem; color: var(--ink-light); text-align: center; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
 </style>
 
-  const clickArea = document.getElementById('click-area');
+<script>
+const clickArea = document.getElementById('click-area');
   const statusText = document.getElementById('status-text');
   const roundEl = document.getElementById('round');
   const overlay = document.getElementById('overlay');
@@ -223,3 +224,4 @@ import Base from '../../layouts/Base.astro';
     e.preventDefault();
     handleInteraction();
   }, { passive: false });
+

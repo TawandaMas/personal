@@ -128,7 +128,8 @@ import Base from '../../layouts/Base.astro';
   }
 </style>
 
-  const canvas = document.getElementById('snake-canvas');
+<script>
+const canvas = document.getElementById('snake-canvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
   const overlay = document.getElementById('overlay');
@@ -357,3 +358,4 @@ import Base from '../../layouts/Base.astro';
   window.addEventListener('resize', resize);
   resize();
 </script>
+

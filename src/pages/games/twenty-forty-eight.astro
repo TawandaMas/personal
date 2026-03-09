@@ -110,7 +110,8 @@ import Base from '../../layouts/Base.astro';
   .start-btn:hover { transform: scale(1.05); }
 </style>
 
-  const gridEl = document.getElementById('grid');
+<script>
+const gridEl = document.getElementById('grid');
   const scoreEl = document.getElementById('score');
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start-btn');
@@ -296,3 +297,4 @@ import Base from '../../layouts/Base.astro';
     touchStart = null;
   }, { passive: false });
 </script>
+
