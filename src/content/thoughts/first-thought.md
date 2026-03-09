@@ -1,6 +1,5 @@
 ---
-title: "First Thought"
-date: 2026-03-08T16:55:00Z
+title: First Thought
+date: 2026-03-08T16:55:00.000Z
 ---
-
-Just getting the thoughts section started. Stay tuned!
+Thinking about the difference between building a feature and building a product. My first half-baked thought is that a feature is the result of additive forces, whereas a product is the result of elements that are more multiplicative. I wonder what do do with that. 
