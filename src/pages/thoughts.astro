@@ -1,16 +1,23 @@
 ---
 import Base from '../layouts/Base.astro';
 
-const thoughtFiles = await Astro.glob('../content/thoughts/*.md');
-const thoughts = thoughtFiles
-  .map(t => ({ 
-    ...t.frontmatter,
-    Content: t.Content 
-  }))
-  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+import { getCollection } from 'astro:content';
 
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('en-US', {
+const thoughtEntries = await getCollection('thoughts');
+const thoughts = await Promise.all(
+  thoughtEntries.map(async (entry) => {
+    const { Content } = await entry.render();
+    return {
+      ...entry.data,
+      Content
+    };
+  })
+);
+
+thoughts.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -30,7 +37,7 @@ const formatDate = (date: string) => {
         <article class="thought-entry">
           <header class="thought-header">
             <h2 class="thought-title">{thought.title}</h2>
-            <time class="thought-date" datetime={thought.date}>
+            <time class="thought-date" datetime={thought.date.toISOString()}>
               {formatDate(thought.date)}
             </time>
           </header>
