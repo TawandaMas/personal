@@ -14,7 +14,7 @@ const navLinks = [
   { href: '/thoughts', label: 'Thoughts' },
   { href: '/books', label: 'Books' },
   { href: '/games', label: 'Games' },
-  { href: '/news', label: 'T~omorrow’s news' },
+  { href: '/news', label: 'Tomorrow’s News' },
   { href: 'https://blog.tawanda.space', label: 'Blog', external: true },
 ];
 ---
@@ -28,7 +28,7 @@ const navLinks = [
   <title>{title === 'Home' ? 'Tawanda' : `${title} — Tawanda`}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Karla:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Karla:wght@300;400;500&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
   {!(currentPath.startsWith('/games/') && currentPath.length > 7) && <ViewTransitions />}
   <script is:inline>
     const theme = (() => {
