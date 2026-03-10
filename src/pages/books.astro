@@ -1,9 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 
-const bookFiles = await Astro.glob('../content/books/*.md');
-const books = bookFiles
-  .map(b => ({ ...b.frontmatter }))
+import { getCollection } from 'astro:content';
+
+const bookEntries = await getCollection('books');
+const books = bookEntries
+  .map(b => ({ ...b.data }))
   .sort((a, b) => (a.order || 99) - (b.order || 99));
 
 const reading = books.filter(b => b.status === 'reading');

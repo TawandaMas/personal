@@ -18,7 +18,36 @@ const thoughtsCollection = defineCollection({
   }),
 });
 
+const projectsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    tag: z.string(),
+    year: z.string(),
+    description: z.string(),
+    url: z.string(),
+    status: z.enum(['Live', 'WIP']),
+    order: z.number().optional(),
+  }),
+});
+
+const booksCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    author: z.string(),
+    year: z.number(),
+    genre: z.string(),
+    status: z.enum(['reading', 'read', 'queue']),
+    rating: z.number().optional(),
+    note: z.string().optional(),
+    order: z.number().optional(),
+  }),
+});
+
 export const collections = {
   'games': gamesCollection,
   'thoughts': thoughtsCollection,
+  'projects': projectsCollection,
+  'books': booksCollection,
 };

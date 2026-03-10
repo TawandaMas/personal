@@ -1,10 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 
-// Read all project markdown files
-const projectFiles = await Astro.glob('../content/projects/*.md');
-const projects = projectFiles
-  .map(p => ({ ...p.frontmatter }))
+import { getCollection } from 'astro:content';
+
+const projectEntries = await getCollection('projects');
+const projects = projectEntries
+  .map(p => ({ ...p.data }))
   .sort((a, b) => (a.order || 99) - (b.order || 99));
 ---
 
