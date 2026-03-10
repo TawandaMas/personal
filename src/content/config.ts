@@ -45,9 +45,20 @@ const booksCollection = defineCollection({
   }),
 });
 
+const newsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    date: z.date(),
+    summary: z.string(),
+    image: z.string().optional(),
+  }),
+});
+
 export const collections = {
   'games': gamesCollection,
   'thoughts': thoughtsCollection,
   'projects': projectsCollection,
   'books': booksCollection,
+  'news': newsCollection,
 };

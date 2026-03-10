@@ -1,0 +1,212 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const newsEntries = await getCollection('news');
+const sortedNews = newsEntries.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+---
+
+<Base title="T~omorrow’s News">
+  <div class="news-container">
+    <header class="masthead">
+      <div class="masthead-top">
+        <span class="location">GLOBAL EDITION</span>
+        <span class="date">{formatDate(new Date())}</span>
+        <span class="price">PRICELESS</span>
+      </div>
+      <div class="masthead-main">
+        <h1>T~omorrow’s News</h1>
+      </div>
+      <div class="masthead-motto">
+        "Reporting on things that haven't happened yet, but probably will."
+      </div>
+    </header>
+
+    <div class="news-layout">
+      {sortedNews.map((entry, index) => (
+        <article class:list={['news-article', { 'featured': index === 0 }]}>
+          <a href={`/news/${entry.slug}`} class="article-link">
+            <h2 class="article-title">{entry.data.title}</h2>
+            <div class="article-meta">
+              <span class="byline">BY STAFF REPORTER</span>
+              <span class="divider">|</span>
+              <span class="category">JUSTICE</span>
+            </div>
+            {entry.data.image && index === 0 && (
+              <div class="article-image">
+                <img src={entry.data.image} alt={entry.data.title} />
+              </div>
+            )}
+            <p class="article-summary">{entry.data.summary}</p>
+            <span class="read-more">CONTINUE READING →</span>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .news-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-top: 2rem;
+    color: #1a1a1a;
+  }
+
+  :root.dark .news-container {
+    color: #e0e0e0;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    border-bottom: 4px double var(--rule);
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    text-align: center;
+  }
+
+  .masthead-top {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--ink-light);
+  }
+
+  .masthead-main h1 {
+    font-family: "Old English Text MT", "Playfair Display", serif;
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    font-weight: 900;
+    margin: 0.5rem 0;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .masthead-motto {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.9rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    color: var(--ink-mid);
+  }
+
+  /* LAYOUT */
+  .news-layout {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 2rem;
+  }
+
+  .news-article {
+    grid-column: span 12;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .news-article.featured {
+    grid-column: span 8;
+    border-bottom: none;
+    border-right: 1px solid var(--rule);
+    padding-right: 2rem;
+    padding-bottom: 0;
+  }
+
+  @media (max-width: 800px) {
+    .news-article.featured {
+      grid-column: span 12;
+      border-right: none;
+      padding-right: 0;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule);
+    }
+  }
+
+  /* TYPOGRAPHY */
+  .article-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .article-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .featured .article-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .article-link:hover .article-title {
+    color: var(--accent);
+  }
+
+  .article-meta {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--ink-light);
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .article-image {
+    margin-bottom: 1.5rem;
+    filter: grayscale(1) contrast(1.1);
+    border: 1px solid var(--rule);
+    padding: 2px;
+  }
+
+  .article-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .article-summary {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    column-count: 2;
+    column-gap: 1.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .article-summary {
+      column-count: 1;
+    }
+  }
+
+  .read-more {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+</style>

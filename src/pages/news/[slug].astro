@@ -1,0 +1,183 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const newsEntries = await getCollection('news');
+  return newsEntries.map(entry => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+---
+
+<Base title={entry.data.title}>
+  <div class="article-detail-container">
+    <div class="news-header-strip">
+        <a href="/news" class="back-to-news">← BACK TO FRONT PAGE</a>
+        <span class="detail-date">{formatDate(entry.data.date)}</span>
+    </div>
+
+    <header class="article-full-header">
+      <h1 class="headline">{entry.data.title}</h1>
+      <div class="byline-bar">
+        <span class="author">By STAFF REPORTER</span>
+        <span class="location">NEW YORK CITY</span>
+      </div>
+    </header>
+
+    <div class="article-layout">
+      <div class="article-body prose">
+        <Content />
+      </div>
+      
+      <aside class="article-sidebar">
+        <div class="sidebar-box">
+          <h3>ARCHIVE DIGEST</h3>
+          <p>This case is being watched by legal observers globally as the first major asset division between a human and a cloud-based entity.</p>
+        </div>
+        <div class="sidebar-box">
+            <h3>LATEST UPDATES</h3>
+            <ul>
+                <li>DigiLove stock down 2%.</li>
+                <li>Joshua Twain arriving at court.</li>
+                <li>Public protests outside NYSC.</li>
+            </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .article-detail-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding-top: 2rem;
+  }
+
+  .news-header-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 800;
+  }
+
+  .back-to-news {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .back-to-news:hover {
+    color: var(--accent);
+  }
+
+  .headline {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 6vw, 4rem);
+    line-height: 1;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1rem;
+  }
+
+  .byline-bar {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-mid);
+    margin-bottom: 3rem;
+  }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: 1fr 250px;
+    gap: 3rem;
+  }
+
+  @media (max-width: 800px) {
+    .article-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .article-body {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+
+  .article-body :global(strong) {
+    font-weight: 900;
+    font-family: var(--font-sans);
+  }
+
+  .article-body :global(p) {
+    margin-bottom: 1.5rem;
+    text-indent: 2rem;
+  }
+
+  .article-body :global(p:first-of-type) {
+    text-indent: 0;
+  }
+
+  .article-body :global(blockquote) {
+    font-size: 1.5rem;
+    font-style: italic;
+    border-top: 2px solid var(--rule);
+    border-bottom: 2px solid var(--rule);
+    padding: 1.5rem 0;
+    margin: 2rem 0;
+    text-indent: 0;
+  }
+
+  .sidebar-box {
+    border-top: 3px solid var(--ink);
+    padding-top: 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .sidebar-box h3 {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-box p, .sidebar-box li {
+    font-size: 0.85rem;
+    font-family: var(--font-serif);
+    line-height: 1.4;
+    color: var(--ink-mid);
+  }
+
+  .sidebar-box ul {
+    list-style: none;
+  }
+
+  .sidebar-box li {
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+</style>
