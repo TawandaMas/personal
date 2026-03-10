@@ -18,23 +18,11 @@ const currentYear = new Date().getFullYear();
 const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').getTime()) / (1000 * 60 * 60 * 24));
 ---
 
-<Base title="Tomorrow’s News">
+<Base title="Prompt Update News">
   <div class="newspaper-front-page">
     <header class="masthead">
-      <div class="masthead-info-bar top">
-        <span>ESTABLISHED 2024</span>
-        <span>GLOBAL EDITION</span>
-        <span>PRICELESS</span>
-      </div>
-      
       <div class="masthead-title">
-        <h1>Tomorrow’s News</h1>
-      </div>
-
-      <div class="masthead-info-bar bottom">
-        <span>No. {issueNumber} — {currentYear - 2023}th Year</span>
-        <span class="center-date">{formatDate(new Date()).toUpperCase()}</span>
-        <span>TEN CENTS — VOL. XCII</span>
+        <h1>Prompt Update News</h1>
       </div>
     </header>
 
@@ -84,20 +72,7 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
         </div>
       </div>
 
-      <!-- Side Column 2 -->
-      <div class="side-column last">
-        <div class="column-header">MARKET BEAT</div>
-        <div class="market-data">
-            <div class="market-row"><span>DIGILOVE (DLOV)</span> <span class="down">▼ 2.4%</span></div>
-            <div class="market-row"><span>NEURALINK (NLNK)</span> <span class="up">▲ 0.8%</span></div>
-            <div class="market-row"><span>META (META)</span> <span class="flat">Stable</span></div>
-        </div>
-        <div class="rule-thick"></div>
-        <article class="secondary-story">
-            <h3>VIBE-BIRTH CUSTODY DISPUTE</h3>
-            <p>Twain's request for full custody of "offspring" marks first test of parental rights for data-driven progeny.</p>
-        </article>
-      </div>
+
     </div>
   </div>
 </Base>
@@ -172,7 +147,7 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
   /* GRID SYSTEM */
   .front-page-grid {
     display: grid;
-    grid-template-columns: 1fr 200px 180px;
+    grid-template-columns: 1fr 240px;
     gap: 1.5rem;
     align-items: start;
   }
@@ -218,7 +193,7 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
 
   .headline-primary {
     font-family: var(--font-serif);
-    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
     line-height: 0.95;
     font-weight: 900;
     text-transform: uppercase;

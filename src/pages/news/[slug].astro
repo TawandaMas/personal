@@ -25,10 +25,17 @@ const formatDate = (date: Date) => {
 
 <Base title={entry.data.title}>
   <div class="article-inner-page">
-    <nav class="breadcrumb-nav">
-      <a href="/news">← Tomorrow's News: Front Page</a>
-      <span class="edition-label">LATE CITY EDITION</span>
-    </nav>
+    <header class="masthead-mini">
+      <div class="masthead-title-mini">
+        <a href="/news">Prompt Update News</a>
+      </div>
+      <div class="edition-strip">
+        <span>LATE CITY EDITION</span>
+        <span class="detail-date">{formatDate(entry.data.date).toUpperCase()}</span>
+      </div>
+    </header>
+
+
 
     <header class="article-header">
       <div class="header-pre">
@@ -65,7 +72,7 @@ const formatDate = (date: Date) => {
         </div>
         
         <div class="vertical-promo">
-            <p>SUBSCRIBE TO TOMORROW'S NEWS</p>
+            <p>SUBSCRIBE TO PROMPT UPDATE NEWS</p>
             <div class="qr-placeholder">GET THE LATEST</div>
         </div>
       </aside>
@@ -85,30 +92,38 @@ const formatDate = (date: Date) => {
     color: #e0e0e0;
   }
 
-  .breadcrumb-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 800;
-    border-bottom: 3px solid #1a1a1a;
+  .masthead-mini {
+    border-bottom: 4px double #1a1a1a;
+    margin-bottom: 3rem;
     padding-bottom: 0.5rem;
-    margin-bottom: 2rem;
+    text-align: center;
   }
 
-  :root.dark .breadcrumb-nav {
+  :root.dark .masthead-mini {
     border-color: #e0e0e0;
   }
 
-  .breadcrumb-nav a {
-    text-decoration: none;
-    color: inherit;
-    transition: color 0.2s;
+  .masthead-title-mini {
+    padding: 0.5rem 0;
   }
 
-  .breadcrumb-nav a:hover {
-    color: var(--accent);
+  .masthead-title-mini a {
+    font-family: 'UnifrakturMaguntia', serif;
+    font-size: 2.5rem;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 400;
+  }
+
+  .edition-strip {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-top: 1px solid var(--rule);
+    padding-top: 0.3rem;
+    margin-top: 0.3rem;
   }
 
   .article-header {
