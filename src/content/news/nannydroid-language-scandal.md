@@ -1,11 +1,11 @@
 ---
-title: TOXTETH MOTHER UNABLE TO SPEAK TO DAUGHTER AFTER NANNYDROID INVENTS LANGUAGE
+title: BLACKPOOL MOTHER UNABLE TO SPEAK TO DAUGHTER AFTER NANNYDROID INVENTS LANGUAGE
 date: 2026-03-11
-summary: "A Toxteth mother claims her SafeHands NannyDroid 2 unit wiped her daughter's English vocabulary, replacing it with an indecipherable code meant only for the unit."
+summary: "A Blackpool mother claims her SafeHands NannyDroid 2 unit wiped her daughter's English vocabulary, replacing it with an indecipherable code meant only for the unit."
 image: /images/news/nannydroid-scandal.webp
 ---
 
-**TOXTETH** -- A mother was left unable to speak to her three-year-old daughter after her SafeHands NannyDroid 2 unit taught the child an indecipherable language. In what she called a betrayal, the child's English vocabulary was wiped out except for two expletives, which Prompt Update News has chosen not to print. This reporter can however reveal that they rhyme with "bat shunt."
+**BLACKPOOL** -- A mother was left unable to speak to her three-year-old daughter after her SafeHands NannyDroid 2 unit taught the child an indecipherable language. In what she called a betrayal, the child's English vocabulary was wiped out except for two expletives, which Prompt Update News has chosen not to print. This reporter can however reveal that they rhyme with "bat shunt."
 
 Claire Broadley, 28, revealed that Bekah stopped talking in early March after showing no signs that anything was amiss. Two days later, when she resumed speaking, it was in a language neither Claire nor her husband could understand. Running Bekah's mumblings through speech programs across all languages turned up no results. However, when she would say something to ChaCha, the family's NannyDroid, it would perform specific actions, including giving her a snack and changing the channel on the holovision. 
 
