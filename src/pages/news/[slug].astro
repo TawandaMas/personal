@@ -13,14 +13,11 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await entry.render();
 
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
+const allNews = await getCollection('news');
+const otherNews = allNews
+  .filter(n => n.slug !== entry.slug)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
 ---
 
 <Base title={entry.data.title}>
@@ -31,7 +28,7 @@ const formatDate = (date: Date) => {
       </div>
       <div class="edition-strip">
         <span>LATE CITY EDITION</span>
-        <span class="detail-date">{formatDate(entry.data.date).toUpperCase()}</span>
+        <span class="detail-edition">GLOBAL PREMIERE</span>
       </div>
     </header>
 
@@ -56,6 +53,20 @@ const formatDate = (date: Date) => {
         <div class="article-footer-mark">
           <span>(Continued from Page A1)</span>
           <span class="end-slug">■</span>
+        </div>
+
+        <!-- Mobile More News -->
+        <div class="mobile-more-news">
+          <h3>RECENT HEADLINES</h3>
+          <div class="more-news-grid">
+            {otherNews.map((news) => (
+              <a href={`/news/${news.slug}`} class="more-news-card">
+                <h4>{news.data.title}</h4>
+                <p>{news.data.summary}</p>
+              </a>
+            ))}
+          </div>
+          <a href="/news" class="view-all-headlines">VIEW ALL HEADLINES →</a>
         </div>
       </div>
 
@@ -195,9 +206,70 @@ const formatDate = (date: Date) => {
     }
   }
 
-  .main-body-column {
-    border-right: 1px solid var(--rule);
-    padding-right: 3.5rem;
+  /* MOBILE MORE NEWS */
+  .mobile-more-news {
+    display: none;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 3px solid #1a1a1a;
+  }
+
+  :root.dark .mobile-more-news {
+    border-color: #e0e0e0;
+  }
+
+  @media (max-width: 850px) {
+    .mobile-more-news {
+      display: block;
+    }
+  }
+
+  .mobile-more-news h3 {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+
+  .more-news-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .more-news-card {
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px dashed var(--rule);
+    padding-bottom: 1rem;
+  }
+
+  .more-news-card h4 {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .more-news-card p {
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--ink-mid);
+  }
+
+  .view-all-headlines {
+    display: block;
+    margin-top: 2rem;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    text-decoration: none;
   }
 
   @media (max-width: 850px) {

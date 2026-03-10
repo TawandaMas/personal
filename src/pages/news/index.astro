@@ -5,14 +5,7 @@ import { getCollection } from 'astro:content';
 const newsEntries = await getCollection('news');
 const sortedNews = newsEntries.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
+
 
 const currentYear = new Date().getFullYear();
 const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').getTime()) / (1000 * 60 * 60 * 24));
