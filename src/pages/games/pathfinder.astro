@@ -7,7 +7,7 @@ import Base from '../../layouts/Base.astro';
     <a href="/games" class="back">← Games</a>
     <div class="game-title-row">
       <h1>Path Finder</h1>
-      <div class="score-wrap">Level: <span id="level">1</span>/5</div>
+      <div class="score-wrap">Level: <span id="level">1</span></div>
     </div>
   </div>
 
@@ -23,6 +23,9 @@ import Base from '../../layouts/Base.astro';
   </div>
 
   <div class="hint">Drag from dot to dot · Fill the grid</div>
+  <div style="text-align:center; margin-top:2rem;">
+    <button id="regen-btn" style="background:none; border:none; color:var(--ink-light); cursor:pointer; font-size:0.7rem; text-decoration:underline;">New Puzzle</button>
+  </div>
 </Base>
 
 <style>
@@ -87,8 +90,8 @@ const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
   let level = parseInt(localStorage.getItem('pathfinder-level') || 1);
 
   function generateSolvableLevel() {
-      const numColors = Math.min(3 + Math.floor(level / 3), 5); // scales up to 5 colors
-      grid = Math.min(5 + Math.floor(level / 5), 8); // grid grows slowly up to 8x8
+      const numColors = Math.min(2 + Math.floor(level / 4), 5); // scales slowly, starts at 2 colors
+      grid = Math.min(5 + Math.floor(level / 6), 8); // grid grows every 6 levels
       
       let generatedDots = [];
       let attempts = 0;
@@ -160,11 +163,16 @@ const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
           grid = 5;
           return [
               {r:0, c:0, colorIdx: 0}, {r:0, c:4, colorIdx: 0},
-              {r:2, c:0, colorIdx: 1}, {r:2, c:4, colorIdx: 1},
+              {r:1, c:1, colorIdx: 1}, {r:3, c:3, colorIdx: 1},
               {r:4, c:0, colorIdx: 2}, {r:4, c:4, colorIdx: 2}
           ];
       }
       return generatedDots;
+  }
+
+  // Add regeneration to help user if they find an edge case unsolvable
+  function regenerate() {
+      initLevel();
   }
 
   function initLevel() {
@@ -179,7 +187,7 @@ const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
     ctx.fillStyle = '#e8e0d0'; ctx.fillRect(0,0,canvas.width,canvas.height);
     
     // Grid lines
-    ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
     for(let i=0; i<=grid; i++) {
         ctx.beginPath(); ctx.moveTo(i*cellSize, 0); ctx.lineTo(i*cellSize, canvas.height); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(0, i*cellSize); ctx.lineTo(canvas.width, i*cellSize); ctx.stroke();
@@ -228,34 +236,58 @@ const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX || (e.touches?.[0]?.clientX)) - rect.left;
     const y = (e.clientY || (e.touches?.[0]?.clientY)) - rect.top;
-    const r = Math.floor(y/cellSize), c = Math.floor(x/cellSize);
+    
+    // Convert to grid coordinates
+    let r = Math.floor(y/cellSize);
+    let c = Math.floor(x/cellSize);
 
     if (r<0 || r>=grid || c<0 || c>=grid) return;
     
-    const last = currentPath.points[currentPath.points.length-1];
-    if (last.r !== r || last.c !== c) {
-        // Must be adjacent
-        if (Math.abs(last.r - r) + Math.abs(last.c - c) === 1) {
-            const usedInCurrent = currentPath.points.some(p => p.r === r && p.c === c);
-            const usedInOther = paths.some(p => p.points.some(pt => pt.r === r && pt.c === c));
-            const isOtherDot = dots.some(d => d.r === r && d.c === c && d.colorIdx !== currentPath.colorIdx);
-            
-            // Allow moving backwards along our own path
-            if (currentPath.points.length > 1) {
-                const prev = currentPath.points[currentPath.points.length - 2];
-                if (prev.r === r && prev.c === c) {
-                    currentPath.points.pop();
-                    draw();
-                    return;
-                }
-            }
-
-            if (!usedInCurrent && !usedInOther && !isOtherDot) {
-                currentPath.points.push({r, c});
-                draw();
+    // Interpolation: If we moved more than one cell, we need to try and fill in the gaps
+    // to make the game feel responsive on touch/fast swipes.
+    let last = currentPath.points[currentPath.points.length-1];
+    
+    // While not at the target cell and adjacent to the last added cell
+    let safety = 0;
+    while ((last.r !== r || last.c !== c) && safety < 10) {
+        safety++;
+        const dr = Math.sign(r - last.r);
+        const dc = Math.sign(c - last.c);
+        
+        let nr = last.r;
+        let nc = last.c;
+        
+        // Move one step at a time (prioritize vertical or horizontal based on distance)
+        if (Math.abs(r - last.r) > Math.abs(c - last.c)) {
+            nr += dr;
+        } else {
+            nc += dc;
+        }
+        
+        // Check if the step is valid
+        const usedInCurrent = currentPath.points.some(p => p.r === nr && p.c === nc);
+        const usedInOther = paths.some(p => p.points.some(pt => pt.r === nr && pt.c === nc));
+        const isOtherDot = dots.some(d => d.r === nr && d.c === nc && d.colorIdx !== currentPath.colorIdx);
+        
+        // Allow backtracking
+        if (currentPath.points.length > 1) {
+            const prev = currentPath.points[currentPath.points.length - 2];
+            if (prev.r === nr && prev.c === nc) {
+                currentPath.points.pop();
+                last = currentPath.points[currentPath.points.length - 1];
+                continue;
             }
         }
+
+        if (!usedInCurrent && !usedInOther && !isOtherDot) {
+            currentPath.points.push({r: nr, c: nc});
+            last = {r: nr, c: nc};
+        } else {
+            // Blocked
+            break;
+        }
     }
+    draw();
   }
 
   function handleEnd() {
@@ -297,6 +329,8 @@ const COLORS = ['#8b3a2a', '#4a6b4a', '#4a6bb3', '#b3a54a', '#7a4ab3'];
   window.addEventListener('mousemove', handleMove);
   window.addEventListener('mouseup', handleEnd);
   window.addEventListener('resize', resize);
+  
+  document.getElementById('regen-btn').addEventListener('click', regenerate);
   
   // Need to wait for fonts and CSS to settle before first measurement
   setTimeout(resize, 100);

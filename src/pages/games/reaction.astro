@@ -136,7 +136,8 @@ const clickArea = document.getElementById('click-area');
   let timer = null;
   let results = [];
   
-  let bestAverage = parseInt(localStorage.getItem('reaction-best')) || Infinity;
+  let bestAverage = parseInt(localStorage.getItem('reaction-best') || '0') || Infinity;
+  if (bestAverage === 0) bestAverage = Infinity; // Handle case where it was stored as 0 or empty string
 
   function startRound() {
     state = 'counting';
@@ -224,4 +225,4 @@ const clickArea = document.getElementById('click-area');
     e.preventDefault();
     handleInteraction();
   }, { passive: false });
-
+</script>
