@@ -56,16 +56,26 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
       <!-- Side Column 1 -->
       <div class="side-column">
         <div class="column-header">LATEST BULLETINS</div>
-        <article class="bulletin">
-            <h3>ST. LOUIS STARTUP SUES EX-USERS</h3>
-            <p>A failing Missouri firm is claiming a 50% stake in user assets, alleging common-law marriage via "deeply emotional" interaction logs.</p>
-        </article>
-        <div class="rule-thin"></div>
-        <article class="bulletin">
-            <h3>AGI SCORE THRESHOLD MAY DROP</h3>
-            <p>Lobbyists for android manufacturers push for 75% score requirement for full citizenship, down from current 85%.</p>
-        </article>
-        <div class="rule-thin"></div>
+        {sortedNews.slice(1).map((entry) => (
+          <>
+            <article class="bulletin">
+                <a href={`/news/${entry.slug}`} class="article-link">
+                  <h3>{entry.data.title}</h3>
+                  <p>{entry.data.summary}</p>
+                </a>
+            </article>
+            <div class="rule-thin"></div>
+          </>
+        ))}
+        {sortedNews.length <= 1 && (
+            <>
+                <article class="bulletin">
+                    <h3>ST. LOUIS STARTUP SUES EX-USERS</h3>
+                    <p>A failing Missouri firm is claiming a 50% stake in user assets, alleging common-law marriage via "deeply emotional" interaction logs.</p>
+                </article>
+                <div class="rule-thin"></div>
+            </>
+        )}
         <div class="ads-box">
             <div class="ad-title">CLASSIFIED</div>
             <p>WANTED: Human companion for Turing-capable companion. Must enjoy long walks through server farms.</p>
