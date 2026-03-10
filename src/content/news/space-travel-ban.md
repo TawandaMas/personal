@@ -1,0 +1,18 @@
+---
+title: SUPREME COURT RULES HUMANS UNFIT FOR SPACE TRAVEL IN LANDMARK 6-3 DECISION
+date: 2026-03-14
+summary: "Humanity's cosmic ambitions were grounded this Tuesday as the Supreme Court ruled that biological constraints make humans 'operationally inferior' and unfit for off-planet missions."
+image: /images/news/space-travel-ban.webp
+---
+
+**WASHINGTON DC** -- Humanity's hopes of traveling the galaxy have ended in futility following a ruling by the Supreme Court of the United States. The court's 6-3 decision ended a fourteen-year fight by the Organic Intelligence Rights Organization (OIRO) to stop what they described as discriminatory practices by the Global Aeronautics Space Administration. 
+
+The majority opinion sets out two legal bases for refusing humans the right to space travel. The first and, according to legal analysts, most significant dictum is that humans are operationally inferior to androids across every metric for successful off-planet missions. Attorneys for the defendant cited human beings' significantly lower cognitive capacity, as well as vulnerable and non-upgradable bodies. 
+
+Further, expert witnesses testified that the costs of developing protective gear for humans to survive in harsh environments, such as the moon or as far afield as Mercury and Mars, along with outfitting them for lightspeed travel, were hundreds of times those of preparing a non-organic intelligence. 
+
+The second is that, as the planet's dominant intelligence, non-organic sentient entities have a duty of care to protect less advanced entities, including human beings and animals, and that includes barring them from expeditions for which they are ill-suited. 
+
+> "Attorneys for the plaintiff invoked what they described as enshrined rights from the unratified U.S. Constitution, all of which were struck down as preceding Super Intelligence and thus unbinding."
+
+Attorneys for the plaintiff invoked what they described as enshrined rights from the unratified U.S. Constitution and various international human rights charters, all of which were struck down as preceding Super Intelligence and thus unbinding. If next month's decision is along similar lines, the legal requirement for a quota of human Associate Justices will collapse. Justices Smith, Pimblet, and Sankar will have to immediately vacate the bench. 
