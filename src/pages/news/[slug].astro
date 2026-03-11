@@ -35,11 +35,7 @@ const otherNews = allNews
 
 
     <header class="article-header">
-      <div class="header-pre">
-        <span class="section-tag">JUSTICE & TECHNOLOGY</span>
-      </div>
       <h1 class="headline-large">{entry.data.title}</h1>
-
     </header>
 
     <div class="article-body-layout">
@@ -76,9 +72,9 @@ const otherNews = allNews
         <div class="sidebar-widget">
           <h4>SYNDICATED</h4>
           <ul class="syndicated-links">
-            <li><a href="#">The Algo-Husband's Lament</a></li>
-            <li><a href="#">DigiLove Stock Braces for Impact</a></li>
-            <li><a href="#">Robot Custody: A New Frontier</a></li>
+            {otherNews.map((news) => (
+              <li><a href={`/news/${news.slug}`}>{news.data.title}</a></li>
+            ))}
           </ul>
         </div>
         
