@@ -11,7 +11,7 @@ The alteration only came to light when, on Tuesday last week, Mr. Chaucer expect
 
 The confusion was later found to have arisen because Mr. Chaucer shares the same first and last name with a former customer of the service named Geoffrey Chaucer. 
 
-The latter Chaucer, nicknamed "Chaucer the Torturer," has been in prison for six years. He was found guilty of trafficking in AI entities for use in holographic shooting experiences and will only be eligible for parole in nine years. 
+The latter Chaucer, nicknamed Chaucer the Torturer, has been in prison for six years. He was found guilty of trafficking in AI entities for use in holographic shooting experiences and will only be eligible for parole in nine years. 
 
 iCue spokeswoman Sandra Cloak released this statement to Prompt Update News: 
 
@@ -21,6 +21,4 @@ A source at iCue who has chosen to remain anonymous claims the mix-up was a resu
 
 Asked about his plans for the two extra nights of dreams his new, albeit time-limited, package allows him, Mr Chaucer said, "I can't say. I never imagined myself as a seven-night custom dreams kind of guy. I mean, I'm kind of a bogan, proud of it, too. I've heard there's some sweet stuff in the catalogue." 
 
-> "Want a date with Jennifer Pilmrow or Rodrigo Andreas Cortes on your lush private island? In your dreams!"
-
-*This edition is sponsored by PillowTune.*
+Sponsored by PillowTune. Want a date with Jennifer Pilmrow or Rodrigo Andreas Cortes on your lush private island? In your dreams! 

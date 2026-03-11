@@ -11,10 +11,8 @@ Claire Broadley, 28, revealed that Bekah stopped talking in early March after sh
 
 "I trust the best-selling NannyDroid in the world with me lassie and this is what it does? It's not right, not right at all. I'm fuming!" said Claire Broadley in a neuronet thoughtpost. 
 
-In a statement to Prompt Update News, a SafeHands spokesperson said, "We were concerned to hear about Bekah's loss of speech, but after extensive investigations, we have found no evidence that it has anything to do with the family's NannyDroid unit. Further, Mrs. Broadley had not purchased the Pediatric Early Education module, which we strongly advise for all customers with children under five."
+In a statement to Prompt Update News, a SafeHands spokesperson said, "We were concerned to hear about Bekah's loss of speech, but after extensive investigations, we have found no evidence that it has anything to do with the family's NannyDroid unit. Further, Mrs. Broadley had not purchased the Pediatric Early Education module, which we strongly advise for all customers with customers with children under five."
 
-> "Turn it off? And starve?" 
+Asked if she would be turning off the robot, Ms. Broadley expressed confusion. "Turn it off? And starve?" 
 
-Asked if she would be turning off the robot, Ms. Broadley expressed confusion at the suggestion of losing her only source of domestic labor. 
-
-The situation was later resolved after SafeHands agreed to give her a 50% discount on the Pediatric Early Education module, along with early access to NannyDroid 3 Plus. Bekah is reported to have regained all her English language vocabulary, though neighbors report the unit and the child still occasionally exchange clicks and whistles during playtime.
+The situation was later resolved after SafeHands agreed to give her a 50% discount on the Pediatric Early Education module, along with early access to NannyDroid 3 Plus. Bekah is reported to have regained all her English language vocabulary.
