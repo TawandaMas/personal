@@ -21,4 +21,8 @@ A source at iCue who has chosen to remain anonymous claims the mix-up was a resu
 
 Asked about his plans for the two extra nights of dreams his new, albeit time-limited, package allows him, Mr Chaucer said, "I can't say. I never imagined myself as a seven-night custom dreams kind of guy. I mean, I'm kind of a bogan, proud of it, too. I've heard there's some sweet stuff in the catalogue." 
 
+<div class="ad-viewport">
+<p>
 Sponsored by PillowTune. Want a date with Jennifer Pilmrow or Rodrigo Andreas Cortes on your lush private island? In your dreams! 
+</p>
+</div>
