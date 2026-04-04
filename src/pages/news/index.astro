@@ -124,6 +124,12 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
   </div>
 </Base>
 
+<style is:global>
+  body {
+    overflow-x: hidden;
+  }
+</style>
+
 <style>
   .newspaper-container {
     --news-bg: #fdfaf3;
@@ -135,23 +141,22 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
     --font-news-body: 'Newsreader', serif;
     --font-news-masthead: 'UnifrakturMaguntia', serif;
 
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
     background: var(--news-bg);
     color: var(--news-ink);
-    padding: 2rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
-    margin: 2rem auto;
+    padding: 3rem 0;
+    box-shadow: none;
+    border: none;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
     position: relative;
-    border: 1px solid #ddd;
-    box-sizing: border-box;
-  }
-
-  :root.dark .newspaper-container {
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
   }
 
   .newspaper-front-page {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 clamp(1.5rem, 5vw, 3rem);
   }
 
   /* MASTHEAD */
@@ -165,9 +170,9 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
   .masthead-info-bar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     font-family: var(--font-news-body);
-    font-size: 0.75rem;
+    font-size: clamp(0.55rem, 1.5vw, 0.75rem);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -175,8 +180,10 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
   }
 
   .center-meta {
-    font-size: 0.85rem;
+    font-size: clamp(0.65rem, 2vw, 0.85rem);
     font-weight: 800;
+    text-align: center;
+    padding: 0 1rem;
   }
 
   .masthead-info-bar.top {

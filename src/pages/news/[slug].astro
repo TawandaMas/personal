@@ -95,6 +95,12 @@ const otherNews = allNews
   </div>
 </Base>
 
+<style is:global>
+  body {
+    overflow-x: hidden;
+  }
+</style>
+
 <style>
   .newspaper-container {
     --news-bg: #fdfaf3;
@@ -106,19 +112,22 @@ const otherNews = allNews
     --font-news-body: 'Newsreader', serif;
     --font-news-masthead: 'UnifrakturMaguntia', serif;
 
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
     background: var(--news-bg);
     color: var(--news-ink);
-    padding: 2rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
-    margin: 2rem auto;
+    padding: 3rem 0;
+    box-shadow: none;
+    border: none;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
     position: relative;
-    border: 1px solid #ddd;
-    box-sizing: border-box;
   }
 
   .article-inner-page {
     max-width: 1000px;
     margin: 0 auto;
+    padding: 0 clamp(1.5rem, 5vw, 3rem);
   }
 
   .masthead-mini {
