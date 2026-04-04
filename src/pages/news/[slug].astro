@@ -34,7 +34,7 @@ const otherNews = allNews
         <div class="masthead-info-mini">
           <span>{entry.data.edition?.toUpperCase() || 'LIVERPOOL'} EDITION</span>
           <span class="bullet">•</span>
-          <span>{entry.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</span>
+          <span>NEAR FUTURE</span>
           <span class="bullet">•</span>
           <span>FINAL</span>
         </div>
@@ -44,7 +44,7 @@ const otherNews = allNews
         <h1 class="headline-large">{entry.data.title}</h1>
         <div class="byline-section">
           <div class="byline">BY OUR SPECIAL CORRESPONDENT</div>
-          <div class="dateline">LIVERPOOL — {entry.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</div>
+          <div class="dateline">{entry.data.edition?.toUpperCase() || 'LIVERPOOL'} — NEAR FUTURE</div>
         </div>
       </div>
 
@@ -53,7 +53,7 @@ const otherNews = allNews
           {entry.data.image && (
             <div class="body-illustration">
               <img src={entry.data.image} alt={entry.data.title} />
-              <div class="caption">ARCHIVE FOOTAGE: A scene related to the reported events in {entry.data.date.getFullYear()}. [Credit: Prompt Update Archives]</div>
+              <div class="caption">ARCHIVE FOOTAGE: A scene related to the reported events. [Credit: Prompt Update Archives]</div>
             </div>
           )}
           
