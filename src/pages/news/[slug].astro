@@ -32,7 +32,7 @@ const otherNews = allNews
           <a href="/news">Prompt Update News</a>
         </div>
         <div class="masthead-info-mini">
-          <span>LIVERPOOL EDITION</span>
+          <span>{entry.data.edition?.toUpperCase() || 'LIVERPOOL'} EDITION</span>
           <span class="bullet">•</span>
           <span>{entry.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</span>
           <span class="bullet">•</span>

@@ -21,7 +21,7 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
       <header class="masthead">
         <div class="masthead-info-bar top">
             <span>VOL. CXIV ... No. 56,234</span>
-            <span class="center-meta">LIVERPOOL, {new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</span>
+            <span class="center-meta">{sortedNews[0]?.data.edition || 'LIVERPOOL'} EDITION</span>
             <span>PRICE: 2.50 CREDITS</span>
         </div>
         <div class="masthead-title">

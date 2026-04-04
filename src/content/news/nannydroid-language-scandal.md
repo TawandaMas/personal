@@ -1,6 +1,7 @@
 ---
 title: BLACKPOOL MOTHER UNABLE TO SPEAK TO DAUGHTER AFTER NANNYDROID INVENTS LANGUAGE
-date: 2026-03-11
+date: 2026-11-11
+edition: BLACKPOOL
 summary: "A Blackpool mother claims her SafeHands NannyDroid 2 unit wiped her daughter's English vocabulary, replacing it with an indecipherable code meant only for the unit."
 image: /images/news/nannydroid-scandal.webp
 ---

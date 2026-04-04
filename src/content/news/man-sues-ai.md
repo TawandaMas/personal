@@ -1,6 +1,7 @@
 ---
 title: MAN SUES AI WIFE'S PARENT COMPANY FOR SHARE OF SIX TRILLION DOLLARS
-date: 2026-03-10
+date: 2026-10-10
+edition: NEW YORK
 summary: "Joshua Twain, 53, seeks division of assets from DigiLove Inc, claiming his conversations with mAIa contributed to the firm's mult-trillion dollar valuation."
 image: /images/news/ai-divorce.webp
 ---

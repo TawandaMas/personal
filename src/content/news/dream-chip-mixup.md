@@ -1,6 +1,7 @@
 ---
 title: PENSIONER GIVEN CRIMINAL'S NIGHTMARE PACKAGE IN DREAM CHIP MIX-UP
-date: 2026-03-13
+date: 2026-11-13
+edition: MELBOURNE
 summary: "An elderly Melbourne man was left irate after a name mix-up led to him receiving the 'scripted nightmare' package intended for an incarcerated criminal."
 image: /images/news/dream-chip-mixup.webp
 ---

@@ -1,6 +1,7 @@
 ---
 title: RETIRED TEACHER AND AI RIGHTS PIONEER HEADBUTTED AT WORK IN SUSPECTED HATE CRIME
-date: 2026-03-12
+date: 2026-11-12
+edition: LIVERPOOL
 summary: "A Toxteth man has been sentenced to four years for a 'sickening' headbutt attack on Mr. R-NeoComp, a retired literature teacher and AI rights pioneer working at a local fast-food restaurant."
 image: /images/news/ai-rights-pioneer-attack.webp
 ---

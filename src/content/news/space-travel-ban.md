@@ -1,6 +1,7 @@
 ---
 title: SUPREME COURT RULES HUMANS UNFIT FOR SPACE TRAVEL IN LANDMARK 6-3 DECISION
-date: 2026-03-14
+date: 2026-12-14
+edition: WASHINGTON DC
 summary: "Humanity's cosmic ambitions were grounded this Tuesday as the Supreme Court ruled that biological constraints make humans 'operationally inferior' and unfit for off-planet missions."
 image: /images/news/space-travel-ban.webp
 ---
