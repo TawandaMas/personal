@@ -26,7 +26,7 @@ const projectsCollection = defineCollection({
     year: z.string(),
     description: z.string(),
     url: z.string(),
-    status: z.enum(['Live', 'WIP']),
+    status: z.enum(['Live', 'WIP', 'In Progress', 'Archived']),
     order: z.number().optional(),
   }),
 });
