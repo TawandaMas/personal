@@ -21,163 +21,164 @@ const otherNews = allNews
 ---
 
 <Base title={entry.data.title}>
-  <div class="article-inner-page">
-    <header class="masthead-mini">
-      <div class="masthead-title-mini">
-        <a href="/news">Prompt Update News</a>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+  <div class="newspaper-container">
+    <div class="article-inner-page">
+      <header class="masthead-mini">
+        <div class="masthead-title-mini">
+          <a href="/news">Prompt Update News</a>
+        </div>
+        <div class="masthead-info-mini">
+          <span>LIVERPOOL EDITION</span>
+          <span class="bullet">•</span>
+          <span>{entry.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</span>
+          <span class="bullet">•</span>
+          <span>FINAL</span>
+        </div>
+      </header>
+
+      <div class="article-header">
+        <h1 class="headline-large">{entry.data.title}</h1>
+        <div class="byline-section">
+          <div class="byline">BY OUR SPECIAL CORRESPONDENT</div>
+          <div class="dateline">LIVERPOOL — {entry.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</div>
+        </div>
       </div>
 
-    </header>
-
-
-
-    <header class="article-header">
-      <h1 class="headline-large">{entry.data.title}</h1>
-    </header>
-
-    <div class="article-body-layout">
-      <div class="main-body-column">
-
-        
-        <div class="article-content-prose prose">
-          <Content />
-        </div>
-
-        <div class="article-footer-mark">
-          <span>(Continued from Page A1)</span>
-          <span class="end-slug">■</span>
-        </div>
-
-        <!-- Mobile More News -->
-        <div class="mobile-more-news">
-          <h3>RECENT HEADLINES</h3>
-          <div class="more-news-grid">
-            {otherNews.map((news) => (
-              <a href={`/news/${news.slug}`} class="more-news-card">
-                <h4>{news.data.title}</h4>
-                <p>{news.data.summary}</p>
-              </a>
-            ))}
+      <div class="article-body-layout">
+        <div class="main-body-column">
+          {entry.data.image && (
+            <div class="body-illustration">
+              <img src={entry.data.image} alt={entry.data.title} />
+              <div class="caption">ARCHIVE FOOTAGE: A scene related to the reported events in {entry.data.date.getFullYear()}. [Credit: Prompt Update Archives]</div>
+            </div>
+          )}
+          
+          <div class="article-content-prose prose">
+            <Content />
           </div>
-          <a href="/news" class="view-all-headlines">VIEW ALL HEADLINES →</a>
+
+          <div class="article-footer-mark">
+            <span>(Continued from Page A1)</span>
+            <span class="end-slug">■</span>
+          </div>
         </div>
+
+        <aside class="sidebar-column">
+          <div class="sidebar-widget">
+            <h4>STOCKS</h4>
+            <div class="market-ticker">
+              <div class="ticker-row"><span>AI-INDEX</span> <span class="up">▲ 12.4</span></div>
+              <div class="ticker-row"><span>NEURO</span> <span class="down">▼ 2.1</span></div>
+            </div>
+          </div>
+
+          <div class="sidebar-widget">
+            <h4>SYNDICATED</h4>
+            <ul class="syndicated-links">
+              {otherNews.map((news) => (
+                <li><a href={`/news/${news.slug}`}>{news.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+          
+          <div class="vertical-promo">
+              <p>SUBSCRIBE TO PROMPT UPDATE NEWS</p>
+              <div class="qr-placeholder">GET THE LATEST</div>
+          </div>
+        </aside>
       </div>
-
-      <aside class="sidebar-column">
-
-
-        <div class="sidebar-widget">
-          <h4>SYNDICATED</h4>
-          <ul class="syndicated-links">
-            {otherNews.map((news) => (
-              <li><a href={`/news/${news.slug}`}>{news.data.title}</a></li>
-            ))}
-          </ul>
-        </div>
-        
-        <div class="vertical-promo">
-            <p>SUBSCRIBE TO PROMPT UPDATE NEWS</p>
-            <div class="qr-placeholder">GET THE LATEST</div>
-        </div>
-      </aside>
     </div>
   </div>
 </Base>
 
 <style>
-  .article-inner-page {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 1.5rem 0;
-    color: #1a1a1a;
+  .newspaper-container {
+    --news-bg: #fdfaf3;
+    --news-ink: #1a1a1a;
+    --news-ink-gray: #444;
+    --news-rule: #333;
+    --news-accent: #8b0000;
+    --font-news-header: 'Playfair Display', serif;
+    --font-news-body: 'Newsreader', serif;
+    --font-news-masthead: 'UnifrakturMaguntia', serif;
+
+    background: var(--news-bg);
+    color: var(--news-ink);
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+    margin: 2rem auto;
+    position: relative;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
   }
 
-  :root.dark .article-inner-page {
-    color: #e0e0e0;
+  .article-inner-page {
+    max-width: 1000px;
+    margin: 0 auto;
   }
 
   .masthead-mini {
-    border-bottom: 4px double #1a1a1a;
-    margin-bottom: 3rem;
-    padding-bottom: 0.5rem;
     text-align: center;
-  }
-
-  :root.dark .masthead-mini {
-    border-color: #e0e0e0;
-  }
-
-  .masthead-title-mini {
-    padding: 0.5rem 0;
+    border-bottom: 3px double var(--news-ink);
+    padding-bottom: 1rem;
+    margin-bottom: 3rem;
   }
 
   .masthead-title-mini a {
-    font-family: 'UnifrakturMaguntia', serif;
+    font-family: var(--font-news-masthead);
     font-size: 2.5rem;
     color: inherit;
     text-decoration: none;
-    font-weight: 400;
+    line-height: 1;
   }
 
-
+  .masthead-info-mini {
+    font-family: var(--font-news-body);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    align-items: center;
+  }
 
   .article-header {
     margin-bottom: 3rem;
-  }
-
-  .header-pre {
     text-align: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .section-tag {
-    font-family: var(--font-sans);
-    font-size: 0.7rem;
-    font-weight: 900;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    padding: 0.1rem 0.6rem;
   }
 
   .headline-large {
-    font-family: var(--font-serif);
-    font-size: clamp(2rem, 7vw, 4.5rem);
+    font-family: var(--font-news-header);
+    font-size: clamp(2rem, 8vw, 4.5rem);
     line-height: 0.95;
     font-weight: 900;
-    text-align: center;
     text-transform: uppercase;
-    margin: 1rem 0 2rem;
+    margin-bottom: 1.5rem;
     letter-spacing: -0.02em;
+    font-style: italic;
   }
 
-  .byline-strip {
+  .byline-section {
+    border-top: 1px solid var(--news-rule);
+    border-bottom: 1px solid var(--news-rule);
+    padding: 0.75rem 0;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    padding: 0.6rem 0;
-    font-family: var(--font-sans);
+    font-family: var(--font-news-body);
     font-size: 0.8rem;
-    font-weight: 700;
-  }
-
-  .author-name {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
-  }
-
-  .dateline {
-    font-style: italic;
-    color: var(--ink-mid);
+    font-weight: 800;
   }
 
   /* LAYOUT */
   .article-body-layout {
     display: grid;
-    grid-template-columns: 1fr 240px;
+    grid-template-columns: 1fr 260px;
     gap: 3.5rem;
   }
 
@@ -190,276 +191,147 @@ const otherNews = allNews
     }
   }
 
-  /* MOBILE MORE NEWS */
-  .mobile-more-news {
-    display: none;
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 3px solid #1a1a1a;
-  }
-
-  :root.dark .mobile-more-news {
-    border-color: #e0e0e0;
-  }
-
-  @media (max-width: 850px) {
-    .mobile-more-news {
-      display: block;
-    }
-  }
-
-  .mobile-more-news h3 {
-    font-family: var(--font-sans);
-    font-size: 0.85rem;
-    font-weight: 900;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    letter-spacing: 0.1em;
-  }
-
-  .more-news-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .more-news-card {
-    text-decoration: none;
-    color: inherit;
-    border-bottom: 1px dashed var(--rule);
-    padding-bottom: 1rem;
-  }
-
-  .more-news-card h4 {
-    font-family: var(--font-serif);
-    font-size: 1.1rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
-  }
-
-  .more-news-card p {
-    font-family: var(--font-serif);
-    font-size: 0.9rem;
-    line-height: 1.4;
-    color: var(--ink-mid);
-  }
-
-  .view-all-headlines {
-    display: block;
-    margin-top: 2rem;
-    text-align: center;
-    font-family: var(--font-sans);
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  @media (max-width: 850px) {
-    .main-body-column {
-      border-right: none;
-      padding-right: 0;
-    }
-  }
-
   /* CONTENT STYLE */
   .body-illustration {
     margin-bottom: 2.5rem;
-    border: 1px solid var(--rule);
+    border: 1px solid var(--news-rule);
     padding: 4px;
     background: #fff;
   }
 
-  :root.dark .body-illustration {
-     background: #1a1a1a;
-  }
-
   .body-illustration img {
     width: 100%;
-    filter: grayscale(1) contrast(1.1);
+    filter: grayscale(1) contrast(1.2) brightness(0.9);
     display: block;
   }
 
-  .body-illustration caption {
-    display: block;
-    margin-top: 0.6rem;
-    font-family: var(--font-sans);
-    font-size: 0.65rem;
+  .body-illustration .caption {
+    font-family: var(--font-news-body);
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     line-height: 1.3;
-    color: var(--ink-mid);
-    text-align: left;
+    padding: 0.6rem;
+    color: var(--news-ink-gray);
   }
 
   .article-content-prose {
-    font-family: var(--font-serif);
-    font-size: 1.15rem;
-    line-height: 1.7;
+    font-family: var(--font-news-body);
+    font-size: 1.25rem;
+    line-height: 1.6;
     text-align: justify;
+    hyphens: auto;
   }
 
   /* Drop Cap */
   .article-content-prose :global(p:first-of-type::first-letter) {
     float: left;
-    font-family: var(--font-serif);
-    font-size: 4.5rem;
-    line-height: 1;
+    font-family: var(--font-news-header);
+    font-size: 5rem;
+    line-height: 0.8;
     font-weight: 900;
     padding-right: 0.75rem;
     padding-top: 0.25rem;
-    color: #1a1a1a;
-  }
-
-  :root.dark .article-content-prose :global(p:first-of-type::first-letter) {
-    color: #e0e0e0;
+    color: var(--news-ink);
   }
 
   .article-content-prose :global(p) {
     margin-bottom: 1.5rem;
-    text-indent: 1.5rem;
-  }
-
-  .article-content-prose :global(p:first-of-type) {
-    text-indent: 0;
   }
 
   .article-content-prose :global(blockquote) {
-    font-family: var(--font-serif);
-    font-size: 1.6rem;
-    font-style: italic;
-    font-weight: 500;
-    line-height: 1.3;
-    border-top: 2.5px solid #1a1a1a;
-    border-bottom: 2.5px solid #1a1a1a;
-    padding: 1.75rem 0;
-    margin: 2.5rem 0;
-    text-align: center;
-    text-indent: 0;
-  }
-
-  :root.dark .article-content-prose :global(blockquote) {
-    border-color: #e0e0e0;
-  }
-
-  .article-content-prose :global(.ad-viewport) {
-    margin: 3rem 0;
-    padding: 2rem;
-    border: 2px solid #1a1a1a;
-    background: rgba(0,0,0,0.03);
-    text-align: center;
-    position: relative;
-    text-indent: 0;
-  }
-
-  :root.dark .article-content-prose :global(.ad-viewport) {
-    border-color: #e0e0e0;
-    background: rgba(255,255,255,0.03);
-  }
-
-  .article-content-prose :global(.ad-viewport::before) {
-    content: "ADVERTISEMENT";
-    position: absolute;
-    top: -0.6rem;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0 1rem;
-    font-family: var(--font-sans);
-    font-size: 0.6rem;
-    font-weight: 900;
-    letter-spacing: 0.2em;
-    color: var(--ink-mid);
-    background: #fdfbf7; /* Matching paper background if possible */
-  }
-
-  :root.dark .article-content-prose :global(.ad-viewport::before) {
-    background: #0a0a0a;
-  }
-
-  .article-content-prose :global(.ad-viewport p) {
-    margin: 0;
-    text-indent: 0;
+    font-family: var(--font-news-header);
+    font-size: 1.8rem;
     font-style: italic;
     font-weight: 700;
-    font-size: 1.2rem;
-    line-height: 1.4;
+    line-height: 1.2;
+    border-top: 3px solid var(--news-ink);
+    border-bottom: 3px solid var(--news-ink);
+    padding: 2rem 0;
+    margin: 3rem 0;
+    text-align: center;
   }
 
   .article-footer-mark {
-    margin-top: 3rem;
-    border-top: 1px solid var(--rule);
+    margin-top: 4rem;
+    border-top: 1px solid var(--news-rule);
     padding-top: 1rem;
     display: flex;
     justify-content: space-between;
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
+    font-family: var(--font-news-body);
+    font-size: 0.8rem;
     font-weight: 800;
-    color: var(--ink-light);
   }
 
   .end-slug {
-    color: var(--accent);
-    font-size: 1rem;
+    color: var(--news-accent);
+    font-size: 1.2rem;
   }
 
   /* SIDEBAR */
   .sidebar-widget {
-    border-top: 4px solid #1a1a1a;
-    padding-top: 0.75rem;
+    border-top: 4px solid var(--news-ink);
+    padding-top: 1rem;
     margin-bottom: 3rem;
   }
 
-  :root.dark .sidebar-widget {
-    border-color: #e0e0e0;
-  }
-
   .sidebar-widget h4 {
-    font-family: var(--font-sans);
+    font-family: var(--font-news-body);
     font-size: 0.8rem;
     font-weight: 900;
     margin-bottom: 1rem;
+    letter-spacing: 0.1em;
   }
 
-  .sidebar-widget p {
-    font-family: var(--font-serif);
-    font-size: 0.85rem;
-    line-height: 1.5;
-    text-align: justify;
+  .market-ticker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
+
+  .ticker-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-news-body);
+    font-size: 0.85rem;
+    font-weight: 800;
+  }
+
+  .ticker-row .up { color: #006400; }
+  .ticker-row .down { color: #8b0000; }
 
   .syndicated-links {
     list-style: none;
   }
 
   .syndicated-links li {
-    padding: 0.6rem 0;
-    border-bottom: 1px dashed var(--rule);
+    padding: 0.8rem 0;
+    border-bottom: 1px dashed #ccc;
   }
 
   .syndicated-links a {
     text-decoration: none;
     color: inherit;
-    font-family: var(--font-serif);
-    font-size: 0.95rem;
+    font-family: var(--font-news-body);
+    font-size: 1rem;
     font-weight: 700;
     line-height: 1.2;
     display: block;
   }
 
   .syndicated-links a:hover {
-    color: var(--accent);
+    text-decoration: underline;
   }
 
   .vertical-promo {
-    background: var(--paper-dark);
+    background: rgba(0,0,0,0.03);
     padding: 1.5rem;
     text-align: center;
-    border: 1px solid var(--rule);
+    border: 1px solid #ccc;
   }
 
   .vertical-promo p {
-    font-family: var(--font-sans);
+    font-family: var(--font-news-body);
     font-size: 0.7rem;
     font-weight: 900;
     margin-bottom: 1rem;
@@ -467,13 +339,13 @@ const otherNews = allNews
 
   .qr-placeholder {
     height: 100px;
-    background: var(--paper);
-    border: 1px solid var(--rule);
+    background: #fff;
+    border: 1px solid #ccc;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.6rem;
     font-weight: 900;
-    color: var(--rule);
+    color: #999;
   }
 </style>
