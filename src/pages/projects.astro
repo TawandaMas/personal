@@ -16,19 +16,28 @@ const projects = projectEntries
   </div>
 
   <div class="projects-list">
-    {projects.map(project => (
-      <a href={project.url} target="_blank" rel="noopener noreferrer" class="project-row">
+    {projectEntries.map(project => (
+      <div class="project-row">
+        {project.data.logo && (
+          <div class="project-logo">
+            <img src={project.data.logo} alt="" />
+          </div>
+        )}
         <div class="project-main">
-          <div class="project-tag">{project.tag} · {project.year}</div>
-          <h2 class="project-name">{project.title}</h2>
-          <p class="project-desc">{project.description}</p>
+          <div class="project-tag">{project.data.tag} · {project.data.year}</div>
+          <h2 class="project-name">
+            <a href={`/projects/${project.slug}`}>{project.data.title}</a>
+          </h2>
+          <p class="project-desc">{project.data.description}</p>
         </div>
         <div class="project-meta">
-          <span class:list={['status-pip', project.status === 'Live' ? 'live' : 'wip']}></span>
-          <span class="status-label">{project.status}</span>
-          <span class="arrow">↗</span>
+          <span class:list={['status-pip', project.data.status === 'Live' ? 'live' : 'wip']}></span>
+          <span class="status-label">{project.data.status}</span>
+          <a href={project.data.url} target="_blank" rel="noopener noreferrer" class="external-arrow" title="Visit Site">
+            <span class="arrow">↗</span>
+          </a>
         </div>
-      </a>
+      </div>
     ))}
   </div>
 </Base>
@@ -42,18 +51,34 @@ const projects = projectEntries
 
   .project-row {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
-    gap: 2rem;
-    padding: 2rem 0;
+    gap: 1.5rem;
+    padding: 2.5rem 0;
     border-bottom: 1px solid var(--rule);
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.15s;
+    transition: opacity 0.2s;
   }
 
-  .project-row:first-child { border-top: none; }
-  .project-row:hover .project-name { color: var(--accent); }
+  .project-logo {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  .project-logo img {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+  }
+
+  .project-row:hover .project-name a { color: var(--accent); }
   .project-row:hover .arrow { transform: translate(3px, -3px); color: var(--accent); }
 
   .project-tag {
@@ -65,7 +90,8 @@ const projects = projectEntries
     margin-bottom: 0.4rem;
   }
 
-  .project-name {
+  .project-name a {
+    text-decoration: none;
     font-family: var(--font-serif);
     font-size: 1.6rem;
     font-style: italic;
@@ -82,6 +108,7 @@ const projects = projectEntries
     color: var(--ink-mid);
     line-height: 1.65;
     max-width: 440px;
+    margin-top: 0.5rem;
   }
 
   .project-meta {
@@ -91,6 +118,7 @@ const projects = projectEntries
     gap: 0.35rem;
     flex-shrink: 0;
     padding-top: 0.3rem;
+    margin-left: auto;
   }
 
   .status-pip {
@@ -111,6 +139,11 @@ const projects = projectEntries
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--ink-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .external-arrow {
+    text-decoration: none;
   }
 
   .arrow {
