@@ -198,6 +198,8 @@ const navLinks = [
     --max-w: 860px;
     --pad: clamp(1.25rem, 5vw, 3rem);
     --border-w: 3px;
+    --paper: var(--bg);
+    --paper-dark: #E8E8E0;
   }
 
   :root.dark {
@@ -209,6 +211,8 @@ const navLinks = [
     --accent-light: #5A2A1A;
     --rule: #F4F4F0;
     --shadow-color: #000000;
+    --paper: var(--bg);
+    --paper-dark: #222222;
   }
 
   html {
@@ -505,6 +509,122 @@ const navLinks = [
     font-size: 1.1rem;
     color: var(--ink-mid);
     font-style: italic;
+  }
+
+  /* GLOBAL GAME STYLES */
+  .game-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: var(--border-w) solid var(--rule);
+  }
+
+  .game-header .back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-family: var(--font-sans);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    text-decoration: none;
+    color: var(--ink);
+    border: 2px solid var(--rule);
+    padding: 0.2rem 0.6rem;
+    background: var(--bg);
+    box-shadow: 2px 2px 0 var(--rule);
+    transition: all 0.1s;
+  }
+
+  .game-header .back:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--accent);
+  }
+
+  .game-title-row h1 {
+    font-family: var(--font-sans) !important;
+    font-size: clamp(2rem, 6vw, 3.5rem) !important;
+    font-weight: 800 !important;
+    font-style: normal !important;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .game-wrap {
+    border: var(--border-w) solid var(--rule) !important;
+    box-shadow: 8px 8px 0 var(--shadow-color) !important;
+    background: var(--bg) !important;
+    border-radius: 0 !important;
+    padding: 2rem !important;
+  }
+
+  .start-btn, .game-btn, .overlay button {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border: var(--border-w) solid var(--rule) !important;
+    box-shadow: 4px 4px 0 var(--shadow-color) !important;
+    border-radius: 0 !important;
+    font-family: var(--font-sans) !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    padding: 1rem 2rem !important;
+    cursor: pointer !important;
+    transition: all 0.1s !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+  }
+
+  .start-btn:hover, .game-btn:hover, .overlay button:hover {
+    transform: translate(-2px, -2px) !important;
+    box-shadow: 6px 6px 0 var(--shadow-color) !important;
+  }
+
+  .start-btn:active, .game-btn:active, .overlay button:active {
+    transform: translate(2px, 2px) !important;
+    box-shadow: 2px 2px 0 var(--shadow-color) !important;
+  }
+
+  .score-wrap {
+    font-family: var(--font-sans) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 0.9rem !important;
+    background: var(--accent-light);
+    border: 2px solid var(--rule);
+    padding: 0.4rem 0.8rem;
+    color: var(--ink);
+  }
+
+  .overlay {
+    background: var(--bg) !important;
+    border: var(--border-w) solid var(--rule) !important;
+    border-radius: 0 !important;
+  }
+
+  .overlay-title {
+    font-family: var(--font-sans) !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    font-style: normal !important;
+    font-size: 3rem !important;
+    color: var(--ink) !important;
+  }
+
+  /* Specific Game Element Unification */
+  .tile, .key, .cell, .card, .letter, .slot, .wordle-row, .kb-row {
+    border-radius: 0 !important;
+    border-width: 2px !important;
+    box-shadow: 2px 2px 0 var(--rule) !important;
+  }
+
+  .hint {
+    font-family: var(--font-sans) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 0.7rem !important;
+    color: var(--ink-mid) !important;
+    margin-top: 2rem !important;
+    letter-spacing: 0.05em !important;
   }
 
   /* INLINE LINKS */

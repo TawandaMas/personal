@@ -187,13 +187,13 @@ const canvas = document.getElementById('snake-canvas');
   }
 
   function draw() {
-    // Paper background
-    ctx.fillStyle = '#e8e0d0';
+    // Brutalist background - clean and stark
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#F4F4F0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Faint grid
-    ctx.strokeStyle = 'rgba(180,165,140,0.3)';
-    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() + '33';
+    ctx.lineWidth = 1;
     for(let i=0;i<=GRID;i++){
       ctx.beginPath(); ctx.moveTo(i*cellSize,0); ctx.lineTo(i*cellSize,canvas.height); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0,i*cellSize); ctx.lineTo(canvas.width,i*cellSize); ctx.stroke();
@@ -205,17 +205,23 @@ const canvas = document.getElementById('snake-canvas');
         ctx.fillRect(o.x*cellSize+1, o.y*cellSize+1, cellSize-2, cellSize-2);
     });
 
-    // Food — small ink dot
-    ctx.fillStyle = '#8b3a2a';
+    // Food — bright accent
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
     ctx.beginPath();
-    ctx.arc(food.x*cellSize+cellSize/2, food.y*cellSize+cellSize/2, cellSize*0.35, 0, Math.PI*2);
+    ctx.arc(food.x*cellSize+cellSize/2, food.y*cellSize+cellSize/2, cellSize*0.4, 0, Math.PI*2);
     ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
     // Snake
     snake.forEach((seg, i) => {
       const pad = i === 0 ? 1 : 2.5;
-      ctx.fillStyle = i === 0 ? '#1c1814' : (i % 2 === 0 ? '#3a3228' : '#2e281e');
+      ctx.fillStyle = i === 0 ? '#000' : (i % 2 === 0 ? '#333' : '#444');
       ctx.fillRect(seg.x*cellSize+pad, seg.y*cellSize+pad, cellSize-pad*2, cellSize-pad*2);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(seg.x*cellSize+pad, seg.y*cellSize+pad, cellSize-pad*2, cellSize-pad*2);
     });
   }
 
