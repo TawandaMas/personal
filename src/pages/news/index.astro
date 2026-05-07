@@ -141,11 +141,13 @@ const issueNumber = Math.floor((new Date().getTime() - new Date('2024-01-01').ge
     --font-news-body: 'Newsreader', serif;
     --font-news-masthead: 'UnifrakturMaguntia', serif;
 
-    width: 100%;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
     background: var(--news-bg);
     color: var(--news-ink);
     padding: 3rem 0;
-    margin: 0;
+    margin-top: 0;
+    margin-bottom: 0;
     border-top: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
     position: relative;
