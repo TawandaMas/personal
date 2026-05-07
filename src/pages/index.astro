@@ -33,35 +33,41 @@ import Base from '../layouts/Base.astro';
 
 <style>
   .home-copy {
-    max-width: 600px;
-    padding-top: 1rem;
+    max-width: 680px;
+    padding-top: 2rem;
   }
 
   .home-copy p {
     font-family: var(--font-serif);
-    font-size: clamp(1rem, 2.5vw, 1.15rem);
-    line-height: 1.85;
+    font-size: clamp(1.1rem, 2.5vw, 1.25rem);
+    line-height: 1.8;
     color: var(--ink);
-    margin-bottom: 1.75rem;
+    margin-bottom: 2rem;
   }
 
-
+  .home-copy p:first-of-type {
+    font-family: var(--font-sans);
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+  }
 
   .corner-me {
     float: right;
-    width: clamp(100px, 20vw, 140px);
-    margin-left: 1.5rem;
-    margin-bottom: 0.75rem;
-    padding: 0.4rem;
-    background: var(--paper-dark);
-    border: 1.5px solid var(--rule);
-    box-shadow: 2px 2px 0px rgba(0,0,0,0.05);
-    transform: rotate(1.5deg);
-    transition: transform 0.3s ease;
+    width: clamp(120px, 25vw, 180px);
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: var(--bg);
+    border: var(--border-w) solid var(--rule);
+    box-shadow: 6px 6px 0px var(--shadow-color);
+    transform: rotate(2deg);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
   .corner-me:hover {
-    transform: rotate(0deg) scale(1.02);
+    transform: rotate(-1deg) scale(1.02);
   }
 
   .corner-me img {
@@ -69,23 +75,29 @@ import Base from '../layouts/Base.astro';
     display: block;
     aspect-ratio: 1;
     object-fit: cover;
-    filter: sepia(0.2) contrast(0.9);
+    filter: grayscale(100%) contrast(1.2);
+    border: 1px solid var(--rule);
   }
 
   .corner-me figcaption {
     font-family: var(--font-sans);
-    font-size: 0.6rem;
-    color: var(--ink-light);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink);
     text-align: center;
-    margin-top: 0.4rem;
+    margin-top: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
   }
 
   .sign-off {
-    font-style: italic;
-    color: var(--ink-mid) !important;
-    font-size: 1.1rem !important;
-    margin-top: 0.5rem;
+    font-family: var(--font-sans) !important;
+    font-style: normal !important;
+    font-weight: 700;
+    color: var(--accent) !important;
+    font-size: 1.2rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 1rem;
   }
 </style>

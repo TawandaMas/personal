@@ -28,7 +28,7 @@ const navLinks = [
   <title>{title === 'Home' ? 'Tawanda Masvikeni: Personal Website' : `${title} — Tawanda Masvikeni`}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Karla:wght@300;400;500&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0a0a0a" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -73,17 +73,13 @@ const navLinks = [
   </script>
 </head>
 <body>
-  <!-- SVG paper texture filter -->
-  <svg width="0" height="0" style="position:absolute">
-    <filter id="paper">
-      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
-      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
-      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blend"/>
-      <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+  <!-- Cleaned up background SVG noise -->
+  <svg width="0" height="0" style="position:absolute; display:none;">
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 0.05 0" />
     </filter>
   </svg>
-
-  <div class="paper-overlay"></div>
 
   <header>
     <a href="/" class="wordmark">T.</a>
@@ -189,45 +185,41 @@ const navLinks = [
   }
 
   :root {
-    --paper: #f2ede4;
-    --paper-rgb: 242, 237, 228;
-    --paper-dark: #e8e0d0;
-    --paper-crease: #d4c9b4;
-    --ink: #1c1814;
-    --ink-mid: #4a4035;
-    --ink-light: #8a7d6a;
-    --accent: #8b3a2a;
-    --accent-light: #c45d3e;
-    --rule: #c8bca8;
+    --bg: #F4F4F0;
+    --ink: #111111;
+    --ink-mid: #555555;
+    --ink-light: #888888;
+    --accent: #FF4500;
+    --accent-light: #FFDAB9;
+    --rule: #111111;
+    --shadow-color: #111111;
     --font-serif: 'Lora', Georgia, serif;
-    --font-sans: 'Karla', sans-serif;
-    --max-w: 820px;
+    --font-sans: 'Space Grotesk', system-ui, sans-serif;
+    --max-w: 860px;
     --pad: clamp(1.25rem, 5vw, 3rem);
+    --border-w: 3px;
   }
 
   :root.dark {
-    --paper: #1c1814;
-    --paper-rgb: 28, 24, 20;
-    --paper-dark: #14110e;
-    --paper-crease: #2a241e;
-    --ink: #f2ede4;
-    --ink-mid: #d4c9b4;
-    --ink-light: #8a7d6a;
-    --accent: #c45d3e;
-    --accent-light: #8b3a2a;
-    --rule: #3d362d;
+    --bg: #1A1A1A;
+    --ink: #F4F4F0;
+    --ink-mid: #AAAAAA;
+    --ink-light: #777777;
+    --accent: #FF6347;
+    --accent-light: #5A2A1A;
+    --rule: #F4F4F0;
+    --shadow-color: #000000;
   }
 
   html {
-    background: var(--paper);
+    background: var(--bg);
     color: var(--ink);
     font-family: var(--font-sans);
     font-size: 16px;
-    line-height: 1.7;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Crumpled paper background */
   body {
     min-height: 100dvh;
     display: flex;
@@ -238,57 +230,15 @@ const navLinks = [
     position: relative;
   }
 
-  /* Layered paper texture using CSS */
+  /* Subtle noise overlay instead of crumpled paper */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background-image:
-      /* coarse crumple wrinkles */
-      repeating-linear-gradient(
-        47deg,
-        transparent,
-        transparent 120px,
-        rgba(0,0,0,0.012) 121px,
-        rgba(0,0,0,0.012) 122px
-      ),
-      repeating-linear-gradient(
-        -31deg,
-        transparent,
-        transparent 90px,
-        rgba(0,0,0,0.01) 91px,
-        rgba(0,0,0,0.01) 92px
-      ),
-      repeating-linear-gradient(
-        73deg,
-        transparent,
-        transparent 200px,
-        rgba(255,255,255,0.04) 201px,
-        rgba(255,255,255,0.04) 202px
-      ),
-      /* fine grain */
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    mix-blend-mode: multiply;
-  }
-
-  :root.dark body::before {
-    opacity: 0.4;
-    mix-blend-mode: soft-light;
-  }
-
-  /* Subtle shadow vignette for crumpled feel */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background:
-      radial-gradient(ellipse at 15% 10%, rgba(160,130,90,0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 85% 80%, rgba(100,80,50,0.07) 0%, transparent 45%),
-      radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(80,60,30,0.06) 100%);
+    background-color: var(--bg);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
   }
 
   main, footer {
@@ -303,8 +253,8 @@ const navLinks = [
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 2rem 0 1.75rem;
-    border-bottom: 1.5px solid var(--rule);
+    padding: 2rem 0 1.5rem;
+    border-bottom: var(--border-w) solid var(--rule);
     margin-bottom: 3.5rem;
     transition: border-bottom-color 0.4s;
   }
@@ -314,75 +264,90 @@ const navLinks = [
   }
 
   .wordmark {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    font-style: italic;
-    font-weight: 500;
-    color: var(--accent);
-    letter-spacing: -0.02em;
-    transition: opacity 0.2s;
+    font-family: var(--font-sans);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--bg);
+    background: var(--ink);
+    padding: 0.2rem 0.8rem;
+    border: var(--border-w) solid var(--rule);
+    box-shadow: 4px 4px 0px var(--shadow-color);
+    letter-spacing: -0.05em;
     text-decoration: none;
+    transition: transform 0.1s, box-shadow 0.1s;
   }
 
-  .wordmark:hover { opacity: 0.65; }
+  .wordmark:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--shadow-color);
+  }
+  
+  .wordmark:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px var(--shadow-color);
+  }
 
   .header-controls {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
   .desktop-nav {
     display: flex;
-    gap: 1.75rem;
+    gap: 1.5rem;
     align-items: center;
   }
 
   .nav-link {
     font-family: var(--font-sans);
-    font-size: 0.8rem;
-    font-weight: 400;
-    letter-spacing: 0.04em;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--ink-mid);
     text-decoration: none;
-    transition: color 0.2s;
-    position: relative;
+    padding: 0.3rem 0.6rem;
+    border: 2px solid transparent;
+    transition: all 0.2s;
   }
 
-  .nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--accent);
-    transition: width 0.2s;
+  .nav-link:hover {
+    color: var(--ink);
+    border-color: var(--rule);
+    transform: translate(-2px, -2px);
+    box-shadow: 3px 3px 0px var(--shadow-color);
+    background: var(--bg);
   }
-
-  .nav-link:hover { color: var(--ink); }
-  .nav-link:hover::after { width: 100%; }
-  .nav-link.active { color: var(--accent); }
-  .nav-link.active::after { width: 100%; }
+  
+  .nav-link.active {
+    color: var(--bg);
+    background: var(--ink);
+    border-color: var(--rule);
+  }
 
   /* THEME TOGGLE */
   .theme-toggle {
-    background: transparent;
-    border: 1px solid var(--rule);
-    padding: 0.35rem;
-    border-radius: 6px;
+    background: var(--bg);
+    border: var(--border-w) solid var(--rule);
+    padding: 0.4rem;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-    margin-left: 0.5rem;
+    transition: all 0.1s;
+    box-shadow: 3px 3px 0px var(--shadow-color);
   }
 
   .theme-toggle:hover {
-    background: var(--paper-dark);
-    border-color: var(--ink-light);
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px var(--shadow-color);
+  }
+  
+  .theme-toggle:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px var(--shadow-color);
   }
 
   .theme-toggle .moon { display: block; }
@@ -393,15 +358,15 @@ const navLinks = [
 
   /* MOBILE MENU */
   .menu-toggle {
-    background: transparent;
-    border: 1px solid var(--rule);
+    background: var(--bg);
+    border: var(--border-w) solid var(--rule);
     padding: 0.5rem;
-    border-radius: 6px;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    box-shadow: 3px 3px 0px var(--shadow-color);
+    transition: all 0.1s;
     z-index: 1001;
   }
 
@@ -417,7 +382,7 @@ const navLinks = [
   .burger span {
     display: block;
     width: 100%;
-    height: 1.5px;
+    height: 2px;
     background: var(--ink);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
@@ -438,61 +403,48 @@ const navLinks = [
     padding: 2rem;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    transform: translateY(-20px);
     pointer-events: none;
+    background: var(--bg);
   }
 
   .mobile-menu.open {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    background: rgba(var(--paper-rgb), 0.8);
     pointer-events: auto;
-  }
-
-  .mobile-menu::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: var(--paper-texture); /* Reuse texture if needed, but current body::before covers it */
-    pointer-events: none;
   }
 
   .mobile-menu-inner {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
     align-items: center;
     width: 100%;
   }
 
   .mobile-nav-link {
-    font-family: var(--font-serif);
+    font-family: var(--font-sans);
     font-size: 2rem;
-    font-style: italic;
+    font-weight: 700;
     color: var(--ink);
     text-decoration: none;
+    text-transform: uppercase;
     transition: all 0.2s;
-    opacity: 0;
-    transform: translateY(20px);
+    padding: 0.5rem 1rem;
+    border: var(--border-w) solid transparent;
   }
-
-  .mobile-menu.open .mobile-nav-link {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .mobile-nav-link:hover {
+    border-color: var(--rule);
+    box-shadow: 6px 6px 0px var(--shadow-color);
+    transform: translate(-4px, -4px);
   }
-
-  .mobile-menu.open .mobile-nav-link:nth-child(1) { transition-delay: 0.1s; }
-  .mobile-menu.open .mobile-nav-link:nth-child(2) { transition-delay: 0.15s; }
-  .mobile-menu.open .mobile-nav-link:nth-child(3) { transition-delay: 0.2s; }
-  .mobile-menu.open .mobile-nav-link:nth-child(4) { transition-delay: 0.25s; }
-  .mobile-menu.open .mobile-nav-link:nth-child(5) { transition-delay: 0.3s; }
 
   .mobile-nav-link.active {
-    color: var(--accent);
+    background: var(--ink);
+    color: var(--bg);
   }
 
   body.menu-open {
@@ -507,66 +459,68 @@ const navLinks = [
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.75rem 0;
-    margin-top: 4rem;
-    border-top: 1.5px solid var(--rule);
-    font-size: 0.75rem;
-    color: var(--ink-light);
+    padding: 2rem 0;
+    margin-top: 5rem;
+    border-top: var(--border-w) solid var(--rule);
+    font-size: 0.85rem;
+    color: var(--ink-mid);
     font-family: var(--font-sans);
+    font-weight: 600;
   }
 
   .dim { color: var(--ink-light); }
 
   /* PAGE TRANSITIONS */
   @keyframes fade-in {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  main { animation: fade-in 0.3s ease both; }
+  main { animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
   /* SHARED PAGE HEADER */
   .page-header {
-    margin-bottom: 2.5rem;
+    margin-bottom: 3.5rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--rule);
+    border-bottom: var(--border-w) solid var(--rule);
   }
 
   .page-header h1 {
-    font-family: var(--font-serif);
-    font-size: clamp(2rem, 6vw, 3.25rem);
-    font-style: italic;
-    font-weight: 400;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
+    font-family: var(--font-sans);
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
     color: var(--ink);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
   }
 
   .page-header p {
-    font-size: 0.85rem;
-    color: var(--ink-light);
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--ink-mid);
+    font-style: italic;
   }
 
   /* INLINE LINKS */
   .prose a, .inline-link {
-    color: var(--accent);
-    text-decoration: underline;
-    text-decoration-color: rgba(139, 58, 42, 0.35);
-    text-underline-offset: 3px;
-    transition: text-decoration-color 0.2s;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 2px solid var(--accent);
+    font-weight: 600;
+    transition: all 0.2s;
+    background: transparent;
   }
 
   .prose a:hover, .inline-link:hover {
-    text-decoration-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--ink);
   }
 
   @media (max-width: 800px) {
     .desktop-nav { display: none; }
     .menu-toggle { display: flex; }
     header { padding: 1.5rem 0; }
-  }
-
-  @media (max-width: 500px) {
-    .wordmark { font-size: 1.25rem; }
   }
 </style>
