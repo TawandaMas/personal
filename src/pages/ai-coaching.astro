@@ -120,7 +120,11 @@ import Base from '../layouts/Base.astro';
             <p>As you might've guessed, every couple I work with gets special care and attention, so that means only a few at a time. That's why I'm hoping you book our chat now and be first in line.</p>
 
             <div class="cta-wrapper">
-              <a href="mailto:hello@tawanda.space?subject=AI%20Coaching%20Chat" class="cta-button">Book Our Chat Now</a>
+              <!-- Calendly link widget begin -->
+              <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+              <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+              <a href="#" class="cta-button" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/YOUR_LINK_HERE'});return false;">Book Our Chat Now</a>
+              <!-- Calendly link widget end -->
             </div>
 
             <div class="sign-off">
