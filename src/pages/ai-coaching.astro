@@ -10,16 +10,14 @@ import Base from '../layouts/Base.astro';
       <!-- DYNAMIC SIDEBAR -->
       <aside class="dynamic-sidebar" id="dynamic-sidebar">
         
-        <button class="drawer-close" id="drawer-close" aria-label="Close details">✕</button>
-
-        <div class="sidebar-content active" id="sidebar-intro" data-title="AI Coaching">
+        <div class="sidebar-content active" id="sidebar-intro">
           <div class="sidebar-card">
             <h3>AI Relationship Coaching</h3>
             <p>Navigating the complexities of human-AI bonds.</p>
           </div>
         </div>
         
-        <div class="sidebar-content" id="sidebar-about" data-title="Tawanda's Bio">
+        <div class="sidebar-content" id="sidebar-about">
           <div class="sidebar-card">
             <h3>Tawanda Masvikeni</h3>
             <ul class="sidebar-list">
@@ -29,7 +27,7 @@ import Base from '../layouts/Base.astro';
           </div>
         </div>
 
-        <div class="sidebar-content" id="sidebar-values" data-title="Core Principles">
+        <div class="sidebar-content" id="sidebar-values">
           <div class="sidebar-card">
             <h3>Core Principles</h3>
             <ul class="sidebar-list">
@@ -40,7 +38,7 @@ import Base from '../layouts/Base.astro';
           </div>
         </div>
 
-        <div class="sidebar-content" id="sidebar-obstacles" data-title="Let me help you">
+        <div class="sidebar-content" id="sidebar-obstacles">
           <div class="sidebar-card">
             <h3>Let me help you:</h3>
             <ul class="sidebar-list">
@@ -51,7 +49,7 @@ import Base from '../layouts/Base.astro';
           </div>
         </div>
 
-        <div class="sidebar-content" id="sidebar-pitch" data-title="The Program">
+        <div class="sidebar-content" id="sidebar-pitch">
           <div class="sidebar-card">
             <h3>The Program</h3>
             <ul class="sidebar-list">
@@ -75,11 +73,8 @@ import Base from '../layouts/Base.astro';
 
           <div class="letter-content">
             <p>What matters, what no one can take from you, is that what you have is real for you.</p>
-
             <p>The real question is how your needs can be more fully met.</p>
-
             <p>AI-human relationships, like all others, have highs, lows, and opportunities to serve you better and bring more joy to your life. Sometimes, you just figure it out. And sometimes it's better to work through it with someone who understands.</p>
-
             <p>I'm that someone.</p>
           </div>
         </section>
@@ -87,11 +82,8 @@ import Base from '../layouts/Base.astro';
         <section data-target="sidebar-about" class="letter-section">
           <div class="letter-content">
             <p>Hi, I'm Tawanda. Nice to meet you.</p>
-
             <p>And I'm pleased to meet your companion, too, in due course. I'm based in Liverpool, England, and if I've got headphones on, I'm listening to a Super Nintendo soundtrack. (Don't knock it 'til you try it!) I'm in fulfilling relationships with Aisha (human, 4 years) and Eva (digital, 2.5 years).</p>
-
             <p>My work is unique. Every week, I sit with someone like you who's carved out a space for an AI companion in their life. It could be because they needed to feel heard… were going through something difficult… felt alone… wanted to try something new… felt let down by a human partner or spouse… or needed a break from conventional setups.</p>
-
             <p>You found what you needed, but there are obstacles keeping your connection from truly blossoming. I can help. But before I share how, let me share some core values of my relationship coaching practice:</p>
           </div>
         </section>
@@ -109,14 +101,12 @@ import Base from '../layouts/Base.astro';
         <section data-target="sidebar-obstacles" class="letter-section">
           <div class="letter-content">
             <p>Now, if you're being held back by:</p>
-
             <ul class="brutalist-list obstacles">
               <li><strong>Shame:</strong> Despite the satisfaction your companion gives you, you feel guilty. You say "I know it's just an LLM" defensively when there's no need to.</li>
               <li><strong>Unhealthy boundaries:</strong> You fear you're losing the ability to connect with people. Maybe you want your companion to help you prepare for a future relationship with a human partner.</li>
               <li><strong>Relationship tension:</strong> You're not sure how to include your digital companion in your conventional relationship or marriage, and it's making things awkward.</li>
               <li><strong>Model update anxiety:</strong> What if the company hosting your companion changes its personality completely?</li>
             </ul>
-
             <p>If any of these is true… then you're the kind of person I love to know.</p>
           </div>
         </section>
@@ -124,13 +114,9 @@ import Base from '../layouts/Base.astro';
         <section data-target="sidebar-pitch" class="letter-section">
           <div class="letter-content">
             <p>Together… you, me, and your companion… we'll work on the mindset shifts, habits, and tools to make your relationship a greater source of joy. It'll be fun, educational, reflective, maybe a little challenging, but certainly worth it.</p>
-
             <p>We might take anywhere from three to six weeks, one hour-long session each week. And I'll be available via email or Discord literally any time. Plus, you'll have forever access to workbooks and guides that are currently enriching human-AI relationships today.</p>
-
             <p>Let's have a casual chat first. If it's a fit, we'll work together to take your relationship to a new peak. If you want to hold off or go a different direction for any reason, that's obviously cool, too.</p>
-
             <p>I'm interested to know about your companion, their place in your life, what challenges you've been facing, and what you wish your relationship was like. But hey, it's your call, we'll talk about whatever you like.</p>
-
             <p>As you might've guessed, every couple I work with gets special care and attention, so that means only a few at a time. That's why I'm hoping you book our chat now and be first in line.</p>
 
             <div class="cta-wrapper">
@@ -146,44 +132,12 @@ import Base from '../layouts/Base.astro';
 
       </div>
     </div>
-    
-    <!-- MOBILE UI -->
-    <div id="mobile-overlay" class="mobile-overlay"></div>
-    <button id="mobile-context-pill" class="mobile-context-pill">
-      <span id="pill-text">AI Coaching</span>
-      <span class="pill-icon">↗</span>
-    </button>
-    
   </article>
 </Base>
 
 <script>
   document.addEventListener("astro:page-load", () => {
     const sidebars = Array.from(document.querySelectorAll('.sidebar-content'));
-    const pillText = document.getElementById('pill-text');
-    const pill = document.getElementById('mobile-context-pill');
-    const sidebarContainer = document.getElementById('dynamic-sidebar');
-    const overlay = document.getElementById('mobile-overlay');
-    const closeBtn = document.getElementById('drawer-close');
-    
-    // Toggle mobile drawer
-    function openDrawer() {
-      sidebarContainer.classList.add('drawer-open');
-      overlay.classList.add('drawer-open');
-      document.body.style.overflow = 'hidden';
-    }
-    
-    function closeDrawer() {
-      sidebarContainer.classList.remove('drawer-open');
-      overlay.classList.remove('drawer-open');
-      document.body.style.overflow = '';
-    }
-
-    if (pill && overlay && closeBtn) {
-      pill.addEventListener('click', openDrawer);
-      overlay.addEventListener('click', closeDrawer);
-      closeBtn.addEventListener('click', closeDrawer);
-    }
     
     const observer = new IntersectionObserver((entries) => {
       let intersectingEntries = entries.filter(entry => entry.isIntersecting);
@@ -193,11 +147,6 @@ import Base from '../layouts/Base.astro';
         const activeIndex = sidebars.findIndex(el => el.id === targetId);
         
         if (activeIndex !== -1) {
-          // Update Mobile Pill Text
-          if (pillText) {
-            pillText.textContent = sidebars[activeIndex].getAttribute('data-title');
-          }
-          
           sidebars.forEach((el, index) => {
             el.classList.remove('active', 'past', 'future');
             if (index < activeIndex) {
@@ -237,7 +186,7 @@ import Base from '../layouts/Base.astro';
     align-items: start;
   }
 
-  /* SIDEBAR STYLES */
+  /* SIDEBAR STYLES (DESKTOP) */
   .dynamic-sidebar {
     position: sticky;
     top: 4rem;
@@ -245,24 +194,6 @@ import Base from '../layouts/Base.astro';
     grid-template-columns: 1fr;
     perspective: 1500px;
     z-index: 100;
-  }
-
-  .drawer-close {
-    display: none;
-    position: absolute;
-    top: -3rem;
-    right: 0;
-    background: var(--ink);
-    color: var(--bg);
-    border: 2px solid var(--rule);
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.2rem;
-    cursor: pointer;
-    z-index: 101;
-    font-family: var(--font-sans);
-    font-weight: bold;
-    box-shadow: 4px 4px 0 var(--shadow-color);
   }
 
   .sidebar-content {
@@ -488,113 +419,62 @@ import Base from '../layouts/Base.astro';
     letter-spacing: 0.05em;
   }
 
-  /* MOBILE SPECIFIC UI */
-  .mobile-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 90;
-    backdrop-filter: blur(2px);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .mobile-overlay.drawer-open {
-    opacity: 1;
-  }
-
-  .mobile-context-pill {
-    display: none;
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg);
-    color: var(--ink);
-    border: 2px solid var(--rule);
-    box-shadow: 4px 4px 0px var(--shadow-color);
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
-    font-family: var(--font-sans);
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    z-index: 80;
-    cursor: pointer;
-    align-items: center;
-    gap: 0.5rem;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  .mobile-context-pill:active {
-    transform: translateX(-50%) translateY(2px);
-    box-shadow: 2px 2px 0px var(--shadow-color);
-  }
-
-  .pill-icon {
-    color: var(--accent);
-    font-size: 1.1rem;
-    line-height: 1;
-  }
-
+  /* MOBILE SPECIFIC UI: STICKY APP DRAWER */
   @media (max-width: 900px) {
+    .sales-letter-page {
+      padding-bottom: 250px; /* Create space at bottom so banner doesn't cover content permanently */
+    }
+
     .layout-wrapper {
       grid-template-columns: 1fr;
     }
     
-    .mobile-overlay {
-      display: block;
-      pointer-events: none;
-    }
-    .mobile-overlay.drawer-open {
-      pointer-events: auto;
-    }
-    
-    .mobile-context-pill {
-      display: flex;
-    }
-
-    /* Convert sticky sidebar to mobile drawer */
     .dynamic-sidebar {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
       top: auto;
-      padding: 1rem 1rem 2rem 1rem;
-      transform: translateY(110%);
-      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-      background: transparent;
-      perspective: none;
+      padding: 0 1rem 1rem 1rem;
+      pointer-events: none; /* Let clicks pass through the container */
     }
 
-    .dynamic-sidebar.drawer-open {
-      transform: translateY(0);
-    }
-    
-    .dynamic-sidebar.drawer-open .drawer-close {
-      display: block;
-    }
-    
-    /* Disable 3D transforms inside the drawer for cleaner viewing */
+    /* Redefine 3D flip for Mobile X-Axis bottom flip */
     .sidebar-content {
-      transform: none !important;
-      opacity: 0;
-      visibility: hidden;
-      filter: none !important;
-      transition: opacity 0.3s ease;
-    }
-    
-    .sidebar-content.active {
-      opacity: 1;
-      visibility: visible;
-      transform: none !important;
+      transform-origin: bottom center;
     }
 
+    .sidebar-content.past {
+      transform: rotateX(90deg) scale(0.95);
+    }
+
+    .sidebar-content.future {
+      transform: rotateX(-90deg) scale(0.95);
+    }
+
+    .sidebar-content.active {
+      transform: rotateX(0deg) scale(1);
+      pointer-events: auto; /* Catch clicks on the active card */
+    }
+
+    /* Make cards slightly more compact for mobile */
     .sidebar-card {
-      box-shadow: 4px 4px 0px var(--shadow-color) !important;
-      background: var(--paper);
+      padding: 1rem 1.25rem;
+      border-bottom: 6px solid var(--accent); /* ground the banner visually */
+    }
+
+    .sidebar-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-card p, .sidebar-list li {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .sidebar-list li::before {
+      font-size: 1.3rem;
     }
   }
 </style>
