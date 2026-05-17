@@ -10,6 +10,8 @@ import Base from '../layouts/Base.astro';
       <figcaption>That's me.</figcaption>
     </figure>
 
+    <h1 class="home-heading">Hello.</h1>
+
     <p>
       Tawanda is a one-man indie app studio whose personal consumption is rumored to have a distinct effect on the global price of coffee. Previously, he was a marketer at tech companies such as B12.io, Awesome Motive, and Uscreen. After growing tired of selling software to businesses and endless office politics, he decided to build products that spread joy and relief.
     </p>
@@ -79,6 +81,17 @@ import Base from '../layouts/Base.astro';
     margin-top: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+  }
+
+  .home-heading {
+    font-family: var(--font-sans);
+    font-size: clamp(3rem, 10vw, 5rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 2rem;
   }
 
   .sign-off {
