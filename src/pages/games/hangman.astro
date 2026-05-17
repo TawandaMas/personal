@@ -45,7 +45,7 @@ import Base from '../../layouts/Base.astro';
   <div class="hint">Tap letters to guess · 6 wrong guesses max</div>
 </Base>
 
-<style>
+<style is:global>
   .game-header { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.75rem; }
   .back { font-family: var(--font-sans); font-size: 0.75rem; color: var(--ink-light); text-decoration: none; }
   .game-title-row { display: flex; align-items: baseline; justify-content: space-between; }
