@@ -118,7 +118,7 @@ import Base from '../../layouts/Base.astro';
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
-      const response = await fetchWithTimeout(url, { ...options, signal: controller.signal });
+      const response = await window.fetch(url, { ...options, signal: controller.signal });
       clearTimeout(id);
       return response;
     } catch (e) {
