@@ -277,19 +277,6 @@ import Base from '../../layouts/Base.astro';
   const overlayContent = document.querySelector('.overlay-content');
   const diffRow = document.createElement('div');
   diffRow.style.cssText = "display:flex; justify-content:center; gap: 0.5rem; margin-top: 1.5rem;";
-  
-  ['Beginner', 'Intermediate', 'Expert'].forEach(lvl => {
-      const btn = document.createElement('button');
-      btn.textContent = lvl;
-      btn.className = 'diff-btn';
-      btn.style.cssText = "background:var(--paper); color:var(--ink); border:1px solid var(--rule); padding: 0.5rem; border-radius: 4px; cursor:pointer;";
-      btn.addEventListener('click', () => {
-          document.querySelectorAll('.diff-btn').forEach(b => b.style.background = 'var(--paper)');
-          btn.style.background = 'var(--rule)';
-          currentLevel = lvl;
-      });
-      diffRow.appendChild(diffRow); // MISTAKE, FIXING IN NEXT STEP
-  });
 
   // Let's actually append them correctly
   diffRow.innerHTML = '';

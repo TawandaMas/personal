@@ -139,6 +139,19 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
+  async function fetchWithTimeout(url, options = {}, timeout = 2500) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetchWithTimeout(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  }
+
   const WORDS = [
     'ASTRONOMY', 'LITERATURE', 'PHILOSOPHY', 'UNIVERSE', 'SYMPHONY', 'ARCHITECT', 'KNOWLEDGE', 'EVOLUTION', 'CALIGRAPHY', 'DISCOVERY',
     'MICROSCOPE', 'TELESCOPE', 'CHEMISTRY', 'BIOLOGY', 'PHYSICS', 'MATHEMATICS', 'GEOGRAPHY', 'HISTORY', 'LANGUAGES', 'PSYCHOLOGY',
@@ -171,7 +184,7 @@ import Base from '../../layouts/Base.astro';
     try {
         const len = Math.floor(Math.random() * 5) + 6; // 6 to 10 letters
         const pattern = '?'.repeat(len);
-        const res = await fetch(`https://api.datamuse.com/words?sp=${pattern}&md=f&max=100`);
+        const res = await fetchWithTimeout(`https://api.datamuse.com/words?sp=${pattern}&md=f&max=100`);
         const data = await res.json();
         
         if (data && data.length > 0) {

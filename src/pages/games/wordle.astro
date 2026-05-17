@@ -139,6 +139,19 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
+  async function fetchWithTimeout(url, options = {}, timeout = 2500) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetchWithTimeout(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  }
+
   const WORDS = [
     'BOOKS', 'IDEAS', 'PAPER', 'LOGIC', 'PIXEL', 'SPACE', 'CODES', 'STUDY', 'WRITE', 'LEARN',
     'SOUND', 'LIGHT', 'VOICE', 'MUSIC', 'DREAM', 'NIGHT', 'STARS', 'EARTH', 'WATER', 'FLAME',
@@ -169,7 +182,7 @@ import Base from '../../layouts/Base.astro';
     kbEl.innerHTML = '';
 
     try {
-        const res = await fetch(`https://api.datamuse.com/words?sp=?????&md=f&max=300`);
+        const res = await fetchWithTimeout(`https://api.datamuse.com/words?sp=?????&md=f&max=300`);
         const data = await res.json();
         
         if (data && data.length > 0) {

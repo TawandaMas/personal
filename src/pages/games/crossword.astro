@@ -132,6 +132,19 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
+  async function fetchWithTimeout(url, options = {}, timeout = 2500) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetchWithTimeout(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  }
+
   let PUZZLE = {
     size: 5,
     solution: [],
@@ -179,7 +192,7 @@ import Base from '../../layouts/Base.astro';
       let definitions = [];
 
       try {
-          const res = await fetch(`https://api.datamuse.com/words?sp=?????&md=df&max=50`);
+          const res = await fetchWithTimeout(`https://api.datamuse.com/words?sp=?????&md=df&max=50`);
           const data = await res.json();
           
           let candidates = data.filter(w => !w.word.includes(' ') && !w.word.includes('-') && w.defs && w.defs.length > 0);

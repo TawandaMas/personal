@@ -138,6 +138,19 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
+  async function fetchWithTimeout(url, options = {}, timeout = 2500) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetchWithTimeout(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  }
+
   const gridEl = document.getElementById('grid');
   const wordDisplay = document.getElementById('current-word');
   const wordList = document.getElementById('word-list');
@@ -207,7 +220,7 @@ import Base from '../../layouts/Base.astro';
         submitBtn.disabled = true;
         
         try {
-            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
+            const res = await fetchWithTimeout(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
             if (res.ok) {
                 found.push(word);
                 score += word.length === 3 ? 1 : (word.length === 4 ? 2 : word.length);

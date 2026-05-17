@@ -188,6 +188,7 @@ const canvas = document.getElementById('snake-canvas');
   }
 
   function draw() {
+    if (!snake || !food) return;
     // Brutalist background - clean and stark
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#F4F4F0';
     ctx.fillRect(0, 0, canvas.width, canvas.height);

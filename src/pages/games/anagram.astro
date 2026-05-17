@@ -143,6 +143,19 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
+  async function fetchWithTimeout(url, options = {}, timeout = 2500) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetchWithTimeout(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  }
+
   const WORDS = [
     'ASTRONOMY', 'PHANTOM', 'RHYTHM', 'WHISPER', 'JOURNEY', 'SILENCE', 'CRIMSON', 'MYSTERY', 'HARVEST', 'THUNDER',
     'ORCHARD', 'LANTERN', 'HORIZON', 'ECLIPSE', 'DIAMOND', 'CRYSTAL', 'BLOSSOM', 'VAMPIRE', 'PENGUIN', 'MONSTER',
@@ -258,7 +271,7 @@ import Base from '../../layouts/Base.astro';
         const len = Math.floor(Math.random() * 4) + 5;
         const pattern = '?'.repeat(len);
         // Datamuse API: sp is spelled like, max is limit, md=f gets frequency. Adding 'a' or 'e' ensures it's a commonish word.
-        const res = await fetch(`https://api.datamuse.com/words?sp=${pattern}&md=f&max=100`);
+        const res = await fetchWithTimeout(`https://api.datamuse.com/words?sp=${pattern}&md=f&max=100`);
         const data = await res.json();
         
         if (data && data.length > 0) {

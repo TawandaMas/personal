@@ -112,6 +112,19 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
+  async function fetchWithTimeout(url, options = {}, timeout = 2500) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetchWithTimeout(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  }
+
 const FALLBACK_PASSAGES = [
     "The library was a silent cathedral of paper and ink, where every shelf held a thousand lives waiting to be relived through the eyes of a reader.",
     "Technology is a mirror that reflects our own creativity, yet at its best, it acts as a lens that clarifies the complexities of the human condition.",
@@ -156,7 +169,7 @@ const FALLBACK_PASSAGES = [
   async function fetchQuote() {
       try {
           // Public quote API (doesn't require key, CORS friendly usually)
-          const res = await fetch('https://api.quotable.io/random?minLength=100&maxLength=250');
+          const res = await fetchWithTimeout('https://api.quotable.io/random?minLength=100&maxLength=250');
           if (!res.ok) throw new Error('API failed');
           const data = await res.json();
           return data.content;

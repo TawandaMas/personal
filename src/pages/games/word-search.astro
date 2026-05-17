@@ -114,6 +114,19 @@ import Base from '../../layouts/Base.astro';
 </style>
 
 <script>
+  async function fetchWithTimeout(url, options = {}, timeout = 2500) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetchWithTimeout(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  }
+
   const WORD_SETS = [['ASTRO', 'CARDS', 'GAMES', 'LOGIC', 'PIXEL', 'SPACE', 'CODE'], ['BOOK', 'PAPER', 'INK', 'SHELF', 'READ', 'STORY'], ['WEB', 'REACT', 'HTML', 'STYLE', 'DOM', 'APP']];
   const gridEl = document.getElementById('grid');
   const listEl = document.getElementById('word-list');
@@ -137,9 +150,9 @@ import Base from '../../layouts/Base.astro';
 
     try {
         // Fetch random words of varying lengths (4 to 8 letters max to fit in 10x10)
-        const res = await fetch(`https://api.datamuse.com/words?sp=??????&md=f&max=100`);
+        const res = await fetchWithTimeout(`https://api.datamuse.com/words?sp=??????&md=f&max=100`);
         const data = await res.json();
-        const res2 = await fetch(`https://api.datamuse.com/words?sp=????&md=f&max=100`);
+        const res2 = await fetchWithTimeout(`https://api.datamuse.com/words?sp=????&md=f&max=100`);
         const data2 = await res2.json();
         
         let allWords = [...(data||[]), ...(data2||[])]
