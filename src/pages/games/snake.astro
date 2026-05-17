@@ -75,10 +75,10 @@ import Base from '../../layouts/Base.astro';
     width: 100%;
     max-width: 540px;
     margin: 0 auto;
-    border: 1.5px solid var(--rule);
+    border: var(--border-w) solid var(--rule);
     background: var(--paper-dark);
     aspect-ratio: 1;
-    box-shadow: 2px 3px 12px rgba(100,80,50,0.12), inset 0 1px 0 rgba(255,255,255,0.4);
+    box-shadow: 6px 6px 0px var(--shadow-color);
   }
 
   #snake-canvas {
@@ -107,8 +107,9 @@ import Base from '../../layouts/Base.astro';
     padding: 0.75rem 2rem; 
     background: var(--ink); 
     color: var(--paper);
-    border: none;
-    border-radius: 2rem;
+    border: var(--border-w) solid var(--rule);
+    border-radius: 0;
+    box-shadow: 4px 4px 0px var(--shadow-color);
     font-family: var(--font-sans); 
     font-weight: 600;
     text-transform: uppercase; 
