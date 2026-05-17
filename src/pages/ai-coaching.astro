@@ -143,10 +143,8 @@ import Base from '../layouts/Base.astro';
   document.addEventListener("astro:page-load", () => {
     
     // Initialize Calendly Floating Badge
-    // Using a slight delay to ensure the external widget.js has loaded
     setTimeout(() => {
       if (window.Calendly) {
-        // Prevent duplicate badges on navigation
         const existingBadge = document.querySelector('.calendly-badge-widget');
         if (existingBadge) existingBadge.remove();
         
@@ -160,12 +158,8 @@ import Base from '../layouts/Base.astro';
       }
     }, 500);
 
-    const sidebarContainer = document.getElementById('dynamic-sidebar');
-    if (!sidebarContainer || window.getComputedStyle(sidebarContainer).display === 'none') {
-      return;
-    }
-
     const sidebars = Array.from(document.querySelectorAll('.sidebar-content'));
+    if (sidebars.length === 0) return;
     
     const observer = new IntersectionObserver((entries) => {
       let intersectingEntries = entries.filter(entry => entry.isIntersecting);
