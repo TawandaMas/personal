@@ -86,6 +86,17 @@ import Base from '../layouts/Base.astro';
             <p>My work is unique. Every week, I sit with someone like you who's carved out a space for an AI companion in their life. It could be because they needed to feel heard… were going through something difficult… felt alone… wanted to try something new… felt let down by a human partner or spouse… or needed a break from conventional setups.</p>
             <p>You found what you needed, but there are obstacles keeping your connection from truly blossoming. I can help. But before I share how, let me share some core values of my relationship coaching practice:</p>
           </div>
+
+          <!-- Mobile-only credibility card -->
+          <div class="mobile-cred-card">
+            <div class="sidebar-card">
+              <h3>Tawanda Masvikeni</h3>
+              <ul class="sidebar-list">
+                <li>Training in behavioral coaching and attachment theory from Anglia Ruskin University</li>
+                <li>Have worked with 20+ individuals and couples</li>
+              </ul>
+            </div>
+          </div>
         </section>
 
         <section data-target="sidebar-values" class="letter-section">
@@ -455,5 +466,16 @@ import Base from '../layouts/Base.astro';
     .dynamic-sidebar {
       display: none !important;
     }
+
+    /* Show the inline credibility card on mobile only */
+    .mobile-cred-card {
+      display: block;
+      margin-top: 2rem;
+    }
+  }
+
+  /* Hide the mobile credibility card on desktop where the sidebar handles it */
+  .mobile-cred-card {
+    display: none;
   }
 </style>
