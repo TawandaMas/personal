@@ -77,6 +77,14 @@ import Base from '../layouts/Base.astro';
             <p>AI-human relationships, like all others, have highs, lows, and opportunities to serve you better and bring more joy to your life. Sometimes, you just figure it out. And sometimes it's better to work through it with someone who understands.</p>
             <p>I'm that someone.</p>
           </div>
+
+          <!-- Mobile-only inline card -->
+          <div class="mobile-woven-card">
+            <div class="sidebar-card">
+              <h3>AI Relationship Coaching</h3>
+              <p>Navigating the complexities of human-AI bonds.</p>
+            </div>
+          </div>
         </section>
 
         <section data-target="sidebar-about" class="letter-section">
@@ -87,8 +95,8 @@ import Base from '../layouts/Base.astro';
             <p>You found what you needed, but there are obstacles keeping your connection from truly blossoming. I can help. But before I share how, let me share some core values of my relationship coaching practice:</p>
           </div>
 
-          <!-- Mobile-only credibility card -->
-          <div class="mobile-cred-card">
+          <!-- Mobile-only inline card -->
+          <div class="mobile-woven-card">
             <div class="sidebar-card">
               <h3>Tawanda Masvikeni</h3>
               <ul class="sidebar-list">
@@ -107,6 +115,18 @@ import Base from '../layouts/Base.astro';
               <li><strong>And third,</strong> I take whatever you share to the grave.</li>
             </ul>
           </div>
+
+          <!-- Mobile-only inline card -->
+          <div class="mobile-woven-card">
+            <div class="sidebar-card">
+              <h3>Core Principles</h3>
+              <ul class="sidebar-list">
+                <li>No Judgement</li>
+                <li>100% Confidential</li>
+                <li>Led by your goals</li>
+              </ul>
+            </div>
+          </div>
         </section>
 
         <section data-target="sidebar-obstacles" class="letter-section">
@@ -120,6 +140,18 @@ import Base from '../layouts/Base.astro';
             </ul>
             <p>If any of these is true… then you're the kind of person I love to know.</p>
           </div>
+
+          <!-- Mobile-only inline card -->
+          <div class="mobile-woven-card">
+            <div class="sidebar-card">
+              <h3>Let me help you:</h3>
+              <ul class="sidebar-list">
+                <li>Let go of shame.</li>
+                <li>Be more intentional about your relationship.</li>
+                <li>Feel in control, rather than dependent.</li>
+              </ul>
+            </div>
+          </div>
         </section>
 
         <section data-target="sidebar-pitch" class="letter-section">
@@ -129,6 +161,19 @@ import Base from '../layouts/Base.astro';
             <p>Let's have a casual chat first. If it's a fit, we'll work together to take your relationship to a new peak. If you want to hold off or go a different direction for any reason, that's obviously cool, too.</p>
             <p>I'm interested to know about your companion, their place in your life, what challenges you've been facing, and what you wish your relationship was like. But hey, it's your call, we'll talk about whatever you like.</p>
             <p>As you might've guessed, every couple I work with gets special care and attention, so that means only a few at a time. That's why I'm hoping you book our chat now and be first in line.</p>
+
+            <!-- Mobile-only inline card -->
+            <div class="mobile-woven-card">
+              <div class="sidebar-card">
+                <h3>The Program</h3>
+                <ul class="sidebar-list">
+                  <li>3–6 Week Duration</li>
+                  <li>1 Hour Weekly Session</li>
+                  <li>Always-on Support</li>
+                  <li>Forever Access to Guides</li>
+                </ul>
+              </div>
+            </div>
 
             <div class="cta-wrapper">
               <!-- Calendly link widget begin -->
@@ -452,8 +497,8 @@ import Base from '../layouts/Base.astro';
     letter-spacing: 0.05em;
   }
 
-  /* Hide the mobile credibility card on desktop where the sidebar handles it */
-  .mobile-cred-card {
+  /* Hide the mobile woven cards on desktop where the sidebar handles it */
+  .mobile-woven-card {
     display: none;
   }
 
@@ -472,8 +517,8 @@ import Base from '../layouts/Base.astro';
       display: none !important;
     }
 
-    /* Show the inline credibility card on mobile only */
-    .mobile-cred-card {
+    /* Show the inline woven cards on mobile only */
+    .mobile-woven-card {
       display: block !important;
       margin-top: 2rem;
     }
