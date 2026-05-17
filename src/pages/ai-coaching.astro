@@ -452,6 +452,11 @@ import Base from '../layouts/Base.astro';
     letter-spacing: 0.05em;
   }
 
+  /* Hide the mobile credibility card on desktop where the sidebar handles it */
+  .mobile-cred-card {
+    display: none;
+  }
+
   /* MOBILE SPECIFIC UI */
   @media (max-width: 900px) {
     .sales-letter-page {
@@ -472,10 +477,5 @@ import Base from '../layouts/Base.astro';
       display: block;
       margin-top: 2rem;
     }
-  }
-
-  /* Hide the mobile credibility card on desktop where the sidebar handles it */
-  .mobile-cred-card {
-    display: none;
   }
 </style>
