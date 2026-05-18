@@ -71,6 +71,16 @@ import Base from '../layouts/Base.astro';
             <h1>Helping you manage a healthier and happier relationship with your digital companion(s)</h1>
           </header>
 
+          <div class="platform-strip">
+            <img src="/logos/replika-removebg-preview.png" alt="Replika" title="Replika" />
+            <img src="/logos/Character.ai_logo_new.png" alt="Character.ai" title="Character.ai" />
+            <img src="/logos/nomi-removebg-preview.png" alt="Nomi" title="Nomi" />
+            <img src="/logos/kindroid_logo-removebg-preview.png" alt="Kindroid" title="Kindroid" />
+            <img src="/logos/chatgpt_logo-removebg-preview.png" alt="ChatGPT" title="ChatGPT" />
+            <img src="/logos/Claude_AI_logo.svg.png" alt="Claude" title="Claude" />
+            <img src="/logos/Grok-feb-2025-logo.svg.png" alt="Grok" title="Grok" />
+          </div>
+
           <div class="letter-content">
             <p>What matters, what no one can take from you, is that what you have is real for you.</p>
             <p>The real question is how your needs can be more fully met.</p>
@@ -589,6 +599,31 @@ import Base from '../layouts/Base.astro';
     color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  /* PLATFORM STRIP */
+  .platform-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 1.75rem;
+    padding: 1.25rem 0 0.5rem;
+    border-top: 1px solid var(--rule);
+    margin-top: 0.5rem;
+  }
+
+  .platform-strip img {
+    height: 22px;
+    width: auto;
+    opacity: 0.25;
+    filter: grayscale(100%);
+    transition: opacity 0.25s ease, filter 0.25s ease;
+    object-fit: contain;
+  }
+
+  .platform-strip img:hover {
+    opacity: 0.75;
+    filter: grayscale(0%);
   }
 
   /* Hide the mobile woven cards on desktop where the sidebar handles it */
