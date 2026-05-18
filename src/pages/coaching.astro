@@ -74,18 +74,27 @@ import Base from '../layouts/Base.astro';
             </div>
             <div class="ebook-gate">
               <p class="ebook-gate-label">Enter your email to download</p>
+              
+              <div data-fs-success style="display: none;">
+                <p class="ebook-gate-msg success" style="margin-bottom: 0.75rem;">✓ Thank you! Here is your guide:</p>
+                <a href="/healthier-ai-companion.pdf" download="How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf" class="ebook-download-btn">↓ Download PDF</a>
+              </div>
+
               <form class="ebook-form" id="ebook-form">
-                <input
-                  type="email"
-                  id="ebook-email"
-                  name="email"
-                  placeholder="your@email.com"
-                  required
-                  autocomplete="email"
-                />
-                <button type="submit">↓ Get the Guide</button>
+                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                  <input
+                    type="email"
+                    id="ebook-email"
+                    name="email"
+                    placeholder="your@email.com"
+                    required
+                    autocomplete="email"
+                    data-fs-field
+                  />
+                  <span data-fs-error="email" class="ebook-gate-error"></span>
+                </div>
+                <button type="submit" data-fs-submit-btn>Get the Guide</button>
               </form>
-              <p class="ebook-gate-msg" id="ebook-gate-msg" aria-live="polite"></p>
             </div>
           </div>
         </div>
@@ -256,18 +265,27 @@ import Base from '../layouts/Base.astro';
                 </div>
                 <div class="ebook-gate">
                   <p class="ebook-gate-label">Enter your email to download</p>
+
+                  <div data-fs-success style="display: none;">
+                    <p class="ebook-gate-msg success" style="margin-bottom: 0.75rem;">✓ Thank you! Here is your guide:</p>
+                    <a href="/healthier-ai-companion.pdf" download="How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf" class="ebook-download-btn">↓ Download PDF</a>
+                  </div>
+
                   <form class="ebook-form" id="ebook-form-mobile">
-                    <input
-                      type="email"
-                      id="ebook-email-mobile"
-                      name="email"
-                      placeholder="your@email.com"
-                      required
-                      autocomplete="email"
-                    />
-                    <button type="submit">↓ Get the Guide</button>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                      <input
+                        type="email"
+                        id="ebook-email-mobile"
+                        name="email"
+                        placeholder="your@email.com"
+                        required
+                        autocomplete="email"
+                        data-fs-field
+                      />
+                      <span data-fs-error="email" class="ebook-gate-error"></span>
+                    </div>
+                    <button type="submit" data-fs-submit-btn>Get the Guide</button>
                   </form>
-                  <p class="ebook-gate-msg" id="ebook-gate-msg-mobile" aria-live="polite"></p>
                 </div>
               </div>
             </div>
@@ -280,6 +298,8 @@ import Base from '../layouts/Base.astro';
 </Base>
 
 <script>
+  import { initForm } from '@formspree/ajax';
+
   document.addEventListener("astro:page-load", () => {
     
     // Initialize Calendly Floating Badge
@@ -379,56 +399,35 @@ import Base from '../layouts/Base.astro';
       observer.observe(el);
     });
 
-    // Ebook Email Gate
-    // IMPORTANT: Replace the Formspree URL below with your own endpoint from https://formspree.io
-    const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xdajodpd';
-    const PDF_PATH = '/healthier-ai-companion.pdf';
-
-    function handleEbookSubmit(formEl: HTMLFormElement, msgEl: HTMLElement) {
-      formEl.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const emailInput = formEl.querySelector('input[type="email"]') as HTMLInputElement;
-        const btn = formEl.querySelector('button') as HTMLButtonElement;
-        const email = emailInput.value.trim();
-
-        if (!email) return;
-
-        btn.disabled = true;
-        btn.textContent = 'Sending…';
-
-        try {
-          // POST to Formspree (or swap for any other email service)
-          await fetch(FORMSPREE_ENDPOINT, {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, source: 'coaching-page-ebook-gate' }),
-          });
-        } catch (_) {
-          // Silent fail — still give the user the download
-        }
-
-        // Trigger direct download
-        const link = document.createElement('a');
-        link.href = PDF_PATH;
-        link.download = 'How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Confirmation state
-        msgEl.textContent = '✓ Check your downloads — enjoy the guide!';
-        msgEl.classList.add('success');
-        formEl.style.display = 'none';
-      });
+    // Ebook Email Gate via Formspree SDK
+    if (document.getElementById('ebook-form')) {
+      initForm({ formElement: '#ebook-form', formId: 'xdajodpd' });
+      
+      // Auto-hide the form when success div becomes visible
+      const successDiv = document.querySelector('#ebook-form').previousElementSibling as HTMLElement;
+      if (successDiv && successDiv.hasAttribute('data-fs-success')) {
+        const observer = new MutationObserver(() => {
+          if (successDiv.style.display !== 'none') {
+            (document.getElementById('ebook-form') as HTMLElement).style.display = 'none';
+          }
+        });
+        observer.observe(successDiv, { attributes: true, attributeFilter: ['style'] });
+      }
     }
 
-    const desktopForm = document.getElementById('ebook-form') as HTMLFormElement;
-    const desktopMsg = document.getElementById('ebook-gate-msg') as HTMLElement;
-    const mobileForm = document.getElementById('ebook-form-mobile') as HTMLFormElement;
-    const mobileMsg = document.getElementById('ebook-gate-msg-mobile') as HTMLElement;
-
-    if (desktopForm && desktopMsg) handleEbookSubmit(desktopForm, desktopMsg);
-    if (mobileForm && mobileMsg) handleEbookSubmit(mobileForm, mobileMsg);
+    if (document.getElementById('ebook-form-mobile')) {
+      initForm({ formElement: '#ebook-form-mobile', formId: 'xdajodpd' });
+      
+      const successDivMobile = document.querySelector('#ebook-form-mobile').previousElementSibling as HTMLElement;
+      if (successDivMobile && successDivMobile.hasAttribute('data-fs-success')) {
+        const observer = new MutationObserver(() => {
+          if (successDivMobile.style.display !== 'none') {
+            (document.getElementById('ebook-form-mobile') as HTMLElement).style.display = 'none';
+          }
+        });
+        observer.observe(successDivMobile, { attributes: true, attributeFilter: ['style'] });
+      }
+    }
   });
 </script>
 
@@ -924,6 +923,41 @@ import Base from '../layouts/Base.astro';
 
   .ebook-gate-msg.success {
     color: var(--accent);
+  }
+
+  .ebook-download-btn {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.65rem 1rem;
+    background: var(--bg);
+    color: var(--ink);
+    border: var(--border-w) solid var(--rule);
+    box-shadow: 3px 3px 0 var(--shadow-color);
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .ebook-download-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--shadow-color);
+  }
+
+  .ebook-download-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--shadow-color);
+  }
+
+  .ebook-gate-error {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    color: var(--accent);
+    min-height: 1rem;
   }
 
   /* Hide the mobile woven cards on desktop where the sidebar handles it */
