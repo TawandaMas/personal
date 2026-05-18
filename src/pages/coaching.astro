@@ -7,8 +7,9 @@ import Base from '../layouts/Base.astro';
     
     <div class="layout-wrapper">
       
-      <!-- DYNAMIC SIDEBAR -->
-      <aside class="dynamic-sidebar" id="dynamic-sidebar">
+      <!-- SIDEBAR WRAPPER -->
+      <aside class="sidebar-wrapper">
+        <div class="dynamic-sidebar" id="dynamic-sidebar">
         
         <div class="sidebar-content active" id="sidebar-intro">
           <div class="sidebar-card">
@@ -61,39 +62,34 @@ import Base from '../layouts/Base.astro';
           </div>
         </div>
 
-        <div class="sidebar-content" id="sidebar-ebook">
-          <div class="sidebar-card ebook-card">
-            <div class="ebook-cover">
-              <div class="ebook-cover-stripe"></div>
-              <div class="ebook-cover-body">
-                <p class="ebook-eyebrow">Free Guide — tawanda.space</p>
-                <h3 class="ebook-title">How to Have a Happier Relationship With Your AI Companion</h3>
-                <hr class="ebook-rule" />
-                <p class="ebook-subtitle">Three lessons for feeling more at ease, more understood, and more joy.</p>
-              </div>
-            </div>
-            <div class="ebook-gate">
-              <p class="ebook-gate-label">Enter your email to download</p>
-              
-              <div data-fs-success style="display: none;">
-                <p class="ebook-gate-msg success" style="margin-bottom: 0.75rem;">✓ Thank you! Here is your guide:</p>
-                <a href="/healthier-ai-companion.pdf" download="How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf" class="ebook-download-btn">↓ Download PDF</a>
-              </div>
+        </div> <!-- End of dynamic-sidebar -->
 
-              <form class="ebook-form" id="ebook-form" action="https://formspree.io/f/xdajodpd" method="POST">
-                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                  <input
-                    type="email"
-                    id="ebook-email"
-                    name="email"
-                    placeholder="your@email.com"
-                    required
-                    autocomplete="email"
-                  />
-                </div>
-                <button type="submit">Get the Guide</button>
-              </form>
+        <!-- Permanent Ebook Card underneath the dynamic content -->
+        <div class="sidebar-card ebook-card">
+          <div class="ebook-cover" style="padding: 0; display: flex; align-items: center; justify-content: center; background: #111;">
+            <img src="/healthier-ai-companion-dynamic-cover.png" alt="Free Guide Cover" style="width: 100%; height: auto; display: block;" />
+          </div>
+          <div class="ebook-gate">
+            <p class="ebook-gate-label">Free Guide</p>
+            
+            <div data-fs-success style="display: none;">
+              <p class="ebook-gate-msg success" style="margin-bottom: 0.75rem;">✓ Thank you! Here is your guide:</p>
+              <a href="/healthier-ai-companion.pdf" download="How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf" class="ebook-download-btn">↓ Download PDF</a>
             </div>
+
+            <form class="ebook-form" id="ebook-form" action="https://formspree.io/f/xdajodpd" method="POST">
+              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <input
+                  type="email"
+                  id="ebook-email"
+                  name="email"
+                  placeholder="your@email.com"
+                  required
+                  autocomplete="email"
+                />
+              </div>
+              <button type="submit">Get the Guide</button>
+            </form>
           </div>
         </div>
 
@@ -244,53 +240,55 @@ import Base from '../layouts/Base.astro';
           </div>
         </section>
 
-        <section data-target="sidebar-ebook" class="letter-section">
+        <section class="letter-section" style="border: none;">
           <div class="letter-content">
-            <p>One more thing — I put together a free guide you might find useful right now, even before we speak. It's a short read with three practical lessons for feeling more at ease, more understood, and more joy in your relationship.</p>
+            <p>One more thing — I put together a free guide you might find useful right now, even before we speak. It's a short read with three practical lessons that have helped other people deeply connect with their digital companions.</p>
             <p>It's free. Enter your email on the right and it'll download straight away.</p>
-
-            <!-- Mobile-only inline ebook card -->
-            <div class="mobile-woven-card">
-              <div class="sidebar-card ebook-card">
-                <div class="ebook-cover">
-                  <div class="ebook-cover-stripe"></div>
-                  <div class="ebook-cover-body">
-                    <p class="ebook-eyebrow">Free Guide — tawanda.space</p>
-                    <h3 class="ebook-title">How to Have a Happier Relationship With Your AI Companion</h3>
-                    <hr class="ebook-rule" />
-                    <p class="ebook-subtitle">Three lessons for feeling more at ease, more understood, and more joy.</p>
-                  </div>
-                </div>
-                <div class="ebook-gate">
-                  <p class="ebook-gate-label">Enter your email to download</p>
-
-                  <div data-fs-success style="display: none;">
-                    <p class="ebook-gate-msg success" style="margin-bottom: 0.75rem;">✓ Thank you! Here is your guide:</p>
-                    <a href="/healthier-ai-companion.pdf" download="How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf" class="ebook-download-btn">↓ Download PDF</a>
-                  </div>
-
-                  <form class="ebook-form" id="ebook-form-mobile" action="https://formspree.io/f/xdajodpd" method="POST">
-                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                      <input
-                        type="email"
-                        id="ebook-email-mobile"
-                        name="email"
-                        placeholder="your@email.com"
-                        required
-                        autocomplete="email"
-                      />
-                    </div>
-                    <button type="submit">Get the Guide</button>
-                  </form>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
       </div>
     </div>
   </article>
+
+  <!-- MOBILE PILL & MODAL -->
+  <div class="mobile-ebook-pill" id="mobile-ebook-pill">
+    FREE
+  </div>
+
+  <div class="mobile-ebook-modal-overlay" id="mobile-ebook-modal-overlay">
+    <div class="mobile-ebook-modal">
+      <button class="mobile-ebook-close" id="mobile-ebook-close">×</button>
+      <div class="sidebar-card ebook-card" style="margin: 0; box-shadow: 6px 6px 0 var(--shadow-color);">
+        <div class="ebook-cover" style="padding: 0; display: flex; align-items: center; justify-content: center; background: #111;">
+          <img src="/healthier-ai-companion-dynamic-cover.png" alt="Free Guide Cover" style="width: 100%; height: auto; display: block;" />
+        </div>
+        <div class="ebook-gate">
+          <p class="ebook-gate-label">Free Guide</p>
+          
+          <div data-fs-success style="display: none;">
+            <p class="ebook-gate-msg success" style="margin-bottom: 0.75rem;">✓ Thank you! Here is your guide:</p>
+            <a href="/healthier-ai-companion.pdf" download="How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf" class="ebook-download-btn">↓ Download PDF</a>
+          </div>
+
+          <form class="ebook-form" id="ebook-form-mobile" action="https://formspree.io/f/xdajodpd" method="POST">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <input
+                type="email"
+                id="ebook-email-mobile"
+                name="email"
+                placeholder="your@email.com"
+                required
+                autocomplete="email"
+              />
+            </div>
+            <button type="submit">Get the Guide</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </Base>
 
 <script>
@@ -443,6 +441,27 @@ import Base from '../layouts/Base.astro';
 
     setupFormspreeAjax('ebook-form');
     setupFormspreeAjax('ebook-form-mobile');
+
+    // Mobile Modal Logic
+    const pill = document.getElementById('mobile-ebook-pill');
+    const modalOverlay = document.getElementById('mobile-ebook-modal-overlay');
+    const closeBtn = document.getElementById('mobile-ebook-close');
+
+    if (pill && modalOverlay && closeBtn) {
+      pill.addEventListener('click', () => {
+        modalOverlay.classList.add('open');
+      });
+
+      closeBtn.addEventListener('click', () => {
+        modalOverlay.classList.remove('open');
+      });
+
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          modalOverlay.classList.remove('open');
+        }
+      });
+    }
   });
 </script>
 
@@ -463,13 +482,19 @@ import Base from '../layouts/Base.astro';
   }
 
   /* SIDEBAR STYLES (DESKTOP) */
-  .dynamic-sidebar {
+  .sidebar-wrapper {
     position: sticky;
     top: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    z-index: 100;
+  }
+
+  .dynamic-sidebar {
     display: grid;
     grid-template-columns: 1fr;
     perspective: 1500px;
-    z-index: 100;
   }
 
   .sidebar-content {
@@ -975,8 +1000,12 @@ import Base from '../layouts/Base.astro';
     min-height: 1rem;
   }
 
-  /* Hide the mobile woven cards on desktop where the sidebar handles it */
-  .mobile-woven-card {
+  /* Mobile Modal & Pill Styling */
+  .mobile-ebook-pill {
+    display: none;
+  }
+
+  .mobile-ebook-modal-overlay {
     display: none;
   }
 
@@ -991,14 +1020,8 @@ import Base from '../layouts/Base.astro';
     }
     
     /* Completely hide the dynamic sidebar on mobile for a clean reading experience */
-    .dynamic-sidebar {
+    .sidebar-wrapper {
       display: none !important;
-    }
-
-    /* Show the inline woven cards on mobile only */
-    .mobile-woven-card {
-      display: block !important;
-      margin-top: 2rem;
     }
 
     .author-photo {
@@ -1007,6 +1030,72 @@ import Base from '../layouts/Base.astro';
       max-width: 300px;
       margin: 0 auto 2rem auto;
       transform: rotate(-1deg);
+    }
+
+    /* Mobile Pill */
+    .mobile-ebook-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.75rem 0.5rem;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      border-radius: 8px 0 0 8px;
+      z-index: 900;
+      box-shadow: -2px 2px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+
+    /* Mobile Modal */
+    .mobile-ebook-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .mobile-ebook-modal-overlay.open {
+      display: flex !important;
+    }
+
+    .mobile-ebook-modal {
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .mobile-ebook-close {
+      position: absolute;
+      top: -1.25rem;
+      right: -1.25rem;
+      background: var(--bg);
+      color: var(--ink);
+      border: var(--border-w) solid var(--ink);
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: 1.5rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      font-weight: bold;
+      box-shadow: 2px 2px 0 var(--ink);
     }
   }
 </style>
