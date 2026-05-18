@@ -255,6 +255,32 @@ import Base from '../layouts/Base.astro';
       }, 4000);
     }
 
+    // Platform Logos Sequential Highlight (Mobile & Desktop friendly)
+    const logos = document.querySelectorAll('.platform-strip img');
+    if (logos.length > 0) {
+      let currentLogoIndex = 0;
+      
+      // Clear any existing interval to prevent memory leaks / duplicates in Astro SPA transitions
+      if ((window as any).logosHighlightInterval) {
+        clearInterval((window as any).logosHighlightInterval);
+      }
+      
+      // Initialize first active logo
+      logos[0].classList.add('active');
+      
+      (window as any).logosHighlightInterval = setInterval(() => {
+        const activeLogos = document.querySelectorAll('.platform-strip img');
+        if (activeLogos.length === 0) {
+          clearInterval((window as any).logosHighlightInterval);
+          return;
+        }
+        
+        activeLogos[currentLogoIndex].classList.remove('active');
+        currentLogoIndex = (currentLogoIndex + 1) % activeLogos.length;
+        activeLogos[currentLogoIndex].classList.add('active');
+      }, 2000);
+    }
+
     const sidebars = Array.from(document.querySelectorAll('.sidebar-content'));
     if (sidebars.length === 0) return;
     
@@ -617,11 +643,12 @@ import Base from '../layouts/Base.astro';
     width: auto;
     opacity: 0.25;
     filter: grayscale(100%);
-    transition: opacity 0.25s ease, filter 0.25s ease;
+    transition: opacity 0.5s ease, filter 0.5s ease;
     object-fit: contain;
   }
 
-  .platform-strip img:hover {
+  .platform-strip img:hover,
+  .platform-strip img.active {
     opacity: 0.75;
     filter: grayscale(0%);
   }
@@ -631,7 +658,8 @@ import Base from '../layouts/Base.astro';
     opacity: 0.25;
   }
 
-  :root.dark .platform-strip img:hover {
+  :root.dark .platform-strip img:hover,
+  :root.dark .platform-strip img.active {
     filter: grayscale(0%) drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
     opacity: 0.85;
   }
