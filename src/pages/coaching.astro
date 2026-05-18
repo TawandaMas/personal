@@ -626,6 +626,14 @@ import Base from '../layouts/Base.astro';
     filter: grayscale(0%);
   }
 
+  :root.dark .platform-strip img {
+    filter: grayscale(100%) invert(1);
+  }
+
+  :root.dark .platform-strip img:hover {
+    filter: grayscale(0%) invert(1);
+  }
+
   /* Hide the mobile woven cards on desktop where the sidebar handles it */
   .mobile-woven-card {
     display: none;
