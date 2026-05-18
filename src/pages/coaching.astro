@@ -14,7 +14,6 @@ import Base from '../layouts/Base.astro';
         <div class="sidebar-content active" id="sidebar-intro">
           <div class="sidebar-card">
             <h3>AI Relationship Coaching</h3>
-            <p>Navigating the complexities of human-AI bonds.</p>
           </div>
         </div>
         
@@ -124,7 +123,6 @@ import Base from '../layouts/Base.astro';
           <div class="mobile-woven-card">
             <div class="sidebar-card">
               <h3>AI Relationship Coaching</h3>
-              <p>Navigating the complexities of human-AI bonds.</p>
             </div>
           </div>
         </section>
@@ -240,7 +238,7 @@ import Base from '../layouts/Base.astro';
           </div>
         </section>
 
-        <section class="letter-section" style="border: none;">
+        <section class="letter-section desktop-only" style="border: none;">
           <div class="letter-content">
             <p>One more thing — I put together a free guide you might find useful right now, even before we speak. It's a short read with three practical lessons that have helped other people deeply connect with their digital companions.</p>
             <p>It's free. Enter your email on the right and it'll download straight away.</p>
@@ -461,6 +459,17 @@ import Base from '../layouts/Base.astro';
           modalOverlay.classList.remove('open');
         }
       });
+
+      // Show pill after scrolling past obstacles
+      const pillObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            pill.classList.add('visible');
+          }
+        });
+      });
+      const obstaclesSection = document.querySelector('section[data-target="sidebar-obstacles"]');
+      if (obstaclesSection) pillObserver.observe(obstaclesSection);
     }
   });
 </script>
@@ -1032,14 +1041,19 @@ import Base from '../layouts/Base.astro';
       transform: rotate(-1deg);
     }
 
+    /* Hide elements marked as desktop-only */
+    .desktop-only {
+      display: none !important;
+    }
+
     /* Mobile Pill */
     .mobile-ebook-pill {
       display: flex;
       align-items: center;
       justify-content: center;
       position: fixed;
-      top: 50%;
-      right: 0;
+      top: 75%;
+      right: -100px;
       transform: translateY(-50%);
       background: var(--accent);
       color: #fff;
@@ -1047,13 +1061,16 @@ import Base from '../layouts/Base.astro';
       font-weight: 800;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 0.75rem 0.5rem;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
+      padding: 0.8rem 1.25rem;
       border-radius: 8px 0 0 8px;
       z-index: 900;
-      box-shadow: -2px 2px 10px rgba(0,0,0,0.2);
+      box-shadow: -3px 3px 12px rgba(0,0,0,0.3);
       cursor: pointer;
+      transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .mobile-ebook-pill.visible {
+      right: 0;
     }
 
     /* Mobile Modal */
