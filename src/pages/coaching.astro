@@ -80,7 +80,7 @@ import Base from '../layouts/Base.astro';
                 <a href="/healthier-ai-companion.pdf" download="How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf" class="ebook-download-btn">↓ Download PDF</a>
               </div>
 
-              <form class="ebook-form" id="ebook-form">
+              <form class="ebook-form" id="ebook-form" action="https://formspree.io/f/xdajodpd" method="POST">
                 <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                   <input
                     type="email"
@@ -89,11 +89,9 @@ import Base from '../layouts/Base.astro';
                     placeholder="your@email.com"
                     required
                     autocomplete="email"
-                    data-fs-field
                   />
-                  <span data-fs-error="email" class="ebook-gate-error"></span>
                 </div>
-                <button type="submit" data-fs-submit-btn>Get the Guide</button>
+                <button type="submit">Get the Guide</button>
               </form>
             </div>
           </div>
@@ -271,7 +269,7 @@ import Base from '../layouts/Base.astro';
                     <a href="/healthier-ai-companion.pdf" download="How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf" class="ebook-download-btn">↓ Download PDF</a>
                   </div>
 
-                  <form class="ebook-form" id="ebook-form-mobile">
+                  <form class="ebook-form" id="ebook-form-mobile" action="https://formspree.io/f/xdajodpd" method="POST">
                     <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                       <input
                         type="email"
@@ -280,11 +278,9 @@ import Base from '../layouts/Base.astro';
                         placeholder="your@email.com"
                         required
                         autocomplete="email"
-                        data-fs-field
                       />
-                      <span data-fs-error="email" class="ebook-gate-error"></span>
                     </div>
-                    <button type="submit" data-fs-submit-btn>Get the Guide</button>
+                    <button type="submit">Get the Guide</button>
                   </form>
                 </div>
               </div>
@@ -298,8 +294,6 @@ import Base from '../layouts/Base.astro';
 </Base>
 
 <script>
-  import { initForm } from '@formspree/ajax';
-
   document.addEventListener("astro:page-load", () => {
     
     // Initialize Calendly Floating Badge
@@ -399,35 +393,56 @@ import Base from '../layouts/Base.astro';
       observer.observe(el);
     });
 
-    // Ebook Email Gate via Formspree SDK
-    if (document.getElementById('ebook-form')) {
-      initForm({ formElement: '#ebook-form', formId: 'xdajodpd' });
+    // Ebook Email Gate via standard Formspree AJAX
+    function setupFormspreeAjax(formId: string) {
+      const form = document.getElementById(formId) as HTMLFormElement;
+      if (!form) return;
       
-      // Auto-hide the form when success div becomes visible
-      const successDiv = document.querySelector('#ebook-form').previousElementSibling as HTMLElement;
-      if (successDiv && successDiv.hasAttribute('data-fs-success')) {
-        const observer = new MutationObserver(() => {
-          if (successDiv.style.display !== 'none') {
-            (document.getElementById('ebook-form') as HTMLElement).style.display = 'none';
+      form.addEventListener("submit", async function(ev) {
+        ev.preventDefault();
+        const btn = form.querySelector('button') as HTMLButtonElement;
+        const originalBtnText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+
+        const data = new FormData(form);
+        try {
+          const response = await fetch(form.action, {
+            method: form.method,
+            body: data,
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            // Hide form and show success div
+            form.style.display = 'none';
+            const successDiv = form.previousElementSibling as HTMLElement;
+            if (successDiv) successDiv.style.display = 'block';
+
+            // Auto-trigger the PDF download
+            const link = document.createElement('a');
+            link.href = '/healthier-ai-companion.pdf';
+            link.download = 'How-to-Have-a-Happier-Relationship-With-Your-AI-Companion.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            btn.disabled = false;
+            btn.textContent = originalBtnText;
+            alert("Oops! There was a problem submitting your email.");
           }
-        });
-        observer.observe(successDiv, { attributes: true, attributeFilter: ['style'] });
-      }
+        } catch (error) {
+          btn.disabled = false;
+          btn.textContent = originalBtnText;
+          alert("Oops! There was a problem submitting your email.");
+        }
+      });
     }
 
-    if (document.getElementById('ebook-form-mobile')) {
-      initForm({ formElement: '#ebook-form-mobile', formId: 'xdajodpd' });
-      
-      const successDivMobile = document.querySelector('#ebook-form-mobile').previousElementSibling as HTMLElement;
-      if (successDivMobile && successDivMobile.hasAttribute('data-fs-success')) {
-        const observer = new MutationObserver(() => {
-          if (successDivMobile.style.display !== 'none') {
-            (document.getElementById('ebook-form-mobile') as HTMLElement).style.display = 'none';
-          }
-        });
-        observer.observe(successDivMobile, { attributes: true, attributeFilter: ['style'] });
-      }
-    }
+    setupFormspreeAjax('ebook-form');
+    setupFormspreeAjax('ebook-form-mobile');
   });
 </script>
 
