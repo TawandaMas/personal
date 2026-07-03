@@ -11,7 +11,6 @@ const currentPath = Astro.url.pathname;
 
 const navLinks = [
   { href: '/projects', label: 'Projects' },
-  { href: '/thoughts', label: 'Thoughts' },
   { href: '/books', label: 'Books' },
   { href: '/games', label: 'Games' },
   { href: '/coaching', label: 'AI Coaching' },
@@ -191,13 +190,13 @@ const navLinks = [
     --ink-light: #9CA3AF;
     --accent: #0052FF;
     --accent-light: #EFF6FF;
-    --rule: #111111;
-    --shadow-color: #111111;
+    --rule: #E5E7EB;
+    --shadow-color: rgba(0, 0, 0, 0.05);
     --font-serif: 'Lora', Georgia, serif;
     --font-sans: 'Inter', system-ui, sans-serif;
     --max-w: 860px;
     --pad: clamp(1.25rem, 5vw, 3rem);
-    --border-w: 2px;
+    --border-w: 1px;
     --paper: var(--bg);
     --paper-dark: #F3F4F6;
   }
@@ -270,24 +269,16 @@ const navLinks = [
     font-family: var(--font-sans);
     font-size: 2rem;
     font-weight: 700;
-    color: var(--bg);
-    background: var(--ink);
-    padding: 0.2rem 0.8rem;
-    border: var(--border-w) solid var(--rule);
-    box-shadow: 4px 4px 0px var(--shadow-color);
+    color: var(--ink);
+    background: transparent;
+    padding: 0.2rem 0.5rem;
     letter-spacing: -0.05em;
     text-decoration: none;
-    transition: transform 0.1s, box-shadow 0.1s;
+    transition: opacity 0.2s ease;
   }
 
   .wordmark:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px var(--shadow-color);
-  }
-  
-  .wordmark:active {
-    transform: translate(2px, 2px);
-    box-shadow: 0px 0px 0px var(--shadow-color);
+    opacity: 0.8;
   }
 
   .header-controls {
@@ -304,53 +295,43 @@ const navLinks = [
 
   .nav-link {
     font-family: var(--font-sans);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--ink-mid);
     text-decoration: none;
-    padding: 0.3rem 0.6rem;
-    border: 2px solid transparent;
-    transition: all 0.2s;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
   }
 
   .nav-link:hover {
     color: var(--ink);
-    border-color: var(--rule);
-    transform: translate(-2px, -2px);
-    box-shadow: 3px 3px 0px var(--shadow-color);
-    background: var(--bg);
+    background: var(--paper-dark);
   }
   
   .nav-link.active {
-    color: var(--bg);
-    background: var(--ink);
-    border-color: var(--rule);
+    color: var(--ink);
+    background: var(--paper-dark);
   }
 
   /* THEME TOGGLE */
   .theme-toggle {
-    background: var(--bg);
-    border: var(--border-w) solid var(--rule);
-    padding: 0.4rem;
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
     cursor: pointer;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.1s;
-    box-shadow: 3px 3px 0px var(--shadow-color);
+    transition: background-color 0.2s;
   }
 
   .theme-toggle:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 5px 5px 0px var(--shadow-color);
-  }
-  
-  .theme-toggle:active {
-    transform: translate(2px, 2px);
-    box-shadow: 0px 0px 0px var(--shadow-color);
+    background: var(--paper-dark);
   }
 
   .theme-toggle .moon { display: block; }
@@ -362,14 +343,15 @@ const navLinks = [
   /* MOBILE MENU */
   .menu-toggle {
     background: var(--bg);
-    border: var(--border-w) solid var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
     padding: 0.5rem;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
-    box-shadow: 3px 3px 0px var(--shadow-color);
-    transition: all 0.1s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s;
     z-index: 1001;
   }
 
@@ -516,21 +498,21 @@ const navLinks = [
     display: inline-block;
     margin-bottom: 1rem;
     font-family: var(--font-sans);
-    font-weight: 800;
+    font-weight: 600;
     text-transform: uppercase;
     font-size: 0.75rem;
     text-decoration: none;
-    color: var(--ink);
-    border: 2px solid var(--rule);
+    color: var(--ink-mid);
+    border: 1px solid var(--rule);
     padding: 0.2rem 0.6rem;
     background: var(--bg);
-    box-shadow: 2px 2px 0 var(--rule);
-    transition: all 0.1s;
+    border-radius: 6px;
+    transition: all 0.2s ease;
   }
 
   .game-header .back:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 var(--accent);
+    color: var(--ink);
+    background: var(--paper-dark);
   }
 
   .game-title-row h1 {
@@ -545,37 +527,38 @@ const navLinks = [
   }
 
   .game-wrap {
-    border: var(--border-w) solid var(--rule) !important;
-    box-shadow: 8px 8px 0 var(--shadow-color) !important;
+    border: 1px solid var(--rule) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
     background: var(--bg) !important;
-    border-radius: 0 !important;
+    border-radius: 12px !important;
     padding: 2rem !important;
   }
 
   .start-btn, .game-btn, .overlay button {
     background: var(--accent) !important;
     color: #fff !important;
-    border: var(--border-w) solid var(--rule) !important;
-    box-shadow: 4px 4px 0 var(--shadow-color) !important;
-    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06) !important;
+    border-radius: 8px !important;
     font-family: var(--font-sans) !important;
-    font-weight: 800 !important;
+    font-weight: 600 !important;
     text-transform: uppercase !important;
-    padding: 1rem 2rem !important;
+    padding: 0.8rem 1.6rem !important;
     cursor: pointer !important;
-    transition: all 0.1s !important;
+    transition: opacity 0.2s ease, transform 0.1s ease !important;
     text-decoration: none !important;
     display: inline-block !important;
   }
 
   .start-btn:hover, .game-btn:hover, .overlay button:hover {
-    transform: translate(-2px, -2px) !important;
-    box-shadow: 6px 6px 0 var(--shadow-color) !important;
+    opacity: 0.9 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 8px -1px rgba(0,0,0,0.1), 0 3px 6px -1px rgba(0,0,0,0.06) !important;
   }
 
   .start-btn:active, .game-btn:active, .overlay button:active {
-    transform: translate(2px, 2px) !important;
-    box-shadow: 2px 2px 0 var(--shadow-color) !important;
+    transform: translateY(1px) !important;
+    box-shadow: 0 2px 4px -1px rgba(0,0,0,0.1) !important;
   }
 
   .score-wrap {
@@ -584,20 +567,22 @@ const navLinks = [
     text-transform: uppercase !important;
     font-size: 0.9rem !important;
     background: var(--accent-light);
-    border: 2px solid var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
     padding: 0.4rem 0.8rem;
     color: var(--ink);
   }
 
   .overlay {
     background: var(--bg) !important;
-    border: var(--border-w) solid var(--rule) !important;
-    border-radius: 0 !important;
+    border: 1px solid var(--rule) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
   }
 
   .overlay-title {
     font-family: var(--font-sans) !important;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
     text-transform: uppercase !important;
     font-style: normal !important;
     font-size: 3rem !important;
@@ -606,9 +591,9 @@ const navLinks = [
 
   /* Specific Game Element Unification */
   .tile, .key, .cell, .card, .letter, .slot, .wordle-row, .kb-row {
-    border-radius: 0 !important;
-    border-width: 2px !important;
-    box-shadow: 2px 2px 0 var(--rule) !important;
+    border-radius: 6px !important;
+    border-width: 1px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   }
 
   .hint {

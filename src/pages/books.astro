@@ -153,19 +153,21 @@ const queue = books.filter(b => b.status === 'queue');
   /* NEO-BRUTALIST CARD STYLING */
   .book-card {
     background: var(--bg);
-    border: var(--border-w) solid var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
     padding: 1.5rem;
     min-height: 220px;
     position: relative;
     display: flex;
     flex-direction: column;
-    box-shadow: 6px 6px 0px var(--shadow-color);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .book-card:hover {
-    transform: translate(-4px, -4px);
-    box-shadow: 10px 10px 0px var(--shadow-color);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    border-color: var(--accent);
     z-index: 10;
   }
 
@@ -248,17 +250,17 @@ const queue = books.filter(b => b.status === 'queue');
     display: inline-block;
     font-family: var(--font-sans);
     font-size: 0.65rem;
-    font-weight: 800;
+    font-weight: 700;
     padding: 0.25rem 0.5rem;
-    border: var(--border-w) solid var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 1.5rem;
     align-self: flex-start;
-    box-shadow: 2px 2px 0px var(--shadow-color);
   }
 
-  .status-reading { background: var(--accent); color: var(--bg); border-color: var(--rule); }
+  .status-reading { background: var(--accent); color: #ffffff; border-color: var(--rule); }
   .status-read { background: var(--bg); color: var(--ink); }
   .status-queue { background: var(--paper-dark); color: var(--ink-mid); }
 
@@ -271,10 +273,11 @@ const queue = books.filter(b => b.status === 'queue');
   .genre-tag {
     font-family: var(--font-sans);
     font-size: 0.6rem;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--ink);
     background: var(--bg);
     border: 1px solid var(--rule);
+    border-radius: 4px;
     padding: 0.25rem 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
