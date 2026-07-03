@@ -1,0 +1,259 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const [featured, ...rest] = allPosts;
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const postUrl = (entry: typeof featured) =>
+  `/blog/${entry.data.customSlug || entry.slug}`;
+---
+
+<Base title="Blog" description="Writing on building, AI, life, and everything in between.">
+
+  <div class="blog-page">
+
+    <div class="page-header">
+      <h1>Blog</h1>
+      <p>Writing on building, AI, life, and everything in between.</p>
+    </div>
+
+    {featured && (
+      <a href={postUrl(featured)} class="featured-card">
+        {featured.data.heroImage && (
+          <div class="featured-image">
+            <img src={featured.data.heroImage} alt={featured.data.title} />
+          </div>
+        )}
+        <div class="featured-body">
+          <div class="post-meta">
+            <time>{formatDate(featured.data.date)}</time>
+            {featured.data.tags && featured.data.tags.length > 0 && (
+              <div class="tags">
+                {featured.data.tags.map(tag => <span class="tag">{tag}</span>)}
+              </div>
+            )}
+          </div>
+          <h2 class="featured-title">{featured.data.title}</h2>
+          {featured.data.excerpt && (
+            <p class="featured-excerpt">{featured.data.excerpt}</p>
+          )}
+          <span class="read-link">Read &rarr;</span>
+        </div>
+      </a>
+    )}
+
+    {rest.length > 0 && (
+      <div class="posts-grid">
+        {rest.map(post => (
+          <a href={postUrl(post)} class="post-card">
+            {post.data.heroImage && (
+              <div class="card-image">
+                <img src={post.data.heroImage} alt={post.data.title} />
+              </div>
+            )}
+            <div class="card-body">
+              <div class="post-meta">
+                <time>{formatDate(post.data.date)}</time>
+                {post.data.tags && post.data.tags.length > 0 && (
+                  <div class="tags">
+                    {post.data.tags.map(tag => <span class="tag">{tag}</span>)}
+                  </div>
+                )}
+              </div>
+              <h2 class="card-title">{post.data.title}</h2>
+              {post.data.excerpt && (
+                <p class="card-excerpt">{post.data.excerpt}</p>
+              )}
+              <span class="read-link">Read &rarr;</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+
+    {allPosts.length === 0 && (
+      <p class="empty">Nothing published yet. Check back soon.</p>
+    )}
+
+  </div>
+
+</Base>
+
+<style>
+  .blog-page {
+    padding-bottom: 6rem;
+  }
+
+  .featured-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 5rem;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 4rem;
+    transition: opacity 0.2s;
+  }
+
+  .featured-card:hover { opacity: 0.85; }
+
+  .featured-image {
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    overflow: hidden;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--rule);
+  }
+
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .featured-card:hover .featured-image img { transform: scale(1.02); }
+
+  .featured-body { max-width: 720px; }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .post-meta time {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-light);
+  }
+
+  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  .tag {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .featured-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .featured-excerpt {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--ink-mid);
+    margin-bottom: 1.5rem;
+    max-width: 60ch;
+  }
+
+  .read-link {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .post-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.07);
+    border-color: var(--accent);
+  }
+
+  .card-image { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+
+  .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .post-card:hover .card-image img { transform: scale(1.04); }
+
+  .card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card-title {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.25;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+  }
+
+  .card-excerpt {
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--ink-mid);
+    margin-bottom: 1.25rem;
+    flex: 1;
+  }
+
+  .empty {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--ink-light);
+    padding: 4rem 0;
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    .posts-grid { grid-template-columns: 1fr; }
+    .featured-title { font-size: 2rem; }
+  }
+</style>

@@ -59,12 +59,20 @@ collections:
       - { label: Description, name: description, widget: text }
       - { label: Order, name: order, widget: number, default: 99 }
 
-  - name: thoughts
-    label: Thoughts
-    folder: src/content/thoughts
+  - name: blog
+    label: Blog Posts
+    folder: src/content/blog
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
       - { label: Title, name: title, widget: string }
+      - { label: "URL Slug", name: customSlug, widget: string, hint: "The URL for this post e.g. why-i-love-building → /blog/why-i-love-building", required: false }
       - { label: Date, name: date, widget: datetime }
+      - { label: Excerpt, name: excerpt, widget: text, required: false, hint: "Short summary shown on the blog listing page" }
+      - { label: "Hero Image", name: heroImage, widget: image, required: false, hint: "Cover image displayed at the top of the post and on the listing card" }
+      - label: Tags
+        name: tags
+        widget: list
+        required: false
+        hint: "Comma-separated topic tags e.g. AI, Building, Life"
       - { label: Body, name: body, widget: markdown }

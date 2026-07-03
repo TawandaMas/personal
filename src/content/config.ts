@@ -10,11 +10,15 @@ const gamesCollection = defineCollection({
   }),
 });
 
-const thoughtsCollection = defineCollection({
+const blogCollection = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
     date: z.date(),
+    customSlug: z.string().optional(),
+    excerpt: z.string().optional(),
+    heroImage: z.string().optional(),
+    tags: z.array(z.string()).optional(),
   }),
 });
 
@@ -59,7 +63,7 @@ const newsCollection = defineCollection({
 
 export const collections = {
   'games': gamesCollection,
-  'thoughts': thoughtsCollection,
+  'blog': blogCollection,
   'projects': projectsCollection,
   'books': booksCollection,
   'news': newsCollection,
