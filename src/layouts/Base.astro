@@ -28,7 +28,7 @@ const navLinks = [
   <title>{title === 'Home' ? 'Tawanda Masvikeni: Personal Website' : `${title} — Tawanda Masvikeni`}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0a0a0a" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -185,34 +185,34 @@ const navLinks = [
   }
 
   :root {
-    --bg: #F4F4F0;
+    --bg: #FFFFFF;
     --ink: #111111;
-    --ink-mid: #555555;
-    --ink-light: #888888;
-    --accent: #FF4500;
-    --accent-light: #FFDAB9;
+    --ink-mid: #4B5563;
+    --ink-light: #9CA3AF;
+    --accent: #0052FF;
+    --accent-light: #EFF6FF;
     --rule: #111111;
     --shadow-color: #111111;
     --font-serif: 'Lora', Georgia, serif;
-    --font-sans: 'Space Grotesk', system-ui, sans-serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
     --max-w: 860px;
     --pad: clamp(1.25rem, 5vw, 3rem);
-    --border-w: 3px;
+    --border-w: 2px;
     --paper: var(--bg);
-    --paper-dark: #E8E8E0;
+    --paper-dark: #F3F4F6;
   }
 
   :root.dark {
-    --bg: #1A1A1A;
-    --ink: #F4F4F0;
-    --ink-mid: #AAAAAA;
-    --ink-light: #777777;
-    --accent: #FF6347;
-    --accent-light: #5A2A1A;
-    --rule: #F4F4F0;
+    --bg: #0A0A0A;
+    --ink: #F9FAFB;
+    --ink-mid: #9CA3AF;
+    --ink-light: #4B5563;
+    --accent: #3B82F6;
+    --accent-light: #172554;
+    --rule: #262626;
     --shadow-color: #000000;
     --paper: var(--bg);
-    --paper-dark: #222222;
+    --paper-dark: #121212;
   }
 
   html {
@@ -234,7 +234,7 @@ const navLinks = [
     position: relative;
   }
 
-  /* Topographic and noise overlay instead of crumpled paper */
+  /* Clean flat clinical background */
   body::before {
     content: '';
     position: fixed;
@@ -242,12 +242,6 @@ const navLinks = [
     pointer-events: none;
     z-index: 0;
     background-color: var(--bg);
-    background-image: 
-      url("/topography.svg"),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
-    background-size: 600px, auto;
-    background-repeat: repeat, repeat;
-    opacity: 1; 
   }
 
   main, footer {
