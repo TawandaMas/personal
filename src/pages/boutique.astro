@@ -1,0 +1,456 @@
+---
+// src/pages/boutique.astro
+---
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Boutique — Tawanda Masvikeni</title>
+  <meta name="description" content="Boutique for apps that support your most capable self. Life-central tools that match an individual’s mind and ideal functioning." />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..300,0..1&display=block" rel="stylesheet">
+  <style>
+    .carousel-slide {
+      opacity: 0;
+      transition: opacity 1.2s ease-in-out;
+      position: absolute;
+      inset: 0;
+    }
+    .carousel-slide.active {
+      opacity: 1;
+      position: relative;
+    }
+    .noise-bg {
+      position: relative;
+    }
+    .noise-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.04;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-background font-body-md selection:bg-primary selection:text-white noise-bg">
+  <!-- Prestige Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 h-24 mix-blend-difference invert">
+    <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
+      <a href="/" class="font-display text-[20px] md:text-[24px] uppercase tracking-[0.3em] font-extrabold text-white">
+        Artisan Studio
+      </a>
+      <div class="hidden lg:flex items-center gap-12">
+        <a class="text-white hover:opacity-50 transition-opacity font-label-md text-label-sm" href="#process">PROCESS</a>
+        <a class="text-white hover:opacity-50 transition-opacity font-label-md text-label-sm" href="#pillars">PILLARS</a>
+        <a class="text-white hover:opacity-50 transition-opacity font-label-md text-label-sm" href="#ownership">OWNERSHIP</a>
+        <a class="text-white hover:opacity-50 transition-opacity font-label-md text-label-sm" href="#about">ABOUT</a>
+      </div>
+      <a href="mailto:pjmasvikeni@gmail.com" class="text-white border-b border-white pb-1 font-label-md text-label-sm hover:opacity-50 transition-all uppercase">
+        Pursue You
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero Section: Magazine Spread Style -->
+    <section class="flex flex-col justify-end relative overflow-hidden pb-24 pt-12">
+      <div class="absolute top-0 right-0 w-1/3 h-full border-l border-outline-variant hidden lg:block opacity-30"></div>
+      <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto w-full relative z-10">
+        <div class="flex flex-col lg:flex-row items-end gap-12 lg:gap-24">
+          <div class="w-full lg:w-2/3 reveal-on-scroll active">
+            <div class="text-label-sm uppercase mb-8 tracking-widest flex items-center gap-4 text-secondary">
+              <span class="w-12 h-px bg-on-surface-variant opacity-30"></span>
+            </div>
+            <h1 class="font-display text-[56px] md:text-[110px] leading-[0.9] mb-12">
+              Boutique for apps that support your most <span class="italic font-body-md font-light text-secondary">capable self.</span>
+            </h1>
+          </div>
+          <div class="w-full lg:w-1/3 pb-8 reveal-on-scroll active" style="transition-delay: 200ms;">
+            <div class="mb-8 overflow-hidden border-outline-variant">
+              <img alt="Leopard in tall grass" class="w-full h-auto grayscale filter contrast-125 hover:scale-105 transition-transform duration-1000" src="/images/boutique/hero-leopard.jpg">
+            </div>
+            <p class="font-body-lg text-headline-lg-mobile mb-8 italic text-on-surface-variant font-light">
+              Those apps don’t exist yet.
+            </p>
+            <p class="font-body-md text-body-md mb-10 text-on-surface-variant max-w-sm">
+              The apps you rely on to keep track of priorities, direct your energy, and find clarity play <i>the</i> foundational role in your success. The compromises they make for broad appeal are always suffered, even when not felt. They, of all apps, should be for a market of one. Only you should be the muse.
+            </p>
+            <div class="flex flex-col gap-4">
+              <a href="mailto:pjmasvikeni@gmail.com" class="group flex items-center justify-between border border-primary px-8 py-6 text-label-md uppercase bg-primary text-white hover:bg-transparent hover:text-primary transition-all duration-500">
+                Pursue You
+                <span class="material-symbols-outlined transition-transform group-hover:translate-x-2">arrow_right_alt</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-24 w-full h-px bg-outline-variant opacity-20"></div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="py-stack-lg bg-surface-container-low overflow-hidden" id="process">
+      <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-32 relative z-20">
+          <div class="lg:col-span-4 reveal-on-scroll active">
+            <span class="font-label-sm uppercase tracking-widest text-secondary block mb-4">Process</span>
+            <h2 class="font-display text-headline-lg md:text-[64px] uppercase leading-none">You’re <br>the <span class="italic font-body-lg font-light lowercase">canvas</span></h2>
+          </div>
+          <div class="lg:col-span-8 flex items-end reveal-on-scroll active" style="transition-delay: 150ms;">
+            <p class="font-body-lg text-on-surface-variant max-w-xl border-l-2 border-secondary pl-8 py-2">
+              Throughout the commission, curiosity about your unique mind is the compass.
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-0 relative">
+          <div class="absolute inset-y-0 left-0 w-full max-w-[600px] z-0 pointer-events-none hidden lg:block overflow-visible">
+            <img alt="Leopard walking down" class="w-full h-full object-contain object-left-top grayscale filter contrast-125 opacity-70 mix-blend-multiply scale-110 -translate-x-12" src="/images/boutique/leopard-walk.png">
+          </div>
+          
+          <!-- Step 1 -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 group reveal-on-scroll border-t border-outline-variant hover:bg-white/90 transition-colors duration-500 relative z-10 active">
+            <div class="lg:col-span-2 py-12 px-4 border-r border-outline-variant hidden lg:flex items-center justify-center">
+              <span class="font-display text-4xl italic text-outline-variant opacity-50 group-hover:text-primary group-hover:opacity-100 transition-all">01.</span>
+            </div>
+            <div class="lg:col-span-4 py-12 px-8 flex flex-col justify-center lg:pl-[120px]">
+              <h3 class="font-label-md text-label-md uppercase mb-2 tracking-widest text-nowrap">Conversation</h3>
+            </div>
+            <div class="lg:col-span-6 py-12 px-8 flex items-center">
+              <p class="font-body-md text-on-surface-variant max-w-md group-hover:text-on-surface transition-colors lg:ml-auto">
+                As the expert on yourself, you'll share observations about when you feel most supported or let down by your current tools.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Step 2 -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 group reveal-on-scroll border-t border-outline-variant hover:bg-white/90 transition-colors duration-500 relative z-10 active">
+            <div class="lg:col-span-2 py-12 px-4 border-r border-outline-variant hidden lg:flex items-center justify-center">
+              <span class="font-display text-4xl italic text-outline-variant opacity-50 group-hover:text-primary group-hover:opacity-100 transition-all">02.</span>
+            </div>
+            <div class="lg:col-span-4 py-12 px-8 flex flex-col justify-center lg:pl-16">
+              <h3 class="font-label-md text-label-md uppercase mb-2 tracking-widest text-nowrap">Exercises</h3>
+            </div>
+            <div class="lg:col-span-6 py-12 px-8 flex items-center">
+              <p class="font-body-md text-on-surface-variant max-w-md group-hover:text-on-surface transition-colors lg:ml-auto">
+                Our exploration continues through exercises on our in-house board. Careful analysis of how you approach selected games and puzzles gives us further insights.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Step 3 -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 group reveal-on-scroll border-t border-outline-variant hover:bg-white/90 transition-colors duration-500 relative z-10 active">
+            <div class="lg:col-span-2 py-12 px-4 border-r border-outline-variant hidden lg:flex items-center justify-center">
+              <span class="font-display text-4xl italic text-outline-variant opacity-50 group-hover:text-primary group-hover:opacity-100 transition-all">03.</span>
+            </div>
+            <div class="lg:col-span-4 py-12 px-8 flex flex-col justify-center lg:pl-[90px]">
+              <h3 class="font-label-md text-label-md uppercase mb-2 tracking-widest text-nowrap">Prototypes</h3>
+            </div>
+            <div class="lg:col-span-6 py-12 px-8 flex items-center">
+              <p class="font-body-md text-on-surface-variant max-w-md group-hover:text-on-surface transition-colors lg:ml-auto">
+                You'll get a look at the first, skeletal tools. Your critiques help us refine the direction so we proceed with firmer grounding and psychological precision.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Step 4 -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 group reveal-on-scroll border-t border-outline-variant hover:bg-white/90 transition-colors duration-500 relative z-10 active">
+            <div class="lg:col-span-2 py-12 px-4 border-r border-outline-variant hidden lg:flex items-center justify-center">
+              <span class="font-display text-4xl italic text-outline-variant opacity-50 group-hover:text-primary group-hover:opacity-100 transition-all">04.</span>
+            </div>
+            <div class="lg:col-span-4 py-12 px-8 flex flex-col justify-center lg:pl-[140px]">
+              <h3 class="font-label-md text-label-md uppercase mb-2 tracking-widest text-nowrap">Polished penultimate</h3>
+            </div>
+            <div class="lg:col-span-6 py-12 px-8 flex items-center">
+              <p class="font-body-md text-on-surface-variant max-w-md group-hover:text-on-surface transition-colors lg:ml-auto">
+                You receive nearly complete versions of your app package. After two weeks of use, your nuanced notes will inform our last-mile additions and touch-ups.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Step 5 -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 group reveal-on-scroll border-t border-b border-outline-variant hover:bg-white/90 transition-colors duration-500 relative z-10 active">
+            <div class="lg:col-span-2 py-12 px-4 border-r border-outline-variant hidden lg:flex items-center justify-center">
+              <span class="font-display text-4xl italic text-outline-variant opacity-50 group-hover:text-primary group-hover:opacity-100 transition-all">05.</span>
+            </div>
+            <div class="lg:col-span-4 py-12 px-8 flex flex-col justify-center lg:pl-[110px]">
+              <h3 class="font-label-md text-label-md uppercase mb-2 tracking-widest text-nowrap">Delivery</h3>
+            </div>
+            <div class="lg:col-span-6 py-12 px-8 flex items-center">
+              <p class="font-body-md text-on-surface-variant max-w-md group-hover:text-on-surface transition-colors lg:ml-auto">
+                An end and a beginning.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section class="py-stack-lg bg-primary text-white overflow-hidden relative">
+      <div class="absolute inset-0 opacity-10 pointer-events-none">
+        <div class="absolute top-0 right-0 font-display text-[25vw] leading-none text-white select-none whitespace-nowrap -translate-y-1/4 translate-x-1/4 uppercase">
+          Transform
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none overflow-hidden">
+          <img alt="Leopard roaring" class="h-full w-auto object-contain grayscale contrast-125 mix-blend-screen opacity-100 -translate-x-1/4 scale-110" src="/images/boutique/leopard-roar.png">
+        </div>
+      </div>
+      <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-32 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          <div class="lg:col-span-7 reveal-on-scroll active">
+            <h2 class="font-display text-[64px] md:text-[100px] leading-[0.85] mb-12">
+              Small changes, <br><span class="italic font-body-lg font-light text-secondary-container">tectonic shifts.</span>
+            </h2>
+            <div class="h-px w-32 bg-white mb-12 opacity-50"></div>
+            <p class="font-body-lg text-surface-variant max-w-lg leading-relaxed">
+              You can buy more of everything except your scarcest resources: time, attention, and perspective. Using them well means sharper ideas more often, fewer avoidable mistakes, and a more commanding view of your options. One flick of the needle here radiates into a whole new stratosphere of accomplishment.
+            </p>
+          </div>
+          <div class="lg:col-span-5 flex flex-col items-center lg:items-end justify-center reveal-on-scroll active" style="transition-delay: 300ms;">
+            <div class="relative group">
+              <p class="font-display text-[80px] md:text-[140px] leading-none text-surface-container opacity-10 uppercase tracking-tighter">WHAT MORE</p>
+              <p class="font-display text-[80px] md:text-[140px] leading-none text-white uppercase tracking-tighter -mt-8 md:-mt-12 group-hover:italic transition-all duration-700">CAN YOU BE?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pillars Section -->
+    <section class="py-stack-lg" id="pillars">
+      <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto">
+        <header class="mb-32 reveal-on-scroll active">
+          <div class="flex items-center gap-6 mb-8">
+            <div class="h-px flex-grow bg-outline-variant"></div>
+            <span class="font-label-sm uppercase tracking-[0.4em] text-secondary">THE ARCHITECTURE</span>
+            <div class="h-px flex-grow bg-outline-variant"></div>
+          </div>
+          <h2 class="font-display text-display md:text-[80px] text-center uppercase tracking-tight">
+            Life-central apps that <br><span class="italic font-body-lg lowercase text-secondary">mirror your mind</span>
+          </h2>
+        </header>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+          <!-- Item 1: Features -->
+          <div class="reveal-on-scroll active">
+            <div class="relative aspect-[4/5] overflow-hidden mb-8">
+              <img alt="Bespoke Software Features" class="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-1000" src="/images/boutique/features.jpg">
+            </div>
+            <div class="flex items-center gap-4 mb-4">
+              <span class="font-display text-2xl italic text-secondary opacity-40">01</span>
+              <div class="h-px w-8 bg-secondary opacity-30"></div>
+            </div>
+            <h3 class="font-display text-3xl mb-4 uppercase tracking-tight">Features</h3>
+            <p class="font-body-md text-on-surface-variant leading-relaxed">
+              Indulgent, "weird," and hyper-specific features that mainstream SaaS would consider edge cases but for you, are central necessities.
+            </p>
+          </div>
+          <!-- Item 2: Interface -->
+          <div class="reveal-on-scroll active" style="transition-delay: 150ms;">
+            <div class="relative aspect-[4/5] overflow-hidden mb-8">
+              <img alt="Precision User Interface" class="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-1000" src="/images/boutique/interface.jpg">
+            </div>
+            <div class="flex items-center gap-4 mb-4">
+              <span class="font-display text-2xl italic text-secondary opacity-40">02</span>
+              <div class="h-px w-8 bg-secondary opacity-30"></div>
+            </div>
+            <h3 class="font-display text-3xl mb-4 uppercase tracking-tight">Interface</h3>
+            <p class="font-body-md text-on-surface-variant leading-relaxed">
+              Pixel-matched performance. Every interaction is measured in milliseconds and designed to be an extension of your motor memory.
+            </p>
+          </div>
+          <!-- Item 3: Experience -->
+          <div class="reveal-on-scroll active" style="transition-delay: 300ms;">
+            <div class="relative aspect-[4/5] overflow-hidden mb-8">
+              <img alt="Instinctual User Experience" class="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-1000" src="/images/boutique/experience.jpg">
+            </div>
+            <div class="flex items-center gap-4 mb-4">
+              <span class="font-display text-2xl italic text-secondary opacity-40">03</span>
+              <div class="h-px w-8 bg-secondary opacity-30"></div>
+            </div>
+            <h3 class="font-display text-3xl mb-4 uppercase tracking-tight">Experience</h3>
+            <p class="font-body-md text-on-surface-variant leading-relaxed">
+              An instinctual extension of mind. The software learns your rhythm, respecting your flow while enhancing your output.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Suite Section: Editorial Grid -->
+    <section class="py-stack-lg bg-white border-t border-outline-variant" id="suite">
+      <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto">
+        <div class="mb-24 reveal-on-scroll active">
+          <span class="font-label-sm uppercase tracking-[0.4em] text-secondary block mb-4">The Collection</span>
+          <h2 class="font-display text-headline-lg md:text-[64px] uppercase leading-none">Your suite <br>may <span class="italic font-body-lg font-light">include:</span></h2>
+        </div>
+        <div class="space-y-24">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center reveal-on-scroll active">
+            <div class="lg:col-span-7">
+              <div class="relative overflow-hidden border border-outline-variant">
+                <img alt="Digital Notetaking" class="w-full h-auto grayscale hover:grayscale-0 transition-all duration-1000 scale-105 hover:scale-100" src="/images/boutique/notetakers.jpg">
+              </div>
+            </div>
+            <div class="lg:col-span-5">
+              <h3 class="font-display text-5xl md:text-6xl uppercase tracking-tighter mb-8">Notetakers</h3>
+              <p class="font-body-lg text-on-surface-variant leading-relaxed">
+                Where you capture things should be totally free of friction. We craft environments that match your signature retrieval style, turning fleeting thoughts into permanent assets.
+              </p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center reveal-on-scroll active">
+            <div class="lg:col-span-5 order-2 lg:order-1">
+              <h3 class="font-display text-5xl md:text-6xl uppercase tracking-tighter mb-8">Journals</h3>
+              <p class="font-body-lg text-on-surface-variant leading-relaxed">
+                Introspection is a pillar of growth. We provide a digital sanctuary that supports you in feeling free to gaze inward, documenting the evolution of your perspective.
+              </p>
+            </div>
+            <div class="lg:col-span-7 order-1 lg:order-2">
+              <div class="relative overflow-hidden border border-outline-variant">
+                <img alt="Digital Journals" class="w-full h-auto grayscale hover:grayscale-0 transition-all duration-1000 scale-105 hover:scale-100" src="/images/boutique/journals.jpg">
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center reveal-on-scroll active">
+            <div class="lg:col-span-7">
+              <div class="relative overflow-hidden border border-outline-variant">
+                <img alt="Intentional Leisure &amp; Recovery" class="w-full h-auto grayscale hover:grayscale-0 transition-all duration-1000 scale-105 hover:scale-100" src="/images/boutique/leisure.jpg">
+              </div>
+            </div>
+            <div class="lg:col-span-5">
+              <h3 class="font-display text-5xl md:text-6xl uppercase tracking-tighter mb-8">Intentional <span class="italic font-light text-secondary">Leisure</span> &amp; Recovery</h3>
+              <p class="font-body-lg text-on-surface-variant leading-relaxed">
+                Recovery is a strategic output. We build systems that protect your downtime, ensuring rest is as restorative as your work is intense.
+              </p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center reveal-on-scroll active">
+            <div class="lg:col-span-5 order-2 lg:order-1">
+              <h3 class="font-display text-5xl md:text-6xl uppercase tracking-tighter mb-8">Mind-mapping</h3>
+              <p class="font-body-lg text-on-surface-variant leading-relaxed">
+                Your critical advantage lies in the direction you set. We create thinking spaces that adhere to your unique creative and analytical style, visualizing the architecture of your ideas.
+              </p>
+            </div>
+            <div class="lg:col-span-7 order-1 lg:order-2">
+              <div class="relative overflow-hidden border border-outline-variant">
+                <img alt="Mind-Mapping" class="w-full h-auto grayscale hover:grayscale-0 transition-all duration-1000 scale-105 hover:scale-100" src="/images/boutique/mindmapping.jpg">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ownership Section -->
+    <section class="py-stack-lg border-y border-outline-variant relative bg-surface-container-highest overflow-hidden" id="ownership">
+      <div class="absolute inset-0 noise-bg opacity-50"></div>
+      <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto relative z-10">
+        <div class="max-w-4xl mx-auto py-24 text-center reveal-on-scroll active">
+          <span class="font-label-sm uppercase tracking-[0.5em] text-secondary mb-12 block">Sovereignty</span>
+          <h2 class="font-display text-[48px] md:text-[72px] mb-12 uppercase leading-[1.1]">Yours to grow with <br>and <span class="italic font-body-md font-light text-secondary">mould</span></h2>
+          <p class="font-body-lg text-body-lg mb-16 max-w-2xl mx-auto text-on-surface-variant">
+            Once built, the app is yours. You’re free to do with the code and IP as you wish. Some clients use their AI tools to make small tweaks, while engaging with me for more substantial changes to match their personal evolution.
+          </p>
+          <a href="mailto:pjmasvikeni@gmail.com" class="inline-block bg-transparent border border-primary text-primary px-16 py-6 font-label-md text-label-sm uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all duration-500 relative group overflow-hidden">
+            <span class="relative z-10">Inquire about terms</span>
+            <div class="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About the crafter Section with Carousel -->
+    <section class="py-stack-lg bg-surface relative overflow-hidden" id="about">
+      <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center">
+          <div class="lg:col-span-4 reveal-on-scroll active">
+            <span class="font-label-sm uppercase tracking-[0.5em] text-secondary mb-4 block">Artisan</span>
+            <h2 class="font-display text-headline-lg md:text-[64px] uppercase leading-none mb-8">About the <br><span class="italic font-body-lg font-light">crafter</span></h2>
+            <p class="font-body-lg text-on-surface-variant max-w-sm mb-12">
+              I create hyper-empathetic apps that serve markets other creators consider too small or too complex. These include Accompla, one of the few hard-science and neurologist-endorsed AuDHD apps, now used by thousands. Curio is the special lounge of my practice, where I build life-central apps exclusively for distinguished and high-potential individuals. These are individuals for whom small gains in focus and clarity create towering returns in their endeavors. My background is in consumer psychology and storytelling. My future is in helping the exceptional sharpen their edge.
+            </p>
+            <div class="hidden lg:block w-24 h-px bg-outline-variant opacity-30"></div>
+          </div>
+          <div class="lg:col-span-8 relative reveal-on-scroll active" style="transition-delay: 200ms;">
+            <div class="relative w-full bg-surface-container overflow-hidden border border-outline-variant aspect-square" id="artisan-carousel">
+              <div class="carousel-slide h-full w-full"><img alt="The Crafter - Portrait 1" class="w-full h-full object-contain grayscale contrast-125" src="/images/boutique/artisan-1.jpg"></div>
+              <div class="carousel-slide h-full w-full active"><img alt="The Crafter - Portrait 2" class="w-full h-full object-contain grayscale contrast-125" src="/images/boutique/artisan-2.jpg"></div>
+              <div class="carousel-slide h-full w-full"><img alt="The Crafter - Portrait 3" class="w-full h-full object-contain grayscale contrast-125" src="/images/boutique/artisan-3.jpg"></div>
+            </div>
+            <!-- Carousel Progress Indicators -->
+            <div class="absolute -bottom-12 right-0 flex gap-4">
+              <div class="carousel-dot w-8 h-px bg-primary transition-opacity opacity-20" data-index="0"></div>
+              <div class="carousel-dot w-8 h-px bg-primary transition-opacity opacity-100" data-index="1"></div>
+              <div class="carousel-dot w-8 h-px bg-primary transition-opacity opacity-20" data-index="2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-stack-lg mb-24">
+      <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto">
+        <div class="p-16 md:p-32 text-white relative flex flex-col md:flex-row justify-between items-center gap-16 reveal-on-scroll group active border border-outline-variant" style="outline: 1px solid #cfc4c5; outline-offset: -8px;">
+          <div class="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden bg-primary">
+            <img alt="Leopard Reflection" class="h-full w-auto object-contain opacity-40 grayscale contrast-125 opacity-30" src="/images/boutique/leopard-reflection.png">
+          </div>
+          <div class="relative z-10 w-full lg:w-2/3 text-left">
+            <span class="font-label-sm uppercase tracking-[0.6em] mb-6 block text-secondary">IT'S TIME</span>
+            <h2 class="font-display text-[48px] md:text-[72px] leading-[1.1] uppercase tracking-tighter text-white">
+              Grant your mind its <br><span class="italic font-light">full powers.</span>
+              <div class="mt-4">
+                <span class="font-body-lg italic lowercase tracking-normal text-white/80">Commission your suite.</span>
+              </div>
+            </h2>
+          </div>
+          <div class="relative z-10 w-full lg:w-1/3 flex justify-center lg:justify-end lg:items-center">
+            <a class="inline-block bg-white text-primary px-16 py-6 font-label-md uppercase tracking-widest hover:bg-transparent hover:text-white transition-all duration-500 whitespace-nowrap border border-white text-lg" href="mailto:pjmasvikeni@gmail.com">Pursue You</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script is:inline>
+    // Reveal on scroll observer
+    const observerOptions = { threshold: 0.15 };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+
+    // Artisan Carousel Logic
+    function initCarousel() {
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        let currentSlide = 1; // Start on index 1 since active class is preset on second slide in HTML
+
+        function nextSlide() {
+            if (slides.length === 0) return;
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.add('opacity-20');
+            dots[currentSlide].classList.remove('opacity-100');
+            
+            currentSlide = (currentSlide + 1) % slides.length;
+            
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('opacity-100');
+            dots[currentSlide].classList.remove('opacity-20');
+        }
+
+        setInterval(nextSlide, 4500);
+    }
+
+    initCarousel();
+  </script>
+</body>
+</html>
