@@ -38,18 +38,18 @@
 </head>
 <body class="bg-surface text-on-background font-body-md selection:bg-primary selection:text-white noise-bg">
   <!-- Prestige Navigation -->
-  <nav class="fixed top-0 left-0 right-0 z-50 h-24 mix-blend-difference">
+  <nav id="boutique-nav" class="fixed top-0 left-0 right-0 z-50 h-24 transition-all duration-500">
     <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
-      <a href="/" id="nav-wordmark" class="font-display text-[32px] font-extrabold text-white uppercase tracking-tight transition-opacity duration-500">
+      <a href="/" id="nav-wordmark" class="font-display text-[32px] font-extrabold uppercase tracking-tight transition-all duration-500 text-on-background">
         T.
       </a>
       <div class="hidden lg:flex items-center gap-12">
-        <a class="text-white hover:opacity-50 transition-opacity font-label-md text-label-sm" href="#process">PROCESS</a>
-        <a class="text-white hover:opacity-50 transition-opacity font-label-md text-label-sm" href="#pillars">PILLARS</a>
-        <a class="text-white hover:opacity-50 transition-opacity font-label-md text-label-sm" href="#ownership">OWNERSHIP</a>
-        <a class="text-white hover:opacity-50 transition-opacity font-label-md text-label-sm" href="#about">ABOUT</a>
+        <a class="nav-link hover:opacity-50 transition-opacity font-label-md text-label-sm text-on-background" href="#process">PROCESS</a>
+        <a class="nav-link hover:opacity-50 transition-opacity font-label-md text-label-sm text-on-background" href="#pillars">PILLARS</a>
+        <a class="nav-link hover:opacity-50 transition-opacity font-label-md text-label-sm text-on-background" href="#ownership">OWNERSHIP</a>
+        <a class="nav-link hover:opacity-50 transition-opacity font-label-md text-label-sm text-on-background" href="#about">ABOUT</a>
       </div>
-      <a href="mailto:pjmasvikeni@gmail.com" id="nav-cta" class="text-white border-b border-white pb-1 font-label-md text-label-sm hover:opacity-50 transition-opacity duration-500 uppercase opacity-0 pointer-events-none">
+      <a href="mailto:pjmasvikeni@gmail.com" id="nav-cta" class="nav-link border-b pb-1 font-label-md text-label-sm hover:opacity-50 transition-all duration-500 uppercase opacity-0 pointer-events-none border-on-background text-on-background">
         Pursue You
       </a>
     </div>
@@ -460,17 +460,33 @@
 
     // Scroll Behavior for Navigation
     function initScrollNav() {
+        const nav = document.getElementById('boutique-nav');
         const wordmark = document.getElementById('nav-wordmark');
         const ctaButton = document.getElementById('nav-cta');
+        const navLinks = document.querySelectorAll('.nav-link');
         const heroSection = document.querySelector('section');
 
-        if (!wordmark || !ctaButton || !heroSection) return;
+        if (!nav || !wordmark || !ctaButton || !heroSection) return;
 
         function handleScroll() {
             const scrollY = window.scrollY;
             const heroHeight = heroSection.offsetHeight;
+            const scrolled = scrollY > 40;
 
-            // T disappears while scrolling down (when scrollY > 30)
+            // Nav background: frosted on scroll, transparent at top
+            if (scrolled) {
+                nav.style.backgroundColor = 'rgba(250, 246, 244, 0.88)';
+                nav.style.backdropFilter = 'blur(16px)';
+                nav.style.WebkitBackdropFilter = 'blur(16px)';
+                nav.style.borderBottom = '1px solid rgba(0,0,0,0.06)';
+            } else {
+                nav.style.backgroundColor = 'transparent';
+                nav.style.backdropFilter = 'none';
+                nav.style.WebkitBackdropFilter = 'none';
+                nav.style.borderBottom = 'none';
+            }
+
+            // T wordmark: fades out while scrolling
             if (scrollY > 30) {
                 wordmark.classList.add('opacity-0', 'pointer-events-none');
                 wordmark.classList.remove('opacity-100');
@@ -479,7 +495,7 @@
                 wordmark.classList.remove('opacity-0', 'pointer-events-none');
             }
 
-            // Pursue You CTA appears only after scrolling past the hero section
+            // Pursue You CTA: appears after hero
             if (scrollY > heroHeight - 100) {
                 ctaButton.classList.add('opacity-100');
                 ctaButton.classList.remove('opacity-0', 'pointer-events-none');
@@ -490,7 +506,7 @@
         }
 
         window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll(); // Trigger initially in case page is already scrolled
+        handleScroll();
     }
 
     initScrollNav();
