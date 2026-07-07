@@ -121,12 +121,13 @@ const navLinks = [
   <script is:inline>
     // Scroll Behavior for Navigation
     function initScrollNav() {
-      const nav = document.getElementById('boutique-nav');
-      const wordmark = document.getElementById('nav-wordmark');
-      const ctaButton = document.getElementById('nav-cta');
-      const heroSection = document.querySelector('main');
+        const nav = document.getElementById('boutique-nav');
+        const wordmark = document.getElementById('nav-wordmark');
+        const ctaButton = document.getElementById('nav-cta');
+        const menuToggle = document.getElementById('menu-toggle');
+        const heroSection = document.querySelector('main');
 
-      if (!nav || !wordmark || !ctaButton || !heroSection) return;
+      if (!nav || !wordmark || !ctaButton || !menuToggle || !heroSection) return;
 
       function handleScroll() {
         const scrollY = window.scrollY;
@@ -148,13 +149,17 @@ const navLinks = [
           nav.style.height = '6rem';
         }
 
-        // T wordmark: fades out while scrolling
+        // T wordmark and menu button: fade out while scrolling
         if (scrollY > 30) {
           wordmark.classList.add('opacity-0', 'pointer-events-none');
           wordmark.classList.remove('opacity-100');
+          menuToggle.classList.add('opacity-0', 'pointer-events-none');
+          menuToggle.classList.remove('opacity-100');
         } else {
           wordmark.classList.add('opacity-100');
           wordmark.classList.remove('opacity-0', 'pointer-events-none');
+          menuToggle.classList.add('opacity-100');
+          menuToggle.classList.remove('opacity-0', 'pointer-events-none');
         }
 
         // Pursue You CTA: appears after hero
@@ -192,6 +197,12 @@ const navLinks = [
       });
     }
 
+    document.addEventListener('astro:page-load', () => {
+      initScrollNav();
+      initMobileMenu();
+    });
+
+    // Initialize immediately on first load
     initScrollNav();
     initMobileMenu();
   </script>
