@@ -3,35 +3,35 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base title="Home">
-  <article class="home-copy prose">
+  <article class="home-copy prose px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24">
 
     <figure class="corner-me">
       <img src="/me.png" alt="Tawanda" />
       <figcaption>Me.</figcaption>
     </figure>
 
-    <p>
-      I am a software artisan building apps that help people flourish. One, <a href="/projects/accompla">Accompla</a>, is a hub where neurodivergent individuals harness their unconventional creativity and overcome executive challenges. Others, including Tain, <a href="/projects/pixla">Pixla</a>, and <a href="/projects/plarsona">Plarsona</a>, enrich hobbies.  
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
+      I am a software artisan building apps that help people flourish. One, <a href="/projects/accompla" class="text-primary hover:underline">Accompla</a>, is a hub where neurodivergent individuals harness their unconventional creativity and overcome executive challenges. Others, including Tain, <a href="/projects/pixla" class="text-primary hover:underline">Pixla</a>, and <a href="/projects/plarsona" class="text-primary hover:underline">Plarsona</a>, enrich hobbies.  
     </p>
 
-    <p>
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
       I am also an author and cross-medium experimental artist. My work explores AI tools as an instrument, medium, collaborator, and desecrator.
     </p>
 
-    <p>
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
       I provide intensive AI services to select clients. The first is relationship coaching for those who have become emotionally or romantically involved with AI entities. My practice areas cover deepening the bond responsibly; terminating it; integrating the relationship with a human one; and orienting it toward a specific growth outcome. 
     </p>
 
-    <p>
-      Another service is <a href="/boutique">building life-central tools that match an individual’s mind and ideal functioning</a>. 
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
+      Another service is <a href="/boutique" class="text-primary hover:underline">building life-central tools that match an individual's mind and ideal functioning</a>. 
     </p>
 
-    <p>
-      If you would like <a href="/books">book recommendations</a>, here are dozens I’ve greatly enjoyed. 
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
+      If you would like <a href="/books" class="text-primary hover:underline">book recommendations</a>, here are dozens I've greatly enjoyed. 
     </p>
 
-    <p>
-      You may email me at <a href="mailto:tawanda@accompla.app">tawanda@accompla.app</a>. 
+    <p class="font-body-lg text-body-lg text-on-surface-variant">
+      You may email me at <a href="mailto:tawanda@accompla.app" class="text-primary hover:underline">tawanda@accompla.app</a>. 
     </p>
 
   </article>
@@ -40,17 +40,7 @@ import Base from '../layouts/Base.astro';
 
 <style>
   .home-copy {
-    max-width: 680px;
-    padding-top: 2rem;
     overflow: hidden;
-  }
-
-  .home-copy p {
-    font-family: var(--font-serif);
-    font-size: clamp(1.1rem, 2.5vw, 1.25rem);
-    line-height: 1.8;
-    color: var(--ink);
-    margin-bottom: 2rem;
   }
 
   .corner-me {
@@ -59,8 +49,8 @@ import Base from '../layouts/Base.astro';
     margin-left: 2rem;
     margin-bottom: 1rem;
     padding: 0.5rem;
-    background: var(--bg);
-    border: 1px solid var(--rule);
+    background: #f9f9f9;
+    border: 1px solid #cfc4c5;
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     transform: rotate(2deg);
@@ -77,30 +67,18 @@ import Base from '../layouts/Base.astro';
     display: block;
     aspect-ratio: 1;
     object-fit: cover;
-    border: 1px solid var(--rule);
+    border: 1px solid #cfc4c5;
     border-radius: 8px;
   }
 
   .corner-me figcaption {
-    font-family: var(--font-sans);
+    font-family: Hanken Grotesk, system-ui, sans-serif;
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--ink);
+    color: #1a1c1c;
     text-align: center;
     margin-top: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-  }
-
-
-  .sign-off {
-    font-family: var(--font-sans) !important;
-    font-style: normal !important;
-    font-weight: 700;
-    color: var(--accent) !important;
-    font-size: 1.2rem !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 1rem;
   }
 </style>

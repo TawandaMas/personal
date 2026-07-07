@@ -14,279 +14,120 @@ const queue = books.filter(b => b.status === 'queue');
 ---
 
 <Base title="Books">
-  <div class="page-header">
-    <h1>The Library</h1>
-    <p>A digital card catalog of things I've consumed and contemplated.</p>
-  </div>
+  <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24">
+    <div class="mb-12">
+      <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4">The Library</h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant italic">A digital card catalog of things I've consumed and contemplated.</p>
+    </div>
 
-  <div class="catalog-drawer">
-    {reading.length > 0 && (
-      <div class="drawer-section">
-        <h2 class="drawer-label">In Progress</h2>
-        <div class="card-grid">
-          {reading.map((book, i) => (
-            <div class="book-card card-active">
-              <div class="card-status status-reading">Reading</div>
-              <div class="card-content">
-                <h3 class="book-title">{book.title}</h3>
-                <p class="book-author">{book.author} — {book.year}</p>
-                {book.rating > 0 && (
-                  <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                    {[...Array(5)].map((_, i) => {
-                      const full = i < Math.floor(book.rating);
-                      const half = !full && i < book.rating;
-                      return (
-                        <span class:list={['star', { filled: full, half: half }]}>★</span>
-                      );
-                    })}
-                  </div>
-                )}
-                <div class="card-rule"></div>
-                {book.note && <p class="book-note">{book.note}</p>}
+    <div class="space-y-16 pb-16">
+      {reading.length > 0 && (
+        <div class="drawer-section">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="w-8 h-px bg-secondary opacity-30"></div>
+            <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">In Progress</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {reading.map((book, i) => (
+              <div class="bg-surface border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col transition-transform hover:-translate-y-1 hover:border-secondary">
+                <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-secondary text-white">Reading</div>
+                <div class="flex-1">
+                  <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>
+                  <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.05em] mb-4">{book.author} — {book.year}</p>
+                  {book.rating > 0 && (
+                    <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                      {[...Array(5)].map((_, i) => {
+                        const full = i < Math.floor(book.rating);
+                        const half = !full && i < book.rating;
+                        return (
+                          <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div class="h-px bg-outline-variant opacity-60 mb-4"></div>
+                  {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">{book.note}</p>}
+                </div>
+                <div class="pt-6 flex justify-end">
+                  <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.05em] px-2 py-1 border border-outline-variant rounded bg-surface text-on-background">{book.genre}</span>
+                </div>
               </div>
-              <div class="card-footer">
-                <span class="genre-tag">{book.genre}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
-    {read.length > 0 && (
-      <div class="drawer-section">
-        <h2 class="drawer-label">Archive</h2>
-        <div class="card-grid">
-          {read.map((book, i) => (
-            <div class="book-card card-read">
-              <div class="card-status status-read">Finished</div>
-              <div class="card-content">
-                <h3 class="book-title">{book.title}</h3>
-                <p class="book-author">{book.author} — {book.year}</p>
-                {book.rating > 0 && (
-                  <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                    {[...Array(5)].map((_, i) => {
-                      const full = i < Math.floor(book.rating);
-                      const half = !full && i < book.rating;
-                      return (
-                        <span class:list={['star', { filled: full, half: half }]}>★</span>
-                      );
-                    })}
-                  </div>
-                )}
-                <div class="card-rule"></div>
-                {book.note && <p class="book-note">{book.note}</p>}
+      {read.length > 0 && (
+        <div class="drawer-section">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="w-8 h-px bg-secondary opacity-30"></div>
+            <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">Archive</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {read.map((book, i) => (
+              <div class="bg-surface border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col transition-transform hover:-translate-y-1 hover:border-secondary">
+                <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-surface text-on-background">Finished</div>
+                <div class="flex-1">
+                  <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>
+                  <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.05em] mb-4">{book.author} — {book.year}</p>
+                  {book.rating > 0 && (
+                    <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                      {[...Array(5)].map((_, i) => {
+                        const full = i < Math.floor(book.rating);
+                        const half = !full && i < book.rating;
+                        return (
+                          <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div class="h-px bg-outline-variant opacity-60 mb-4"></div>
+                  {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">{book.note}</p>}
+                </div>
+                <div class="pt-6 flex justify-end">
+                  <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.05em] px-2 py-1 border border-outline-variant rounded bg-surface text-on-background">{book.genre}</span>
+                </div>
               </div>
-              <div class="card-footer">
-                <span class="genre-tag">{book.genre}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
-    {queue.length > 0 && (
-      <div class="drawer-section">
-        <h2 class="drawer-label">Wishlist</h2>
-        <div class="card-grid">
-          {queue.map((book, i) => (
-            <div class="book-card card-queue">
-              <div class="card-status status-queue">Queue</div>
-              <div class="card-content">
-                <h3 class="book-title">{book.title}</h3>
-                <p class="book-author">{book.author} — {book.year}</p>
-                {book.rating > 0 && (
-                  <div class="book-rating" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                    {[...Array(5)].map((_, i) => {
-                      const full = i < Math.floor(book.rating);
-                      const half = !full && i < book.rating;
-                      return (
-                        <span class:list={['star', { filled: full, half: half }]}>★</span>
-                      );
-                    })}
-                  </div>
-                )}
-                <div class="card-rule"></div>
-                {book.note && <p class="book-note">{book.note}</p>}
+      {queue.length > 0 && (
+        <div class="drawer-section">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="w-8 h-px bg-secondary opacity-30"></div>
+            <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">Wishlist</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {queue.map((book, i) => (
+              <div class="bg-surface-container-low border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col transition-transform hover:-translate-y-1 hover:border-secondary">
+                <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-surface-container-low text-on-surface-variant">Queue</div>
+                <div class="flex-1">
+                  <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>
+                  <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.05em] mb-4">{book.author} — {book.year}</p>
+                  {book.rating > 0 && (
+                    <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                      {[...Array(5)].map((_, i) => {
+                        const full = i < Math.floor(book.rating);
+                        const half = !full && i < book.rating;
+                        return (
+                          <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div class="h-px bg-outline-variant opacity-60 mb-4"></div>
+                  {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">{book.note}</p>}
+                </div>
+                <div class="pt-6 flex justify-end">
+                  <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.05em] px-2 py-1 border border-outline-variant rounded bg-surface-container-low text-on-background">{book.genre}</span>
+                </div>
               </div>
-              <div class="card-footer">
-                <span class="genre-tag">{book.genre}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    )}
+      )}
+    </div>
   </div>
 </Base>
-
-<style>
-  .catalog-drawer {
-    display: flex;
-    flex-direction: column;
-    gap: 4rem;
-    padding-bottom: 4rem;
-  }
-
-  .drawer-section {
-    position: relative;
-  }
-
-  .drawer-label {
-    font-family: var(--font-sans);
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--ink-light);
-    margin-bottom: 2rem;
-    padding-left: 0.5rem;
-    border-left: 3px solid var(--accent);
-  }
-
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2.5rem;
-  }
-
-  /* NEO-BRUTALIST CARD STYLING */
-  .book-card {
-    background: var(--bg);
-    border: 1px solid var(--rule);
-    border-radius: 12px;
-    padding: 1.5rem;
-    min-height: 220px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .book-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
-    border-color: var(--accent);
-    z-index: 10;
-  }
-
-  .card-content {
-    flex: 1;
-    z-index: 2;
-  }
-
-  .book-title {
-    font-family: var(--font-sans);
-    font-size: 1.25rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    margin-bottom: 0.25rem;
-    line-height: 1.1;
-  }
-
-  .book-author {
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--ink-mid);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 1rem;
-  }
-
-  .book-rating {
-    display: flex;
-    gap: 2px;
-    margin-bottom: 1rem;
-    color: var(--rule);
-    font-size: 0.85rem;
-  }
-
-  .star.filled {
-    color: var(--accent);
-  }
-
-  .star.half {
-    position: relative;
-    color: var(--rule);
-  }
-
-  .star.half::after {
-    content: '★';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 50%;
-    overflow: hidden;
-    color: var(--accent);
-  }
-
-  :root.dark .star.filled,
-  :root.dark .star.half::after {
-    color: var(--accent);
-  }
-
-  .card-rule {
-    height: 1px;
-    background: var(--rule);
-    margin: 0.75rem 0;
-    opacity: 0.6;
-  }
-
-  .book-note {
-    font-family: var(--font-serif);
-    font-size: 0.85rem;
-    color: var(--ink-mid);
-    line-height: 1.6;
-    font-style: italic;
-    padding-top: 0.5rem;
-  }
-
-  /* STATUS STAMPS */
-  .card-status {
-    display: inline-block;
-    font-family: var(--font-sans);
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 0.25rem 0.5rem;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 1.5rem;
-    align-self: flex-start;
-  }
-
-  .status-reading { background: var(--accent); color: #ffffff; border-color: var(--rule); }
-  .status-read { background: var(--bg); color: var(--ink); }
-  .status-queue { background: var(--paper-dark); color: var(--ink-mid); }
-
-  .card-footer {
-    padding-top: 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .genre-tag {
-    font-family: var(--font-sans);
-    font-size: 0.6rem;
-    font-weight: 700;
-    color: var(--ink);
-    background: var(--bg);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 0.25rem 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  @media (max-width: 600px) {
-    .card-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
-

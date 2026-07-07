@@ -10,6 +10,7 @@ export interface Props {
 const { title, description = "Tawanda Masvikeni — indie app builder, writer, occasional chaos agent." } = Astro.props;
 const currentPath = Astro.url.pathname;
 const navLinks = [
+  { href: '/', label: 'Home' },
   { href: '/projects', label: 'Projects' },
   { href: '/books', label: 'Books' },
   { href: '/games', label: 'Play' },
@@ -20,19 +21,18 @@ const navLinks = [
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html class="scroll-smooth" lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <meta name="description" content={description} />
   <title>{title === 'Home' ? 'Tawanda Masvikeni: Personal Website' : `${title} — Tawanda Masvikeni`}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..300,0..1&display=block" rel="stylesheet" />
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="theme-color" content="#f9f9f9" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="apple-touch-icon" href="/icon-512.png" />
   {!(currentPath.startsWith('/games/') && currentPath.length > 7) && <ViewTransitions />}
   <script is:inline>
@@ -44,136 +44,156 @@ const navLinks = [
         }).catch(err => console.log('SW error', err));
       });
     }
-
-    // PWA Install Prompt Logic
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      // You could show a custom install button here
-      console.log('PWA install prompt available');
-    });
-
-    const theme = (() => {
-      if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-        return localStorage.getItem('theme');
-      }
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
-      return 'light';
-    })();
-  
-    if (theme === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
-      document.documentElement.classList.add('dark');
-    }
-    window.localStorage.setItem('theme', theme);
   </script>
+  <style>
+    .noise-bg {
+      position: relative;
+    }
+    .noise-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.04;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+  </style>
 </head>
-<body>
-  <!-- Cleaned up background SVG noise -->
-  <svg width="0" height="0" style="position:absolute; display:none;">
-    <filter id="noise">
-      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
-      <feColorMatrix type="matrix" values="1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 0.05 0" />
-    </filter>
-  </svg>
+<body class="bg-surface text-on-background font-body-md selection:bg-primary selection:text-white noise-bg">
+  <!-- Navigation -->
+  <nav id="boutique-nav" class="fixed top-0 left-0 right-0 z-50 h-24 transition-all duration-500">
+    <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
+      <!-- Wordmark -->
+      <a href="/" id="nav-wordmark" class="font-display text-[32px] font-extrabold uppercase tracking-tight transition-all duration-500 text-on-background flex-shrink-0 z-10">
+        T.
+      </a>
 
-  <header>
-    <a href="/" class="wordmark">T.</a>
-    <nav class="desktop-nav">
-      {navLinks.map(link => (
-        <a
-          href={link.href}
-          class:list={['nav-link', { active: !link.external && currentPath.startsWith(link.href) }]}
-          target={link.external ? '_blank' : undefined}
-          rel={link.external ? 'noopener noreferrer' : undefined}
-        >
-          {link.label}{link.external ? ' ↗' : ''}
-        </a>
-      ))}
-    </nav>
+      <!-- Desktop Nav Links -->
+      <div class="hidden xl:flex items-center gap-3 flex-nowrap justify-center">
+        {navLinks.map(link => (
+          <a
+            href={link.href}
+            class="hover:opacity-50 transition-opacity font-label-md text-[0.7rem] uppercase tracking-wider text-on-background flex-shrink-0"
+          >
+            {link.label.toUpperCase()}
+          </a>
+        ))}
+      </div>
 
-    <div class="header-controls">
-      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-        <span class="sun">☀️</span>
-        <span class="moon">🌙</span>
-      </button>
-      <button id="menu-toggle" class="menu-toggle" aria-label="Toggle mobile menu">
-        <span class="burger">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
+      <!-- Desktop CTA -->
+      <a href="mailto:pjmasvikeni@gmail.com" id="nav-cta" class="border-b border-on-background pb-1 font-label-md text-[0.7rem] hover:opacity-50 transition-all duration-500 uppercase opacity-0 pointer-events-none text-on-background hidden xl:block flex-shrink-0">
+        Pursue You
+      </a>
+
+      <!-- Mobile Menu Button -->
+      <button id="menu-toggle" class="xl:hidden flex items-center gap-2 font-label-md text-label-sm uppercase text-on-background flex-shrink-0 z-10">
+        <span class="material-symbols-outlined">menu</span>
+        Menu
       </button>
     </div>
-  </header>
+  </nav>
 
-  <main>
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="fixed inset-0 z-40 bg-surface flex-col items-center justify-center gap-8 hidden">
+    {navLinks.map(link => (
+      <a
+        href={link.href}
+        class="font-display text-[32px] font-bold uppercase tracking-tight text-on-background hover:text-primary transition-colors"
+      >
+        {link.label}
+      </a>
+    ))}
+  </div>
+
+  <main class="pt-32">
     <slot />
   </main>
 
-  <footer>
-    <span>tawanda.space</span>
+  <footer class="py-12 px-margin-mobile md:px-gutter max-w-container-max mx-auto border-t border-outline-variant">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">tawanda.space</p>
+      <p class="font-body-md text-body-md text-on-surface-variant">© {new Date().getFullYear()} Tawanda Masvikeni</p>
+    </div>
   </footer>
 
-  <div id="mobile-menu" class="mobile-menu">
-    <div class="mobile-menu-inner">
-      {navLinks.map(link => (
-        <a
-          href={link.href}
-          class:list={['mobile-nav-link', { active: !link.external && currentPath.startsWith(link.href) }]}
-          target={link.external ? '_blank' : undefined}
-          rel={link.external ? 'noopener noreferrer' : undefined}
-        >
-          {link.label}{link.external ? ' ↗' : ''}
-        </a>
-      ))}
-    </div>
-  </div>
+  <script is:inline>
+    // Scroll Behavior for Navigation
+    function initScrollNav() {
+      const nav = document.getElementById('boutique-nav');
+      const wordmark = document.getElementById('nav-wordmark');
+      const ctaButton = document.getElementById('nav-cta');
+      const heroSection = document.querySelector('main');
 
-  <script>
-    document.addEventListener('astro:page-load', () => {
-      const themeToggle = document.getElementById("theme-toggle");
-      const menuToggle = document.getElementById("menu-toggle");
-      const mobileMenu = document.getElementById("mobile-menu");
-      const body = document.body;
-      const html = document.documentElement;
+      if (!nav || !wordmark || !ctaButton || !heroSection) return;
 
-      // Handle dark mode
-      themeToggle?.addEventListener("click", () => {
-        html.classList.toggle("dark");
-        const isDark = html.classList.contains("dark");
-        localStorage.setItem("theme", isDark ? "dark" : "light");
+      function handleScroll() {
+        const scrollY = window.scrollY;
+        const heroHeight = heroSection.offsetHeight;
+        const scrolled = scrollY > 40;
+
+        // Nav background: frosted on scroll, transparent at top
+        if (scrolled) {
+          nav.style.backgroundColor = 'rgba(250, 246, 244, 0.88)';
+          nav.style.backdropFilter = 'blur(16px)';
+          nav.style.WebkitBackdropFilter = 'blur(16px)';
+          nav.style.borderBottom = '0.5px solid rgba(0,0,0,0.03)';
+          nav.style.height = '3.5rem';
+        } else {
+          nav.style.backgroundColor = 'transparent';
+          nav.style.backdropFilter = 'none';
+          nav.style.WebkitBackdropFilter = 'none';
+          nav.style.borderBottom = 'none';
+          nav.style.height = '6rem';
+        }
+
+        // T wordmark: fades out while scrolling
+        if (scrollY > 30) {
+          wordmark.classList.add('opacity-0', 'pointer-events-none');
+          wordmark.classList.remove('opacity-100');
+        } else {
+          wordmark.classList.add('opacity-100');
+          wordmark.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        // Pursue You CTA: appears after hero
+        if (scrollY > heroHeight - 100) {
+          ctaButton.classList.add('opacity-100');
+          ctaButton.classList.remove('opacity-0', 'pointer-events-none');
+        } else {
+          ctaButton.classList.add('opacity-0', 'pointer-events-none');
+          ctaButton.classList.remove('opacity-100');
+        }
+      }
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      handleScroll();
+    }
+
+    // Mobile menu toggle
+    function initMobileMenu() {
+      const menuToggle = document.getElementById('menu-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileLinks = mobileMenu?.querySelectorAll('a');
+
+      if (!menuToggle || !mobileMenu) return;
+
+      menuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        mobileMenu.classList.toggle('flex');
       });
 
-      // Handle menu toggle
-      menuToggle?.addEventListener("click", () => {
-        menuToggle.classList.toggle("open");
-        mobileMenu?.classList.toggle("open");
-        body.classList.toggle("menu-open");
-      });
-
-      document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      mobileLinks?.forEach(link => {
         link.addEventListener('click', () => {
-          menuToggle?.classList.remove("open");
-          mobileMenu?.classList.remove("open");
-          body.classList.remove("menu-open");
+          mobileMenu.classList.add('hidden');
+          mobileMenu.classList.remove('flex');
         });
       });
+    }
 
-      // Ensure theme matches
-      const theme = localStorage.getItem('theme');
-      if (theme === 'dark') {
-        html.classList.add('dark');
-      } else {
-        html.classList.remove('dark');
-      }
-    });
+    initScrollNav();
+    initMobileMenu();
   </script>
-
 </body>
 </html>
-

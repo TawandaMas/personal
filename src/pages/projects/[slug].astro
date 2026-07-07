@@ -15,119 +15,30 @@ const { Content } = await entry.render();
 ---
 
 <Base title={entry.data.title}>
-  <div class="project-page">
-    <header class="project-header">
-      <div class="project-nav">
-        <a href="/projects">← Back to Projects</a>
+  <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24">
+    <header class="mb-16">
+      <div class="mb-12">
+        <a href="/projects" class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors">← Back to Projects</a>
       </div>
       
-      <div class="project-title-area">
+      <div class="flex items-center gap-6">
         {entry.data.logo && (
-          <div class="project-logo-large">
-            <img src={entry.data.logo} alt="" />
+          <div class="w-20 h-20 flex items-center justify-center bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden flex-shrink-0">
+            <img src={entry.data.logo} alt="" class="w-[60%] h-[60%] object-contain" />
           </div>
         )}
-        <div class="project-heading-group">
-          <div class="project-tag">{entry.data.tag} · {entry.data.year}</div>
-          <h1 class="project-title">{entry.data.title}</h1>
-          <div class="project-links">
-            <a href={entry.data.url} target="_blank" rel="noopener noreferrer" class="visit-link">Visit Project ↗</a>
+        <div>
+          <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.08em] mb-2">{entry.data.tag} · {entry.data.year}</div>
+          <h1 class="font-body-lg text-body-lg italic text-on-background text-[48px] leading-tight mb-4">{entry.data.title}</h1>
+          <div>
+            <a href={entry.data.url} target="_blank" rel="noopener noreferrer" class="font-body-md text-body-md text-secondary hover:underline">Visit Project ↗</a>
           </div>
         </div>
       </div>
     </header>
 
-    <article class="project-content prose">
+    <article class="font-body-lg text-body-lg text-on-background leading-relaxed">
       <Content />
     </article>
   </div>
 </Base>
-
-<style>
-  .project-page {
-    max-width: 650px;
-    margin: 0 auto;
-    padding-bottom: 5rem;
-  }
-
-  .project-nav {
-    margin-bottom: 3rem;
-  }
-
-  .project-nav a {
-    font-family: var(--font-sans);
-    font-size: 0.85rem;
-    color: var(--ink-light);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-
-  .project-nav a:hover {
-    color: var(--accent);
-  }
-
-  .project-header {
-    margin-bottom: 4rem;
-  }
-
-  .project-title-area {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .project-logo-large {
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--paper-dark);
-    border: 1px solid var(--rule);
-    border-radius: 12px;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .project-logo-large img {
-    width: 60%;
-    height: 60%;
-    object-fit: contain;
-  }
-
-  .project-tag {
-    font-family: var(--font-sans);
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-light);
-    margin-bottom: 0.5rem;
-  }
-
-  .project-title {
-    font-family: var(--font-serif);
-    font-size: 3rem;
-    font-style: italic;
-    font-weight: 400;
-    line-height: 1.1;
-    margin-bottom: 1rem;
-    color: var(--ink);
-  }
-
-  .visit-link {
-    font-size: 0.9rem;
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .visit-link:hover {
-    text-decoration: underline;
-  }
-
-  .project-content {
-    font-family: var(--font-serif);
-    font-size: 1.15rem;
-    line-height: 1.8;
-  }
-</style>
