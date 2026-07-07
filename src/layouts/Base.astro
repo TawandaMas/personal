@@ -9,6 +9,8 @@ export interface Props {
 
 const { title, description = "Tawanda Masvikeni — indie app builder, writer, occasional chaos agent." } = Astro.props;
 const currentPath = Astro.url.pathname;
+const isNavLinkActive = (href: string) =>
+  href === '/' ? currentPath === '/' : currentPath.startsWith(href);
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/projects', label: 'Projects' },
@@ -63,10 +65,10 @@ const navLinks = [
 </head>
 <body class="bg-surface text-on-background font-body-md selection:bg-primary selection:text-white noise-bg">
   <!-- Navigation -->
-  <nav id="boutique-nav" class="fixed top-0 left-0 right-0 z-50 h-24 transition-all duration-500">
+  <nav id="boutique-nav" class="fixed top-0 left-0 right-0 z-50 h-20 xl:h-24 transition-[background-color,backdrop-filter,border-color] duration-300">
     <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
       <!-- Wordmark -->
-      <a href="/" id="nav-wordmark" class="font-display text-[32px] font-extrabold uppercase tracking-tight transition-all duration-500 text-on-background flex-shrink-0 z-[10000]">
+      <a href="/" id="nav-wordmark" class="font-display text-[28px] xl:text-[32px] font-extrabold uppercase tracking-tight transition-opacity duration-300 text-on-background flex-shrink-0">
         T.
       </a>
 
@@ -75,7 +77,13 @@ const navLinks = [
         {navLinks.map(link => (
           <a
             href={link.href}
-            class="hover:opacity-50 transition-opacity font-label-md text-[0.7rem] uppercase tracking-wider text-on-background flex-shrink-0"
+            aria-current={isNavLinkActive(link.href) ? 'page' : undefined}
+            class:list={[
+              'transition-opacity font-label-md text-[0.7rem] uppercase tracking-wider flex-shrink-0',
+              isNavLinkActive(link.href)
+                ? 'text-on-background border-b border-on-background pb-0.5'
+                : 'text-on-background hover:opacity-50',
+            ]}
           >
             {link.label.toUpperCase()}
           </a>
@@ -83,28 +91,68 @@ const navLinks = [
       </div>
 
       <!-- Desktop CTA -->
-      <a href="mailto:pjmasvikeni@gmail.com" id="nav-cta" class="border-b border-on-background pb-1 font-label-md text-[0.7rem] hover:opacity-50 transition-all duration-500 uppercase opacity-0 pointer-events-none text-on-background hidden xl:block flex-shrink-0">
+      <a href="mailto:pjmasvikeni@gmail.com" id="nav-cta" class="border-b border-on-background pb-1 font-label-md text-[0.7rem] hover:opacity-50 transition-opacity duration-300 uppercase opacity-0 pointer-events-none text-on-background hidden xl:block flex-shrink-0">
         Pursue You
       </a>
 
       <!-- Mobile Menu Button -->
-      <button id="menu-toggle" class="xl:hidden flex items-center gap-2 font-label-md text-label-sm uppercase text-on-background flex-shrink-0 z-[10000] cursor-pointer">
-        <span class="material-symbols-outlined">menu</span>
-        Menu
+      <button
+        type="button"
+        id="menu-toggle"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        aria-label="Open menu"
+        class="xl:hidden flex items-center justify-center gap-2 min-h-11 min-w-11 -mr-2 px-2 font-label-md text-label-sm uppercase text-on-background flex-shrink-0 cursor-pointer touch-manipulation select-none"
+      >
+        <span id="menu-toggle-icon" class="material-symbols-outlined text-[22px]" aria-hidden="true">menu</span>
+        <span id="menu-toggle-label">Menu</span>
       </button>
     </div>
   </nav>
 
   <!-- Mobile Menu -->
-  <div id="mobile-menu" class="fixed inset-0 z-40 bg-surface flex-col items-center justify-center gap-8 hidden">
-    {navLinks.map(link => (
-      <a
-        href={link.href}
-        class="font-display text-[32px] font-bold uppercase tracking-tight text-on-background hover:text-primary transition-colors"
-      >
-        {link.label}
+  <div
+    id="mobile-menu"
+    class="fixed inset-0 z-[60] bg-surface flex flex-col hidden overscroll-contain"
+    aria-hidden="true"
+    inert
+  >
+    <div class="flex justify-between items-center px-margin-mobile h-20 flex-shrink-0 border-b border-outline-variant/40">
+      <a href="/" class="font-display text-[28px] font-extrabold uppercase tracking-tight text-on-background">
+        T.
       </a>
-    ))}
+      <button
+        type="button"
+        id="menu-close"
+        aria-label="Close menu"
+        class="flex items-center justify-center min-h-11 min-w-11 -mr-2 text-on-background touch-manipulation select-none"
+      >
+        <span class="material-symbols-outlined text-[28px]" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <nav class="flex flex-col items-start flex-1 gap-1 px-margin-mobile py-8 overflow-y-auto">
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          aria-current={isNavLinkActive(link.href) ? 'page' : undefined}
+          class:list={[
+            'w-full py-3 font-display text-[28px] font-bold uppercase tracking-tight transition-colors touch-manipulation',
+            isNavLinkActive(link.href)
+              ? 'text-primary'
+              : 'text-on-background hover:text-primary active:text-primary',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+      <a
+        href="mailto:pjmasvikeni@gmail.com"
+        class="mt-6 border-b border-on-background pb-1 font-label-md text-label-sm uppercase text-on-background hover:opacity-50 transition-opacity touch-manipulation"
+      >
+        Pursue You
+      </a>
+    </nav>
   </div>
 
   <main class="pt-32">
@@ -120,88 +168,151 @@ const navLinks = [
 
   <script is:inline>
     (function() {
-      // --- MOBILE MENU: EVENT DELEGATION (NEVER NEEDS RE-INITIALIZATION!) ---
-      document.addEventListener('click', function(e) {
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (!menuToggle || !mobileMenu) return;
+      var XL_BREAKPOINT = 1280;
 
-        // Clicked menu toggle: open/close
-        if (menuToggle.contains(e.target)) {
-          mobileMenu.classList.toggle('hidden');
-          mobileMenu.classList.toggle('flex');
-          return;
-        }
+      function isDesktop() {
+        return window.matchMedia('(min-width: ' + XL_BREAKPOINT + 'px)').matches;
+      }
 
-        // Clicked mobile menu link: close menu
-        const clickedLink = e.target.closest('#mobile-menu a');
-        if (clickedLink) {
-          mobileMenu.classList.add('hidden');
-          mobileMenu.classList.remove('flex');
-        }
-      });
+      function getNavElements() {
+        return {
+          nav: document.getElementById('boutique-nav'),
+          wordmark: document.getElementById('nav-wordmark'),
+          ctaButton: document.getElementById('nav-cta'),
+          menuToggle: document.getElementById('menu-toggle'),
+          menuClose: document.getElementById('menu-close'),
+          mobileMenu: document.getElementById('mobile-menu'),
+          menuToggleIcon: document.getElementById('menu-toggle-icon'),
+          menuToggleLabel: document.getElementById('menu-toggle-label'),
+        };
+      }
 
-      // --- SCROLL NAV: RELIABLE SINGLE LISTENER ---
-      function updateScrollNav() {
-        const nav = document.getElementById('boutique-nav');
-        const wordmark = document.getElementById('nav-wordmark');
-        const ctaButton = document.getElementById('nav-cta');
-        const menuToggle = document.getElementById('menu-toggle');
-        const heroSection = document.querySelector('main');
+      function isMenuOpen() {
+        var mobileMenu = document.getElementById('mobile-menu');
+        return mobileMenu && !mobileMenu.classList.contains('hidden');
+      }
 
-        if (!nav || !wordmark || !ctaButton || !menuToggle || !heroSection) return;
+      function setMenuOpen(open) {
+        var els = getNavElements();
+        if (!els.mobileMenu || !els.menuToggle) return;
 
-        const scrollY = window.scrollY;
-        const heroHeight = heroSection.offsetHeight;
-        const scrolled = scrollY > 40;
-
-        // Nav background and height
-        if (scrolled) {
-          nav.style.backgroundColor = 'rgba(250, 246, 244, 0.88)';
-          nav.style.backdropFilter = 'blur(16px)';
-          nav.style.WebkitBackdropFilter = 'blur(16px)';
-          nav.style.borderBottom = '0.5px solid rgba(0,0,0,0.03)';
-          nav.style.height = '3.5rem';
+        if (open) {
+          els.mobileMenu.classList.remove('hidden');
+          els.mobileMenu.setAttribute('aria-hidden', 'false');
+          els.mobileMenu.removeAttribute('inert');
+          els.menuToggle.setAttribute('aria-expanded', 'true');
+          els.menuToggle.setAttribute('aria-label', 'Close menu');
+          if (els.menuToggleIcon) els.menuToggleIcon.textContent = 'close';
+          if (els.menuToggleLabel) els.menuToggleLabel.textContent = 'Close';
+          document.body.style.overflow = 'hidden';
         } else {
-          nav.style.backgroundColor = 'transparent';
-          nav.style.backdropFilter = 'none';
-          nav.style.WebkitBackdropFilter = 'none';
-          nav.style.borderBottom = 'none';
-          nav.style.height = '6rem';
-        }
-
-        // T wordmark and menu button: fade out while scrolling
-        if (scrollY > 30) {
-          wordmark.classList.add('opacity-0', 'pointer-events-none');
-          wordmark.classList.remove('opacity-100');
-          menuToggle.classList.add('opacity-0', 'pointer-events-none');
-          menuToggle.classList.remove('opacity-100');
-        } else {
-          wordmark.classList.add('opacity-100');
-          wordmark.classList.remove('opacity-0', 'pointer-events-none');
-          menuToggle.classList.add('opacity-100');
-          menuToggle.classList.remove('opacity-0', 'pointer-events-none');
-        }
-
-        // Pursue You CTA: appears after hero
-        if (scrollY > heroHeight - 100) {
-          ctaButton.classList.add('opacity-100');
-          ctaButton.classList.remove('opacity-0', 'pointer-events-none');
-        } else {
-          ctaButton.classList.add('opacity-0', 'pointer-events-none');
-          ctaButton.classList.remove('opacity-100');
+          els.mobileMenu.classList.add('hidden');
+          els.mobileMenu.setAttribute('aria-hidden', 'true');
+          els.mobileMenu.setAttribute('inert', '');
+          els.menuToggle.setAttribute('aria-expanded', 'false');
+          els.menuToggle.setAttribute('aria-label', 'Open menu');
+          if (els.menuToggleIcon) els.menuToggleIcon.textContent = 'menu';
+          if (els.menuToggleLabel) els.menuToggleLabel.textContent = 'Menu';
+          document.body.style.overflow = '';
         }
       }
 
-      // Add scroll listener ONCE (never removed)
+      function closeMenu() {
+        if (isMenuOpen()) setMenuOpen(false);
+      }
+
+      function toggleMenu() {
+        setMenuOpen(!isMenuOpen());
+      }
+
+      document.addEventListener('click', function(e) {
+        var els = getNavElements();
+        if (!els.menuToggle || !els.mobileMenu) return;
+
+        if (els.menuToggle.contains(e.target)) {
+          e.preventDefault();
+          toggleMenu();
+          return;
+        }
+
+        if (els.menuClose && els.menuClose.contains(e.target)) {
+          e.preventDefault();
+          closeMenu();
+          els.menuToggle.focus();
+          return;
+        }
+
+        var clickedLink = e.target.closest('#mobile-menu a');
+        if (clickedLink) closeMenu();
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape' || !isMenuOpen()) return;
+        var menuToggle = document.getElementById('menu-toggle');
+        closeMenu();
+        if (menuToggle) menuToggle.focus();
+      });
+
+      function updateScrollNav() {
+        var els = getNavElements();
+        var heroSection = document.querySelector('main');
+        if (!els.nav || !els.wordmark || !els.ctaButton || !heroSection) return;
+
+        var scrollY = window.scrollY;
+        var heroHeight = heroSection.offsetHeight;
+        var scrolled = scrollY > 16;
+        var desktop = isDesktop();
+
+        if (scrolled) {
+          els.nav.style.backgroundColor = 'rgba(249, 249, 249, 0.92)';
+          els.nav.style.backdropFilter = 'blur(16px)';
+          els.nav.style.webkitBackdropFilter = 'blur(16px)';
+          els.nav.style.borderBottom = '0.5px solid rgba(0, 0, 0, 0.06)';
+        } else {
+          els.nav.style.backgroundColor = 'transparent';
+          els.nav.style.backdropFilter = 'none';
+          els.nav.style.webkitBackdropFilter = 'none';
+          els.nav.style.borderBottom = 'none';
+        }
+
+        // Desktop-only: fade wordmark while scrolling
+        if (desktop) {
+          if (scrollY > 30) {
+            els.wordmark.classList.add('opacity-0', 'pointer-events-none');
+            els.wordmark.classList.remove('opacity-100');
+          } else {
+            els.wordmark.classList.add('opacity-100');
+            els.wordmark.classList.remove('opacity-0', 'pointer-events-none');
+          }
+        } else {
+          els.wordmark.classList.add('opacity-100');
+          els.wordmark.classList.remove('opacity-0', 'pointer-events-none');
+          if (els.menuToggle) {
+            els.menuToggle.classList.remove('opacity-0', 'pointer-events-none');
+          }
+        }
+
+        if (desktop) {
+          if (scrollY > heroHeight - 100) {
+            els.ctaButton.classList.add('opacity-100');
+            els.ctaButton.classList.remove('opacity-0', 'pointer-events-none');
+          } else {
+            els.ctaButton.classList.add('opacity-0', 'pointer-events-none');
+            els.ctaButton.classList.remove('opacity-100');
+          }
+        }
+      }
+
       window.addEventListener('scroll', updateScrollNav, { passive: true });
 
-      // Run on initial load
-      updateScrollNav();
+      function onPageReady() {
+        closeMenu();
+        updateScrollNav();
+      }
 
-      // Also run after any page transition to update state
-      document.addEventListener('astro:page-load', updateScrollNav);
-      document.addEventListener('DOMContentLoaded', updateScrollNav);
+      onPageReady();
+      document.addEventListener('astro:page-load', onPageReady);
+      document.addEventListener('DOMContentLoaded', onPageReady);
     })();
   </script>
 </body>
