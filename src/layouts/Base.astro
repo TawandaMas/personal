@@ -119,92 +119,97 @@ const navLinks = [
   </footer>
 
   <script is:inline>
-    // Scroll Behavior for Navigation
-    function initScrollNav() {
+    // Initialize everything reliably
+    (function() {
+      let scrollHandler = null;
+
+      function initAll() {
+        // Clean up existing listeners
+        if (scrollHandler) {
+          window.removeEventListener('scroll', scrollHandler, { passive: true });
+          scrollHandler = null;
+        }
+
         const nav = document.getElementById('boutique-nav');
         const wordmark = document.getElementById('nav-wordmark');
         const ctaButton = document.getElementById('nav-cta');
         const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
         const heroSection = document.querySelector('main');
 
-      if (!nav || !wordmark || !ctaButton || !menuToggle || !heroSection) return;
-
-      function handleScroll() {
-        const scrollY = window.scrollY;
-        const heroHeight = heroSection.offsetHeight;
-        const scrolled = scrollY > 40;
-
-        // Nav background: frosted on scroll, transparent at top
-        if (scrolled) {
-          nav.style.backgroundColor = 'rgba(250, 246, 244, 0.88)';
-          nav.style.backdropFilter = 'blur(16px)';
-          nav.style.WebkitBackdropFilter = 'blur(16px)';
-          nav.style.borderBottom = '0.5px solid rgba(0,0,0,0.03)';
-          nav.style.height = '3.5rem';
-        } else {
-          nav.style.backgroundColor = 'transparent';
-          nav.style.backdropFilter = 'none';
-          nav.style.WebkitBackdropFilter = 'none';
-          nav.style.borderBottom = 'none';
-          nav.style.height = '6rem';
+        if (!nav || !wordmark || !ctaButton || !menuToggle || !mobileMenu || !heroSection) {
+          return;
         }
 
-        // T wordmark and menu button: fade out while scrolling
-        if (scrollY > 30) {
-          wordmark.classList.add('opacity-0', 'pointer-events-none');
-          wordmark.classList.remove('opacity-100');
-          menuToggle.classList.add('opacity-0', 'pointer-events-none');
-          menuToggle.classList.remove('opacity-100');
-        } else {
-          wordmark.classList.add('opacity-100');
-          wordmark.classList.remove('opacity-0', 'pointer-events-none');
-          menuToggle.classList.add('opacity-100');
-          menuToggle.classList.remove('opacity-0', 'pointer-events-none');
-        }
+        // Scroll behavior for navigation
+        scrollHandler = function() {
+          const scrollY = window.scrollY;
+          const heroHeight = heroSection.offsetHeight;
+          const scrolled = scrollY > 40;
 
-        // Pursue You CTA: appears after hero
-        if (scrollY > heroHeight - 100) {
-          ctaButton.classList.add('opacity-100');
-          ctaButton.classList.remove('opacity-0', 'pointer-events-none');
-        } else {
-          ctaButton.classList.add('opacity-0', 'pointer-events-none');
-          ctaButton.classList.remove('opacity-100');
-        }
+          // Nav background and height
+          if (scrolled) {
+            nav.style.backgroundColor = 'rgba(250, 246, 244, 0.88)';
+            nav.style.backdropFilter = 'blur(16px)';
+            nav.style.WebkitBackdropFilter = 'blur(16px)';
+            nav.style.borderBottom = '0.5px solid rgba(0,0,0,0.03)';
+            nav.style.height = '3.5rem';
+          } else {
+            nav.style.backgroundColor = 'transparent';
+            nav.style.backdropFilter = 'none';
+            nav.style.WebkitBackdropFilter = 'none';
+            nav.style.borderBottom = 'none';
+            nav.style.height = '6rem';
+          }
+
+          // T wordmark and menu button: fade out while scrolling
+          if (scrollY > 30) {
+            wordmark.classList.add('opacity-0', 'pointer-events-none');
+            wordmark.classList.remove('opacity-100');
+            menuToggle.classList.add('opacity-0', 'pointer-events-none');
+            menuToggle.classList.remove('opacity-100');
+          } else {
+            wordmark.classList.add('opacity-100');
+            wordmark.classList.remove('opacity-0', 'pointer-events-none');
+            menuToggle.classList.add('opacity-100');
+            menuToggle.classList.remove('opacity-0', 'pointer-events-none');
+          }
+
+          // Pursue You CTA: appears after hero
+          if (scrollY > heroHeight - 100) {
+            ctaButton.classList.add('opacity-100');
+            ctaButton.classList.remove('opacity-0', 'pointer-events-none');
+          } else {
+            ctaButton.classList.add('opacity-0', 'pointer-events-none');
+            ctaButton.classList.remove('opacity-100');
+          }
+        };
+
+        window.addEventListener('scroll', scrollHandler, { passive: true });
+        scrollHandler();
+
+        // Mobile menu toggle - reliable with closures
+        menuToggle.addEventListener('click', function handleToggle() {
+          mobileMenu.classList.toggle('hidden');
+          mobileMenu.classList.toggle('flex');
+        });
+
+        // Close menu when clicking links
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(function(link) {
+          link.addEventListener('click', function() {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+          });
+        });
       }
 
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      handleScroll();
-    }
+      // Run on initial load
+      initAll();
 
-    // Mobile menu toggle
-    function initMobileMenu() {
-      const menuToggle = document.getElementById('menu-toggle');
-      const mobileMenu = document.getElementById('mobile-menu');
-      const mobileLinks = mobileMenu?.querySelectorAll('a');
-
-      if (!menuToggle || !mobileMenu) return;
-
-      menuToggle.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-        mobileMenu.classList.toggle('flex');
-      });
-
-      mobileLinks?.forEach(link => {
-        link.addEventListener('click', () => {
-          mobileMenu.classList.add('hidden');
-          mobileMenu.classList.remove('flex');
-        });
-      });
-    }
-
-    document.addEventListener('astro:page-load', () => {
-      initScrollNav();
-      initMobileMenu();
-    });
-
-    // Initialize immediately on first load
-    initScrollNav();
-    initMobileMenu();
+      // Run after every page transition
+      document.addEventListener('astro:page-load', initAll);
+    })();
   </script>
 </body>
 </html>
