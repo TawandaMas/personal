@@ -66,12 +66,7 @@ const navLinks = [
 <body class="bg-surface text-on-background font-body-md selection:bg-primary selection:text-white noise-bg">
   <!-- Navigation -->
   <nav id="site-nav" transition:persist="site-nav" class="fixed top-0 left-0 right-0 z-50 h-20 xl:h-24 transition-[background-color,backdrop-filter,border-color] duration-700 ease-out-soft">
-    <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
-      <!-- Wordmark -->
-      <a href="/" id="nav-wordmark" transition:persist="nav-wordmark" class="font-display text-[28px] xl:text-[32px] font-extrabold uppercase tracking-tight transition-all duration-700 ease-out-soft text-on-background flex-shrink-0">
-        T.
-      </a>
-
+    <div class="flex justify-center items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
       <!-- Desktop Nav Links -->
       <div class="hidden xl:flex items-center gap-3 flex-nowrap justify-center">
         {navLinks.map(link => (
@@ -90,10 +85,7 @@ const navLinks = [
         ))}
       </div>
 
-      <!-- Desktop CTA -->
-      <a href="mailto:pjmasvikeni@gmail.com" id="nav-cta" class="nav-link-elegant border-b border-on-background pb-1 font-label-md text-[0.7rem] hover:opacity-60 transition-all duration-700 ease-out-soft uppercase opacity-0 pointer-events-none text-on-background hidden xl:block flex-shrink-0">
-        Pursue You
-      </a>
+
 
       <!-- Mobile Menu Button -->
       <button
@@ -118,10 +110,7 @@ const navLinks = [
     aria-hidden="true"
     inert
   >
-    <div class="flex justify-between items-center px-margin-mobile h-20 flex-shrink-0 border-b border-outline-variant/40">
-      <a href="/" class="font-display text-[28px] font-extrabold uppercase tracking-tight text-on-background">
-        T.
-      </a>
+    <div class="flex justify-end items-center px-margin-mobile h-20 flex-shrink-0 border-b border-outline-variant/40">
       <button
         type="button"
         id="menu-close"
@@ -147,12 +136,6 @@ const navLinks = [
           {link.label}
         </a>
       ))}
-      <a
-        href="mailto:pjmasvikeni@gmail.com"
-        class="mt-6 border-b border-on-background pb-1 font-label-md text-label-sm uppercase text-on-background hover:opacity-50 transition-opacity touch-manipulation"
-      >
-        Pursue You
-      </a>
     </nav>
   </div>
 
@@ -179,8 +162,6 @@ const navLinks = [
       function getNavElements() {
         return {
           nav: document.getElementById('site-nav'),
-          wordmark: document.getElementById('nav-wordmark'),
-          ctaButton: document.getElementById('nav-cta'),
           menuToggle: document.getElementById('menu-toggle'),
           menuClose: document.getElementById('menu-close'),
           mobileMenu: document.getElementById('mobile-menu'),
@@ -266,7 +247,7 @@ const navLinks = [
       function updateScrollNav() {
         var els = getNavElements();
         var heroSection = document.querySelector('main');
-        if (!els.nav || !els.wordmark || !els.ctaButton || !heroSection) return;
+        if (!els.nav || !heroSection) return;
 
         var scrollY = window.scrollY;
         var heroHeight = heroSection.offsetHeight;
@@ -285,32 +266,13 @@ const navLinks = [
           els.nav.style.borderBottom = 'none';
         }
 
-        // Desktop-only: fade wordmark while scrolling
-        if (desktop) {
-          if (scrollY > 30) {
-            els.wordmark.classList.add('opacity-0', 'pointer-events-none');
-            els.wordmark.classList.remove('opacity-100');
-          } else {
-            els.wordmark.classList.add('opacity-100');
-            els.wordmark.classList.remove('opacity-0', 'pointer-events-none');
-          }
-        } else {
-          els.wordmark.classList.add('opacity-100');
-          els.wordmark.classList.remove('opacity-0', 'pointer-events-none');
+        if (!desktop) {
           if (els.menuToggle) {
             els.menuToggle.classList.remove('opacity-0', 'pointer-events-none');
           }
         }
 
-        if (desktop) {
-          if (scrollY > heroHeight - 100) {
-            els.ctaButton.classList.add('opacity-100');
-            els.ctaButton.classList.remove('opacity-0', 'pointer-events-none');
-          } else {
-            els.ctaButton.classList.add('opacity-0', 'pointer-events-none');
-            els.ctaButton.classList.remove('opacity-100');
-          }
-        }
+
       }
 
       window.addEventListener('scroll', updateScrollNav, { passive: true });

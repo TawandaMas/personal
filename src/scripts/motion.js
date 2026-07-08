@@ -24,8 +24,8 @@
   }
 
   function revealAboveFold() {
-    var threshold = window.innerHeight * 0.92;
-    var delay = 0;
+    var threshold = window.innerHeight * 0.88;
+    var delay = 0.04;
 
     document.querySelectorAll('[data-reveal]').forEach(function (el) {
       if (el.classList.contains('is-visible')) return;
@@ -35,9 +35,13 @@
           ? parseFloat(el.dataset.revealDelay)
           : delay;
         setTimeout(function (target) {
-          target.classList.add('is-visible');
+          requestAnimationFrame(function () {
+            target.classList.add('is-visible');
+          });
         }, customDelay * 1000, el);
-        delay += 0.09;
+        if (!el.dataset.revealDelay) {
+          delay += 0.05;
+        }
       }
     });
 
@@ -49,7 +53,9 @@
           ? parseFloat(container.dataset.revealDelay)
           : 0;
         setTimeout(function (target) {
-          target.classList.add('is-visible');
+          requestAnimationFrame(function () {
+            target.classList.add('is-visible');
+          });
         }, staggerDelay * 1000, container);
       }
     });
@@ -67,7 +73,7 @@
           }
         });
       },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.06 }
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.12 }
     );
 
     document.querySelectorAll('[data-reveal]').forEach(function (el) {
