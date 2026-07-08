@@ -9,9 +9,13 @@ export interface Props {
 
 const { title, description = "Tawanda Masvikeni — indie app builder, writer, occasional chaos agent." } = Astro.props;
 const currentPath = Astro.url.pathname;
-// Normalize path by removing trailing slash
 const normalizePath = (path: string) => path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
-const isNavLinkActive = (href: string) => normalizePath(currentPath) === normalizePath(href);
+const isNavLinkActive = (href: string) => {
+  const current = normalizePath(currentPath);
+  const target = normalizePath(href);
+  if (target === '/') return current === '/';
+  return current === target || current.startsWith(`${target}/`);
+};
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/projects', label: 'Projects' },
@@ -69,19 +73,26 @@ const navLinks = [
   <nav id="site-nav" transition:persist="site-nav" class="fixed top-0 left-0 right-0 z-50 h-20 xl:h-24 transition-[background-color,backdrop-filter,border-color] duration-700 ease-out-soft">
     <div class="flex justify-center items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
       <!-- Desktop Nav Links -->
-      <div class="hidden xl:flex items-center gap-3 flex-nowrap justify-center">
-        {navLinks.map(link => (
+      <div class="hidden xl:flex items-center gap-3 flex-nowrap justify-center relative" id="desktop-nav">
+        {navLinks.map((link, index) => (
           <a
             href={link.href}
+            data-nav-index={index}
             aria-current={isNavLinkActive(link.href) ? 'page' : undefined}
             class:list={[
-              'nav-link-elegant font-label-md text-[0.7rem] uppercase tracking-wider flex-shrink-0 pb-0.5',
+              'nav-link-elegant font-label-md text-[0.7rem] uppercase tracking-wider flex-shrink-0 pb-0.5 relative z-10',
               isNavLinkActive(link.href) ? 'text-on-background' : 'text-on-background hover:opacity-60',
             ]}
           >
             {link.label.toUpperCase()}
           </a>
         ))}
+        <!-- Gliding Active Indicator -->
+        <div
+          id="gliding-indicator"
+          class="absolute bottom-0 left-0 h-px bg-on-background transition-[transform,width] duration-700 ease-out-soft"
+          style="pointer-events: none;"
+        ></div>
       </div>
 
 
@@ -151,11 +162,22 @@ const navLinks = [
 
   <script is:inline>
     (function() {
+      function normalizePath(path) {
+        return path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
+      }
+
       var XL_BREAKPOINT = 1280;
       var shouldCloseMenuAfterNavigation = false;
 
       function isDesktop() {
         return window.matchMedia('(min-width: ' + XL_BREAKPOINT + 'px)').matches;
+      }
+
+      function isNavLinkActiveClient(href) {
+        var current = normalizePath(window.location.pathname);
+        var target = normalizePath(href || '');
+        if (target === '/') return current === '/';
+        return current === target || current.indexOf(target + '/') === 0;
       }
 
       function getNavElements() {
@@ -211,6 +233,18 @@ const navLinks = [
         setMenuOpen(!isMenuOpen());
       }
 
+      function syncActiveNavLinks() {
+        var allNavLinks = document.querySelectorAll('#site-nav a[href]');
+        allNavLinks.forEach(function(link) {
+          var href = link.getAttribute('href');
+          if (isNavLinkActiveClient(href)) {
+            link.setAttribute('aria-current', 'page');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      }
+
       document.addEventListener('click', function(e) {
         var els = getNavElements();
         if (!els.menuToggle || !els.mobileMenu) return;
@@ -225,6 +259,12 @@ const navLinks = [
           e.preventDefault();
           closeMenu();
           els.menuToggle.focus();
+          return;
+        }
+
+        var clickedDesktopLink = e.target.closest('#desktop-nav a');
+        if (clickedDesktopLink) {
+          positionGlidingIndicatorToLink(clickedDesktopLink);
           return;
         }
 
@@ -277,15 +317,49 @@ const navLinks = [
       window.addEventListener('scroll', updateScrollNav, { passive: true });
 
       document.addEventListener('astro:after-swap', function() {
-        if (!shouldCloseMenuAfterNavigation) return;
+        syncActiveNavLinks();
         requestAnimationFrame(function() {
-          closeMenu();
+          if (shouldCloseMenuAfterNavigation) closeMenu();
+          shouldCloseMenuAfterNavigation = false;
           updateScrollNav();
+          updateGlidingIndicator();
         });
       });
 
+      function positionGlidingIndicatorToLink(link) {
+        if (!isDesktop()) return;
+        var desktopNav = document.getElementById('desktop-nav');
+        var indicator = document.getElementById('gliding-indicator');
+        if (!desktopNav || !indicator || !link) return;
+
+        var rect = link.getBoundingClientRect();
+        var navRect = desktopNav.getBoundingClientRect();
+        indicator.style.left = '0px';
+        indicator.style.width = rect.width + 'px';
+        indicator.style.transform = 'translateX(' + (rect.left - navRect.left) + 'px)';
+      }
+
+      function updateGlidingIndicator() {
+        if (!isDesktop()) return;
+        var desktopNav = document.getElementById('desktop-nav');
+        var indicator = document.getElementById('gliding-indicator');
+        if (!desktopNav || !indicator) return;
+
+        var links = desktopNav.querySelectorAll('a[href]');
+        var activeLink = null;
+        links.forEach(function(link) {
+          if (activeLink) return;
+          var href = link.getAttribute('href');
+          if (isNavLinkActiveClient(href)) activeLink = link;
+        });
+        if (!activeLink) return;
+        positionGlidingIndicatorToLink(activeLink);
+      }
+
       function onPageReady() {
+        syncActiveNavLinks();
         updateScrollNav();
+        updateGlidingIndicator();
         if (!isDesktop()) {
           var els = getNavElements();
           if (els.menuToggle) {
@@ -296,6 +370,7 @@ const navLinks = [
 
       onPageReady();
       document.addEventListener('astro:page-load', onPageReady);
+      window.addEventListener('resize', updateGlidingIndicator);
     })();
   </script>
   <script>

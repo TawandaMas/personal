@@ -11,122 +11,195 @@ const books = bookEntries
 const reading = books.filter(b => b.status === 'reading');
 const read = books.filter(b => b.status === 'read');
 const queue = books.filter(b => b.status === 'queue');
+
+const getGoodreadsSearchUrl = (title: string, author: string) => {
+  const query = encodeURIComponent(`${title} ${author} goodreads`);
+  return `https://www.google.com/search?q=${query}`;
+};
 ---
 
 <Base title="Books">
   <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24">
-    <div class="mb-12">
-      <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4" data-reveal>The Library</h1>
-      <p class="font-body-lg text-body-lg text-on-surface-variant italic" data-reveal data-reveal-delay="0.08">A digital card catalog of things I've consumed and contemplated.</p>
-    </div>
+    <header class="pb-14 md:pb-16" data-reveal>
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-10 items-end">
+        <div class="xl:col-span-8">
+          <h1 class="font-display text-[56px] md:text-[84px] uppercase leading-[0.92] tracking-tight" data-reveal>The Library</h1>
+        </div>
+        <div class="xl:col-span-4">
+          <div class="border-l border-outline-variant/50 pl-8" data-reveal data-reveal-delay="0.08">
+            <p class="font-body-lg text-body-lg text-on-surface-variant italic leading-relaxed">
+              A digital card catalog of things I've consumed and contemplated.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-14 h-px w-full bg-outline-variant/40"></div>
+    </header>
 
     <div class="space-y-16 pb-16">
       {reading.length > 0 && (
-        <div class="drawer-section" data-reveal data-reveal-delay="0.12">
-          <div class="flex items-center gap-4 mb-8">
-            <div class="w-8 h-px bg-secondary opacity-30"></div>
-            <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">In Progress</h2>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-reveal-stagger>
-            {reading.map((book, i) => (
-              <div class="bg-surface border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col card-elegant hover:border-secondary">
-                <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-secondary text-white">Reading</div>
-                <div class="flex-1">
-                  <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>
-                  <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.05em] mb-4">{book.author} — {book.year}</p>
-                  {book.rating > 0 && (
-                    <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                      {[...Array(5)].map((_, i) => {
-                        const full = i < Math.floor(book.rating);
-                        const half = !full && i < book.rating;
-                        return (
-                          <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <div class="h-px bg-outline-variant opacity-60 mb-4"></div>
-                  {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">{book.note}</p>}
-                </div>
-                <div class="pt-6 flex justify-end">
-                  <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.05em] px-2 py-1 border border-outline-variant rounded bg-surface text-on-background">{book.genre}</span>
+        <section class="drawer-section" data-reveal data-reveal-delay="0.12">
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            <div class="xl:col-span-3">
+              <div class="xl:sticky xl:top-32">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-10 h-px bg-secondary/30"></div>
+                  <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">In Progress</h2>
                 </div>
               </div>
-            ))}
+            </div>
+            <div class="xl:col-span-9">
+              <div class="rounded-2xl border border-outline-variant/70 bg-surface/70 overflow-hidden" data-reveal-stagger>
+                {reading.map((book, i) => (
+                  <article class="group relative grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 px-6 md:px-8 py-7 md:py-8 border-b border-outline-variant/50 last:border-b-0 hover:bg-surface-container-low/70 transition-colors duration-700 ease-out-soft">
+                    <div class="absolute left-0 top-0 bottom-0 w-px bg-secondary/40 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out-soft"></div>
+                    <div class="min-w-0">
+                      <div class="inline-flex items-center gap-2 font-label-sm text-[0.65rem] font-bold px-2.5 py-1 border border-outline-variant/70 rounded-full mb-5 bg-secondary text-white">
+                        Reading
+                      </div>
+                      <h3 class="font-display text-[1.25rem] md:text-[1.35rem] uppercase tracking-tight mb-2 text-on-background leading-snug">{book.title}</h3>
+                      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.06em] mb-4">{book.author} — {book.year}</p>
+                      {book.rating > 0 && (
+                        <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                          {[...Array(5)].map((_, i) => {
+                            const full = i < Math.floor(book.rating);
+                            const half = !full && i < book.rating;
+                            return (
+                              <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed max-w-prose">{book.note}</p>}
+                    </div>
+                    <div class="flex flex-row flex-wrap items-center justify-between md:flex-col md:items-end md:justify-between gap-3 md:gap-6">
+                      <a
+                        href={getGoodreadsSearchUrl(book.title, book.author)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.06em] px-2.5 py-1 border border-primary/50 text-primary rounded-full bg-transparent hover:bg-primary hover:text-white transition-colors duration-500 ease-out-soft whitespace-nowrap"
+                        aria-label={`Search Goodreads for ${book.title} by ${book.author}`}
+                      >
+                        Browse
+                      </a>
+                      <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.06em] px-2.5 py-1 border border-outline-variant/70 rounded-full bg-surface text-on-background whitespace-nowrap">{book.genre}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       )}
 
       {read.length > 0 && (
-        <div class="drawer-section" data-reveal>
-          <div class="flex items-center gap-4 mb-8">
-            <div class="w-8 h-px bg-secondary opacity-30"></div>
-            <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">Archive</h2>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-reveal-stagger>
-            {read.map((book, i) => (
-              <div class="bg-surface border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col card-elegant hover:border-secondary">
-                <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-surface text-on-background">Finished</div>
-                <div class="flex-1">
-                  <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>
-                  <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.05em] mb-4">{book.author} — {book.year}</p>
-                  {book.rating > 0 && (
-                    <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                      {[...Array(5)].map((_, i) => {
-                        const full = i < Math.floor(book.rating);
-                        const half = !full && i < book.rating;
-                        return (
-                          <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <div class="h-px bg-outline-variant opacity-60 mb-4"></div>
-                  {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">{book.note}</p>}
-                </div>
-                <div class="pt-6 flex justify-end">
-                  <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.05em] px-2 py-1 border border-outline-variant rounded bg-surface text-on-background">{book.genre}</span>
+        <section class="drawer-section" data-reveal>
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            <div class="xl:col-span-3">
+              <div class="xl:sticky xl:top-32">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-10 h-px bg-secondary/30"></div>
+                  <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">Archive</h2>
                 </div>
               </div>
-            ))}
+            </div>
+            <div class="xl:col-span-9">
+              <div class="rounded-2xl border border-outline-variant/70 bg-surface/70 overflow-hidden" data-reveal-stagger>
+                {read.map((book, i) => (
+                  <article class="group relative grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 px-6 md:px-8 py-7 md:py-8 border-b border-outline-variant/50 last:border-b-0 hover:bg-surface-container-low/70 transition-colors duration-700 ease-out-soft">
+                    <div class="absolute left-0 top-0 bottom-0 w-px bg-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out-soft"></div>
+                    <div class="min-w-0">
+                      <div class="inline-flex items-center gap-2 font-label-sm text-[0.65rem] font-bold px-2.5 py-1 border border-outline-variant/70 rounded-full mb-5 bg-surface text-on-background">
+                        Finished
+                      </div>
+                      <h3 class="font-display text-[1.25rem] md:text-[1.35rem] uppercase tracking-tight mb-2 text-on-background leading-snug">{book.title}</h3>
+                      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.06em] mb-4">{book.author} — {book.year}</p>
+                      {book.rating > 0 && (
+                        <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                          {[...Array(5)].map((_, i) => {
+                            const full = i < Math.floor(book.rating);
+                            const half = !full && i < book.rating;
+                            return (
+                              <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed max-w-prose">{book.note}</p>}
+                    </div>
+                    <div class="flex flex-row flex-wrap items-center justify-between md:flex-col md:items-end md:justify-between gap-3 md:gap-6">
+                      <a
+                        href={getGoodreadsSearchUrl(book.title, book.author)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.06em] px-2.5 py-1 border border-primary/50 text-primary rounded-full bg-transparent hover:bg-primary hover:text-white transition-colors duration-500 ease-out-soft whitespace-nowrap"
+                        aria-label={`Search Goodreads for ${book.title} by ${book.author}`}
+                      >
+                        Browse
+                      </a>
+                      <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.06em] px-2.5 py-1 border border-outline-variant/70 rounded-full bg-surface text-on-background whitespace-nowrap">{book.genre}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       )}
 
       {queue.length > 0 && (
-        <div class="drawer-section" data-reveal>
-          <div class="flex items-center gap-4 mb-8">
-            <div class="w-8 h-px bg-secondary opacity-30"></div>
-            <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">Wishlist</h2>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-reveal-stagger>
-            {queue.map((book, i) => (
-              <div class="bg-surface-container-low border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col card-elegant hover:border-secondary">
-                <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-surface-container-low text-on-surface-variant">Queue</div>
-                <div class="flex-1">
-                  <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>
-                  <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.05em] mb-4">{book.author} — {book.year}</p>
-                  {book.rating > 0 && (
-                    <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
-                      {[...Array(5)].map((_, i) => {
-                        const full = i < Math.floor(book.rating);
-                        const half = !full && i < book.rating;
-                        return (
-                          <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <div class="h-px bg-outline-variant opacity-60 mb-4"></div>
-                  {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed">{book.note}</p>}
-                </div>
-                <div class="pt-6 flex justify-end">
-                  <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.05em] px-2 py-1 border border-outline-variant rounded bg-surface-container-low text-on-background">{book.genre}</span>
+        <section class="drawer-section" data-reveal>
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            <div class="xl:col-span-3">
+              <div class="xl:sticky xl:top-32">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-10 h-px bg-secondary/30"></div>
+                  <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">Wishlist</h2>
                 </div>
               </div>
-            ))}
+            </div>
+            <div class="xl:col-span-9">
+              <div class="rounded-2xl border border-outline-variant/70 bg-surface-container-low/70 overflow-hidden" data-reveal-stagger>
+                {queue.map((book, i) => (
+                  <article class="group relative grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 px-6 md:px-8 py-7 md:py-8 border-b border-outline-variant/50 last:border-b-0 hover:bg-white/55 transition-colors duration-700 ease-out-soft">
+                    <div class="absolute left-0 top-0 bottom-0 w-px bg-secondary/25 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out-soft"></div>
+                    <div class="min-w-0">
+                      <div class="inline-flex items-center gap-2 font-label-sm text-[0.65rem] font-bold px-2.5 py-1 border border-outline-variant/70 rounded-full mb-5 bg-surface-container-low text-on-surface-variant">
+                        Queue
+                      </div>
+                      <h3 class="font-display text-[1.25rem] md:text-[1.35rem] uppercase tracking-tight mb-2 text-on-background leading-snug">{book.title}</h3>
+                      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.06em] mb-4">{book.author} — {book.year}</p>
+                      {book.rating > 0 && (
+                        <div class="flex gap-1 mb-4 text-outline-variant text-[0.85rem]" aria-label={`Rating: ${book.rating} out of 5 stars`}>
+                          {[...Array(5)].map((_, i) => {
+                            const full = i < Math.floor(book.rating);
+                            const half = !full && i < book.rating;
+                            return (
+                              <span class:list={['star', { 'text-secondary': full || half }]}>★</span>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {book.note && <p class="font-body-md text-body-md text-on-surface-variant italic leading-relaxed max-w-prose">{book.note}</p>}
+                    </div>
+                    <div class="flex flex-row flex-wrap items-center justify-between md:flex-col md:items-end md:justify-between gap-3 md:gap-6">
+                      <a
+                        href={getGoodreadsSearchUrl(book.title, book.author)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.06em] px-2.5 py-1 border border-primary/50 text-primary rounded-full bg-transparent hover:bg-primary hover:text-white transition-colors duration-500 ease-out-soft whitespace-nowrap"
+                        aria-label={`Search Goodreads for ${book.title} by ${book.author}`}
+                      >
+                        Browse
+                      </a>
+                      <span class="font-label-sm text-[0.6rem] font-bold uppercase tracking-[0.06em] px-2.5 py-1 border border-outline-variant/70 rounded-full bg-surface-container-low text-on-background whitespace-nowrap">{book.genre}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       )}
     </div>
   </div>

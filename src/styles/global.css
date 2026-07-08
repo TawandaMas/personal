@@ -212,24 +212,6 @@ body {
     transition: opacity var(--duration-nice) var(--ease-out-soft);
   }
 
-  .nav-link-elegant::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -2px;
-    width: 100%;
-    height: 1px;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: center;
-    transition: transform var(--duration-pleasant) var(--ease-out-medium);
-  }
-
-  .nav-link-elegant:hover::after,
-  .nav-link-elegant[aria-current="page"]::after {
-    transform: scaleX(1);
-  }
-
   .image-reveal {
     overflow: hidden;
   }
