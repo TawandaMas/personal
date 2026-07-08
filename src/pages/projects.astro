@@ -12,13 +12,13 @@ const projects = projectEntries
 <Base title="Projects">
   <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24">
     <div class="mb-12">
-      <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4">Projects</h1>
-      <p class="font-body-lg text-body-lg text-on-surface-variant italic">Things I've shipped, or am shipping.</p>
+      <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4" data-reveal>Projects</h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant italic" data-reveal data-reveal-delay="0.08">Things I've shipped, or am shipping.</p>
     </div>
 
-    <div class="flex flex-col gap-0">
+    <div class="flex flex-col gap-0" data-reveal-stagger data-reveal-delay="0.15">
       {projectEntries.map(project => (
-        <div class="flex items-start gap-6 py-10 border-b border-outline-variant transition-opacity hover:opacity-80">
+        <div class="flex items-start gap-6 py-10 border-b border-outline-variant hover-lift-subtle group">
           {project.data.logo && (
             <div class="w-16 h-16 flex items-center justify-center bg-surface-container-low border border-outline-variant rounded-lg overflow-hidden flex-shrink-0 mt-0.5">
               <img src={project.data.logo} alt="" class="w-[60%] h-[60%] object-contain" />
@@ -27,7 +27,7 @@ const projects = projectEntries
           <div class="flex-1">
             <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.08em] mb-1">{project.data.tag} · {project.data.year}</div>
             <h2 class="mb-2">
-              <a href={`/projects/${project.slug}`} class="font-body-lg text-body-lg italic text-on-background hover:text-secondary transition-colors">
+              <a href={`/projects/${project.slug}`} class="font-body-lg text-body-lg italic text-on-background hover:text-secondary transition-colors duration-600 ease-expo-out link-refined">
                 {project.data.title}
               </a>
             </h2>

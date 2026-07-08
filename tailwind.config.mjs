@@ -3,6 +3,19 @@ export default {
 	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
 	theme: {
 		extend: {
+			transitionTimingFunction: {
+				'ease-out-soft': 'cubic-bezier(0.25, 1, 0.5, 1)',
+				'ease-out-medium': 'cubic-bezier(0.16, 1, 0.3, 1)',
+				'ease-out-sharp': 'cubic-bezier(0.23, 1, 0.32, 1)',
+				'ease-in-out-soft': 'cubic-bezier(0.65, 0, 0.35, 1)',
+			},
+			transitionDuration: {
+				'400': '400ms',
+				'600': '600ms',
+				'800': '800ms',
+				'900': '900ms',
+				'1200': '1200ms',
+			},
 			colors: {
 				"primary-container": "#1b1b1b",
 				"primary": "#000000",

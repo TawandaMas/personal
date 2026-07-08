@@ -16,20 +16,20 @@ const queue = books.filter(b => b.status === 'queue');
 <Base title="Books">
   <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24">
     <div class="mb-12">
-      <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4">The Library</h1>
-      <p class="font-body-lg text-body-lg text-on-surface-variant italic">A digital card catalog of things I've consumed and contemplated.</p>
+      <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4" data-reveal>The Library</h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant italic" data-reveal data-reveal-delay="0.08">A digital card catalog of things I've consumed and contemplated.</p>
     </div>
 
     <div class="space-y-16 pb-16">
       {reading.length > 0 && (
-        <div class="drawer-section">
+        <div class="drawer-section" data-reveal data-reveal-delay="0.12">
           <div class="flex items-center gap-4 mb-8">
             <div class="w-8 h-px bg-secondary opacity-30"></div>
             <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">In Progress</h2>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-reveal-stagger>
             {reading.map((book, i) => (
-              <div class="bg-surface border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col transition-transform hover:-translate-y-1 hover:border-secondary">
+              <div class="bg-surface border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col card-elegant hover:border-secondary">
                 <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-secondary text-white">Reading</div>
                 <div class="flex-1">
                   <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>
@@ -58,14 +58,14 @@ const queue = books.filter(b => b.status === 'queue');
       )}
 
       {read.length > 0 && (
-        <div class="drawer-section">
+        <div class="drawer-section" data-reveal>
           <div class="flex items-center gap-4 mb-8">
             <div class="w-8 h-px bg-secondary opacity-30"></div>
             <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">Archive</h2>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-reveal-stagger>
             {read.map((book, i) => (
-              <div class="bg-surface border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col transition-transform hover:-translate-y-1 hover:border-secondary">
+              <div class="bg-surface border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col card-elegant hover:border-secondary">
                 <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-surface text-on-background">Finished</div>
                 <div class="flex-1">
                   <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>
@@ -94,14 +94,14 @@ const queue = books.filter(b => b.status === 'queue');
       )}
 
       {queue.length > 0 && (
-        <div class="drawer-section">
+        <div class="drawer-section" data-reveal>
           <div class="flex items-center gap-4 mb-8">
             <div class="w-8 h-px bg-secondary opacity-30"></div>
             <h2 class="font-label-sm uppercase tracking-[0.15em] text-secondary">Wishlist</h2>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-reveal-stagger>
             {queue.map((book, i) => (
-              <div class="bg-surface-container-low border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col transition-transform hover:-translate-y-1 hover:border-secondary">
+              <div class="bg-surface-container-low border border-outline-variant rounded-lg p-6 min-h-[220px] flex flex-col card-elegant hover:border-secondary">
                 <div class="inline-block font-label-sm text-[0.65rem] font-bold px-2 py-1 border border-outline-variant rounded mb-6 bg-surface-container-low text-on-surface-variant">Queue</div>
                 <div class="flex-1">
                   <h3 class="font-display text-xl uppercase tracking-tight mb-2 text-on-background">{book.title}</h3>

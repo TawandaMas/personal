@@ -381,13 +381,27 @@ import Base from '../layouts/Base.astro';
 </Base>
 
 <script is:inline>
+  function removeCalendlyBadge() {
+    const existingBadge = document.querySelector('.calendly-badge-widget');
+    if (existingBadge) existingBadge.remove();
+  }
+
+  document.addEventListener("astro:before-swap", () => {
+    removeCalendlyBadge();
+  });
+
   document.addEventListener("astro:page-load", () => {
+    const isCoachingPage = window.location.pathname === "/coaching";
+
+    if (!isCoachingPage) {
+      removeCalendlyBadge();
+      return;
+    }
     
     // Initialize Calendly Floating Badge
     setTimeout(() => {
-      if (window.Calendly) {
-        const existingBadge = document.querySelector('.calendly-badge-widget');
-        if (existingBadge) existingBadge.remove();
+      if (window.Calendly && window.location.pathname === "/coaching") {
+        removeCalendlyBadge();
         
         window.Calendly.initBadgeWidget({ 
           url: 'https://calendly.com/pjmasvikeni/30min', 

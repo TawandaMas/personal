@@ -3,6 +3,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Motion Design Tokens ─────────────────────────────────────────────── */
+:root {
+  /* Easing curves - highly intentional for boutique feel */
+  --ease-out-soft: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-medium: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-sharp: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Timings - calibrated for breathability */
+  --duration-snap: 120ms;
+  --duration-quick: 200ms;
+  --duration-nice: 400ms;
+  --duration-pleasant: 600ms;
+  --duration-luxury: 800ms;
+  --duration-reveal: 1000ms;
+
+  /* Reveal parameters - subtle and elegant */
+  --reveal-distance: 20px;
+  --reveal-distance-sm: 14px;
+  --reveal-blur: 6px;
+  --reveal-blur-sm: 3px;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -21,34 +44,361 @@ body {
   position: relative;
 }
 
-/* Astro View Transitions */
+/* ─── Page View Transitions ─────────────────────────────────────────────── */
+::view-transition-group(root) {
+  animation: none;
+}
+
+::view-transition-image-pair(root) {
+  isolation: isolate;
+}
+
 ::view-transition-old(root) {
-  animation: fade-out 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fade-out 180ms linear both;
+  z-index: 1;
+  will-change: opacity;
 }
 
 ::view-transition-new(root) {
-  animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.1s;
+  animation: fade-in 260ms var(--ease-out-soft) both;
+  animation-delay: 180ms;
+  z-index: 2;
+  will-change: opacity;
+  opacity: 0;
+}
+
+::view-transition-old(site-nav),
+::view-transition-new(site-nav) {
+  animation: none;
+}
+
+::view-transition-old(footer-bar),
+::view-transition-new(footer-bar) {
+  animation: none;
+}
+
+::view-transition-old(mobile-menu),
+::view-transition-new(mobile-menu) {
+  animation: none;
 }
 
 @keyframes fade-out {
   from {
     opacity: 1;
-    transform: translateY(0);
   }
   to {
     opacity: 0;
-    transform: translateY(10px);
   }
 }
 
-@keyframes fade-in-up {
+@keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+  }
+}
+
+/* ─── Scroll Reveal System ──────────────────────────────────────────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  filter: blur(var(--reveal-blur));
+  transition:
+    opacity var(--duration-reveal) var(--ease-out-soft),
+    transform var(--duration-reveal) var(--ease-out-soft),
+    filter var(--duration-luxury) var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform, filter;
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+[data-reveal="fade"] {
+  transform: none;
+  filter: blur(var(--reveal-blur));
+}
+
+[data-reveal="fade"].is-visible {
+  transform: none;
+  filter: blur(0);
+}
+
+[data-reveal="scale"] {
+  transform: scale(0.96);
+  filter: blur(var(--reveal-blur-sm));
+}
+
+[data-reveal="scale"].is-visible {
+  transform: scale(1);
+  filter: blur(0);
+}
+
+[data-reveal="slide-left"] {
+  transform: translateX(calc(var(--reveal-distance) * -1));
+}
+
+[data-reveal="slide-left"].is-visible {
+  transform: translateX(0);
+}
+
+[data-reveal="slide-right"] {
+  transform: translateX(var(--reveal-distance));
+}
+
+[data-reveal="slide-right"].is-visible {
+  transform: translateX(0);
+}
+
+/* Stagger children inherit delay via JS */
+[data-reveal-stagger] > * {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance-sm));
+  filter: blur(var(--reveal-blur-sm));
+  transition:
+    opacity var(--duration-luxury) var(--ease-out-soft),
+    transform var(--duration-luxury) var(--ease-out-soft),
+    filter var(--duration-pleasant) var(--ease-out-soft);
+  transition-delay: calc(var(--stagger-index, 0) * 0.09s + var(--reveal-delay, 0s));
+}
+
+[data-reveal-stagger].is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* ─── Interactive Utilities ─────────────────────────────────────────────── */
+@layer components {
+  .hover-lift {
+    transition:
+      transform var(--duration-nice) var(--ease-out-soft),
+      box-shadow var(--duration-nice) var(--ease-out-soft),
+      border-color var(--duration-nice) var(--ease-out-soft),
+      opacity var(--duration-nice) var(--ease-out-soft);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  .hover-lift-subtle {
+    transition:
+      transform var(--duration-nice) var(--ease-out-soft),
+      opacity var(--duration-nice) var(--ease-out-soft);
+  }
+
+  .hover-lift-subtle:hover {
+    transform: translateY(-2px);
+  }
+
+  .link-refined {
+    position: relative;
+    text-decoration: none;
+    transition: color var(--duration-nice) var(--ease-out-soft), opacity var(--duration-nice) var(--ease-out-soft);
+  }
+
+  .link-refined::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--duration-pleasant) var(--ease-out-medium);
+  }
+
+  .link-refined:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .nav-link-elegant {
+    position: relative;
+    transition: opacity var(--duration-nice) var(--ease-out-soft), transform var(--duration-nice) var(--ease-out-soft);
+  }
+
+  .nav-link-elegant:hover {
+    transform: translateY(-1px);
+  }
+
+  .nav-link-elegant::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--duration-pleasant) var(--ease-out-medium);
+  }
+
+  .nav-link-elegant:hover::after,
+  .nav-link-elegant[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  .image-reveal {
+    overflow: hidden;
+  }
+
+  .image-reveal img {
+    transition: transform var(--duration-luxury) var(--ease-out-soft);
+  }
+
+  .image-reveal:hover img {
+    transform: scale(1.04);
+  }
+
+  .card-elegant {
+    transition:
+      transform var(--duration-nice) var(--ease-out-soft),
+      box-shadow var(--duration-nice) var(--ease-out-soft),
+      border-color var(--duration-nice) var(--ease-out-soft);
+  }
+
+  .card-elegant:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* ─── Mobile Menu Transitions ───────────────────────────────────────────── */
+#mobile-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition:
+    opacity var(--duration-pleasant) var(--ease-out-soft),
+    visibility var(--duration-pleasant) var(--ease-out-soft),
+    transform var(--duration-pleasant) var(--ease-out-soft);
+}
+
+#mobile-menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#mobile-menu.is-routing {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#mobile-menu.is-open nav a,
+#mobile-menu.is-open nav + a {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#mobile-menu nav a,
+#mobile-menu nav + a {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity var(--duration-pleasant) var(--ease-out-soft),
+    transform var(--duration-pleasant) var(--ease-out-soft),
+    color var(--duration-quick) var(--ease-out-soft);
+}
+
+#mobile-menu.is-routing nav a,
+#mobile-menu.is-routing nav + a {
+  opacity: 1;
+  transform: translateY(0);
+  transition: none;
+}
+
+#mobile-menu.is-open nav a:nth-child(1) { transition-delay: 0.06s; }
+#mobile-menu.is-open nav a:nth-child(2) { transition-delay: 0.11s; }
+#mobile-menu.is-open nav a:nth-child(3) { transition-delay: 0.16s; }
+#mobile-menu.is-open nav a:nth-child(4) { transition-delay: 0.21s; }
+#mobile-menu.is-open nav a:nth-child(5) { transition-delay: 0.26s; }
+#mobile-menu.is-open nav a:nth-child(6) { transition-delay: 0.31s; }
+#mobile-menu.is-open nav a:nth-child(7) { transition-delay: 0.36s; }
+#mobile-menu.is-open nav + a { transition-delay: 0.43s; }
+
+/* ─── Coaching Sidebar Flip ─────────────────────────────────────────────── */
+.sidebar-content {
+  transition:
+    opacity var(--duration-luxury) var(--ease-out-medium),
+    visibility var(--duration-luxury),
+    transform var(--duration-luxury) var(--ease-out-medium),
+    filter var(--duration-luxury) var(--ease-out-medium);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.sidebar-flip-before {
+  opacity: 0;
+  visibility: hidden;
+  transform: perspective(1000px) rotateY(-86deg) scale(0.93);
+  filter: brightness(0.4);
+}
+
+.sidebar-flip-after {
+  opacity: 0;
+  visibility: hidden;
+  transform: perspective(1000px) rotateY(86deg) scale(0.93);
+  filter: brightness(0.4);
+}
+
+.sidebar-flip-active {
+  opacity: 1;
+  visibility: visible;
+  transform: perspective(1000px) rotateY(0deg) scale(1);
+  filter: brightness(1);
+}
+
+/* ─── Boutique Scroll Reveal ────────────────────────────────────────────── */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  filter: blur(var(--reveal-blur));
+  transition:
+    opacity var(--duration-reveal) var(--ease-out-soft),
+    transform var(--duration-reveal) var(--ease-out-soft),
+    filter var(--duration-luxury) var(--ease-out-soft);
+}
+
+.reveal-on-scroll.active {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* ─── Reduced Motion ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal],
+  [data-reveal-stagger] > *,
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }

@@ -11,13 +11,13 @@ const games = gameFiles
 <Base title="Games">
   <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24">
     <div class="mb-12">
-      <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4">Games</h1>
-      <p class="font-body-lg text-body-lg text-on-surface-variant italic">Small things you can actually play.</p>
+      <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4" data-reveal>Games</h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant italic" data-reveal data-reveal-delay="0.08">Small things you can actually play.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 pt-4">
+    <div class="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 pt-4" data-reveal-stagger data-reveal-delay="0.15">
       {games.map(game => (
-        <a href={`/games/${game.slug}`} class="bg-surface p-8 text-inherit flex flex-col gap-2 border border-outline-variant shadow-[4px_4px_0_var(--tw-border-color)] hover:translate-x-[-4px] hover:-translate-y-1 hover:shadow-[8px_8px_0_var(--tw-secondary)] hover:border-on-background relative overflow-hidden transition-all">
+        <a href={`/games/${game.slug}`} class="bg-surface p-8 text-inherit flex flex-col gap-2 border border-outline-variant shadow-[4px_4px_0_var(--tw-border-color)] hover:translate-x-[-4px] hover:-translate-y-1 hover:shadow-[8px_8px_0_var(--tw-secondary)] hover:border-on-background relative overflow-hidden transition-all duration-600 ease-expo-out">
           <div class="inline-block w-fit px-2 py-1 bg-surface-container border border-outline-variant font-label-sm text-label-sm uppercase text-on-background mb-2">
             {game.tag}
           </div>

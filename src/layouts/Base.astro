@@ -65,10 +65,10 @@ const navLinks = [
 </head>
 <body class="bg-surface text-on-background font-body-md selection:bg-primary selection:text-white noise-bg">
   <!-- Navigation -->
-  <nav id="boutique-nav" class="fixed top-0 left-0 right-0 z-50 h-20 xl:h-24 transition-[background-color,backdrop-filter,border-color] duration-300">
+  <nav id="site-nav" transition:persist="site-nav" class="fixed top-0 left-0 right-0 z-50 h-20 xl:h-24 transition-[background-color,backdrop-filter,border-color] duration-700 ease-out-soft">
     <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
       <!-- Wordmark -->
-      <a href="/" id="nav-wordmark" class="font-display text-[28px] xl:text-[32px] font-extrabold uppercase tracking-tight transition-opacity duration-300 text-on-background flex-shrink-0">
+      <a href="/" id="nav-wordmark" transition:persist="nav-wordmark" class="font-display text-[28px] xl:text-[32px] font-extrabold uppercase tracking-tight transition-all duration-700 ease-out-soft text-on-background flex-shrink-0">
         T.
       </a>
 
@@ -79,10 +79,10 @@ const navLinks = [
             href={link.href}
             aria-current={isNavLinkActive(link.href) ? 'page' : undefined}
             class:list={[
-              'transition-opacity font-label-md text-[0.7rem] uppercase tracking-wider flex-shrink-0',
+              'nav-link-elegant font-label-md text-[0.7rem] uppercase tracking-wider flex-shrink-0',
               isNavLinkActive(link.href)
                 ? 'text-on-background border-b border-on-background pb-0.5'
-                : 'text-on-background hover:opacity-50',
+                : 'text-on-background hover:opacity-60',
             ]}
           >
             {link.label.toUpperCase()}
@@ -91,7 +91,7 @@ const navLinks = [
       </div>
 
       <!-- Desktop CTA -->
-      <a href="mailto:pjmasvikeni@gmail.com" id="nav-cta" class="border-b border-on-background pb-1 font-label-md text-[0.7rem] hover:opacity-50 transition-opacity duration-300 uppercase opacity-0 pointer-events-none text-on-background hidden xl:block flex-shrink-0">
+      <a href="mailto:pjmasvikeni@gmail.com" id="nav-cta" class="nav-link-elegant border-b border-on-background pb-1 font-label-md text-[0.7rem] hover:opacity-60 transition-all duration-700 ease-out-soft uppercase opacity-0 pointer-events-none text-on-background hidden xl:block flex-shrink-0">
         Pursue You
       </a>
 
@@ -102,7 +102,7 @@ const navLinks = [
         aria-controls="mobile-menu"
         aria-expanded="false"
         aria-label="Open menu"
-        class="xl:hidden flex items-center justify-center gap-2 min-h-11 min-w-11 -mr-2 px-2 font-label-md text-label-sm uppercase text-on-background flex-shrink-0 cursor-pointer touch-manipulation select-none"
+        class="xl:hidden flex items-center justify-center gap-2 min-h-11 min-w-11 -mr-2 rounded-2xl border border-black/8 bg-white/55 px-3 text-on-background shadow-[0_10px_30px_-16px_rgba(0,0,0,0.28)] backdrop-blur-md supports-[backdrop-filter]:bg-white/45 font-label-md text-label-sm uppercase flex-shrink-0 cursor-pointer touch-manipulation select-none transition-all duration-700 ease-out-soft"
       >
         <span id="menu-toggle-icon" class="material-symbols-outlined text-[22px]" aria-hidden="true">menu</span>
         <span id="menu-toggle-label">Menu</span>
@@ -113,7 +113,8 @@ const navLinks = [
   <!-- Mobile Menu -->
   <div
     id="mobile-menu"
-    class="fixed inset-0 z-[60] bg-surface flex flex-col hidden overscroll-contain"
+    transition:persist="mobile-menu"
+    class="fixed inset-0 z-[60] bg-surface flex flex-col overscroll-contain"
     aria-hidden="true"
     inert
   >
@@ -125,7 +126,7 @@ const navLinks = [
         type="button"
         id="menu-close"
         aria-label="Close menu"
-        class="flex items-center justify-center min-h-11 min-w-11 -mr-2 text-on-background touch-manipulation select-none"
+        class="flex items-center justify-center min-h-11 min-w-11 -mr-2 rounded-2xl border border-black/8 bg-white/55 text-on-background shadow-[0_10px_30px_-16px_rgba(0,0,0,0.28)] backdrop-blur-md supports-[backdrop-filter]:bg-white/45 touch-manipulation select-none"
       >
         <span class="material-symbols-outlined text-[28px]" aria-hidden="true">close</span>
       </button>
@@ -159,7 +160,7 @@ const navLinks = [
     <slot />
   </main>
 
-  <footer class="py-12 px-margin-mobile md:px-gutter max-w-container-max mx-auto border-t border-outline-variant">
+  <footer transition:persist="footer-bar" class="py-12 px-margin-mobile md:px-gutter max-w-container-max mx-auto border-t border-outline-variant" data-reveal="fade">
     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
       <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">tawanda.space</p>
       <p class="font-body-md text-body-md text-on-surface-variant">© {new Date().getFullYear()} Tawanda Masvikeni</p>
@@ -169,6 +170,7 @@ const navLinks = [
   <script is:inline>
     (function() {
       var XL_BREAKPOINT = 1280;
+      var shouldCloseMenuAfterNavigation = false;
 
       function isDesktop() {
         return window.matchMedia('(min-width: ' + XL_BREAKPOINT + 'px)').matches;
@@ -176,7 +178,7 @@ const navLinks = [
 
       function getNavElements() {
         return {
-          nav: document.getElementById('boutique-nav'),
+          nav: document.getElementById('site-nav'),
           wordmark: document.getElementById('nav-wordmark'),
           ctaButton: document.getElementById('nav-cta'),
           menuToggle: document.getElementById('menu-toggle'),
@@ -189,7 +191,7 @@ const navLinks = [
 
       function isMenuOpen() {
         var mobileMenu = document.getElementById('mobile-menu');
-        return mobileMenu && !mobileMenu.classList.contains('hidden');
+        return mobileMenu && mobileMenu.classList.contains('is-open');
       }
 
       function setMenuOpen(open) {
@@ -197,7 +199,9 @@ const navLinks = [
         if (!els.mobileMenu || !els.menuToggle) return;
 
         if (open) {
-          els.mobileMenu.classList.remove('hidden');
+          shouldCloseMenuAfterNavigation = false;
+          els.mobileMenu.classList.remove('is-routing');
+          els.mobileMenu.classList.add('is-open');
           els.mobileMenu.setAttribute('aria-hidden', 'false');
           els.mobileMenu.removeAttribute('inert');
           els.menuToggle.setAttribute('aria-expanded', 'true');
@@ -206,7 +210,8 @@ const navLinks = [
           if (els.menuToggleLabel) els.menuToggleLabel.textContent = 'Close';
           document.body.style.overflow = 'hidden';
         } else {
-          els.mobileMenu.classList.add('hidden');
+          els.mobileMenu.classList.remove('is-open');
+          els.mobileMenu.classList.remove('is-routing');
           els.mobileMenu.setAttribute('aria-hidden', 'true');
           els.mobileMenu.setAttribute('inert', '');
           els.menuToggle.setAttribute('aria-expanded', 'false');
@@ -218,6 +223,7 @@ const navLinks = [
       }
 
       function closeMenu() {
+        shouldCloseMenuAfterNavigation = false;
         if (isMenuOpen()) setMenuOpen(false);
       }
 
@@ -243,7 +249,11 @@ const navLinks = [
         }
 
         var clickedLink = e.target.closest('#mobile-menu a');
-        if (clickedLink) closeMenu();
+        if (clickedLink) {
+          shouldCloseMenuAfterNavigation = true;
+          els.mobileMenu.classList.add('is-routing');
+          document.body.style.overflow = 'hidden';
+        }
       });
 
       document.addEventListener('keydown', function(e) {
@@ -263,7 +273,7 @@ const navLinks = [
         var scrolled = scrollY > 16;
         var desktop = isDesktop();
 
-        if (scrolled) {
+        if (desktop && scrolled) {
           els.nav.style.backgroundColor = 'rgba(249, 249, 249, 0.92)';
           els.nav.style.backdropFilter = 'blur(16px)';
           els.nav.style.webkitBackdropFilter = 'blur(16px)';
@@ -305,15 +315,30 @@ const navLinks = [
 
       window.addEventListener('scroll', updateScrollNav, { passive: true });
 
+      document.addEventListener('astro:after-swap', function() {
+        if (!shouldCloseMenuAfterNavigation) return;
+        requestAnimationFrame(function() {
+          closeMenu();
+          updateScrollNav();
+        });
+      });
+
       function onPageReady() {
-        closeMenu();
         updateScrollNav();
+        if (!isDesktop()) {
+          var els = getNavElements();
+          if (els.menuToggle) {
+            els.menuToggle.classList.remove('opacity-0', 'pointer-events-none');
+          }
+        }
       }
 
       onPageReady();
       document.addEventListener('astro:page-load', onPageReady);
-      document.addEventListener('DOMContentLoaded', onPageReady);
     })();
+  </script>
+  <script>
+    import '../scripts/motion.js';
   </script>
 </body>
 </html>

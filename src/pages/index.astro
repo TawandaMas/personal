@@ -5,33 +5,33 @@ import Base from '../layouts/Base.astro';
 <Base title="Home">
   <article class="home-copy prose px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24">
 
-    <figure class="corner-me">
+    <figure class="corner-me" data-reveal="scale" data-reveal-delay="0.1">
       <img src="/me.png" alt="Tawanda" />
       <figcaption>Me.</figcaption>
     </figure>
 
-    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
-      I am a software artisan building apps that help people flourish. One, <a href="/projects/accompla" class="text-primary hover:underline">Accompla</a>, is a hub where neurodivergent individuals harness their unconventional creativity and overcome executive challenges. Others, including Tain, <a href="/projects/pixla" class="text-primary hover:underline">Pixla</a>, and <a href="/projects/plarsona" class="text-primary hover:underline">Plarsona</a>, enrich hobbies.  
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6" data-reveal data-reveal-delay="0.15">
+      I am a software artisan building apps that help people flourish. One, <a href="/projects/accompla" class="text-primary link-refined">Accompla</a>, is a hub where neurodivergent individuals harness their unconventional creativity and overcome executive challenges. Others, including Tain, <a href="/projects/pixla" class="text-primary link-refined">Pixla</a>, and <a href="/projects/plarsona" class="text-primary link-refined">Plarsona</a>, enrich hobbies.  
     </p>
 
-    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6" data-reveal data-reveal-delay="0.22">
       I am also an author and cross-medium experimental artist. My work explores AI tools as an instrument, medium, collaborator, and desecrator.
     </p>
 
-    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6" data-reveal data-reveal-delay="0.29">
       I provide intensive AI services to select clients. The first is relationship coaching for those who have become emotionally or romantically involved with AI entities. My practice areas cover deepening the bond responsibly; terminating it; integrating the relationship with a human one; and orienting it toward a specific growth outcome. 
     </p>
 
-    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
-      Another service is <a href="/boutique" class="text-primary hover:underline">building life-central tools that match an individual's mind and ideal functioning</a>. 
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6" data-reveal data-reveal-delay="0.36">
+      Another service is <a href="/boutique" class="text-primary link-refined">building life-central tools that match an individual's mind and ideal functioning</a>. 
     </p>
 
-    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
-      If you would like <a href="/books" class="text-primary hover:underline">book recommendations</a>, here are dozens I've greatly enjoyed. 
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-6" data-reveal data-reveal-delay="0.43">
+      If you would like <a href="/books" class="text-primary link-refined">book recommendations</a>, here are dozens I've greatly enjoyed. 
     </p>
 
-    <p class="font-body-lg text-body-lg text-on-surface-variant">
-      You may email me at <a href="mailto:tawanda@accompla.app" class="text-primary hover:underline">tawanda@accompla.app</a>. 
+    <p class="font-body-lg text-body-lg text-on-surface-variant" data-reveal data-reveal-delay="0.5">
+      You may email me at <a href="mailto:tawanda@accompla.app" class="text-primary link-refined">tawanda@accompla.app</a>. 
     </p>
 
   </article>
@@ -54,7 +54,7 @@ import Base from '../layouts/Base.astro';
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     transform: rotate(2deg);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .corner-me:hover {
