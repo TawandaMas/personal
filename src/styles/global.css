@@ -3,6 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .font-yellowtail {
+    font-family: 'Yellowtail', cursive;
+  }
+}
+
 /* ─── Motion Design Tokens ─────────────────────────────────────────────── */
 :root {
   /* Easing curves - restrained and intentional */
