@@ -185,18 +185,20 @@ body {
     transform: translateY(-1px);
   }
 
-  .link-refined {
+  a.link-refined,
+  .prose a.link-refined {
     position: relative;
-    text-decoration: none;
-    background-image: linear-gradient(currentColor, currentColor);
-    background-position: 0% 100%;
-    background-repeat: no-repeat;
-    background-size: 0% 1px;
-    transition: background-size var(--duration-pleasant) var(--ease-out-medium), color var(--duration-nice) var(--ease-out-soft), opacity var(--duration-nice) var(--ease-out-soft);
+    text-decoration: none !important;
+    background-image: linear-gradient(to right, #3658b7, #3658b7) !important;
+    background-position: 0 100% !important;
+    background-repeat: no-repeat !important;
+    background-size: 0% 1px !important;
+    transition: background-size var(--duration-pleasant) var(--ease-out-medium), color var(--duration-nice) var(--ease-out-soft), opacity var(--duration-nice) var(--ease-out-soft) !important;
   }
 
-  .link-refined:hover {
-    background-size: 100% 1px;
+  a.link-refined:hover,
+  .prose a.link-refined:hover {
+    background-size: 100% 1px !important;
   }
 
   .nav-link-elegant {
