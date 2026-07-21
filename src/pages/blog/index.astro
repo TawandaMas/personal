@@ -14,12 +14,12 @@ const postUrl = (entry: typeof featured) =>
   `/blog/${entry.data.customSlug || entry.slug}`;
 ---
 
-<Base title="Blog" description="Writing on building, AI, life, and everything in between.">
+<Base title="Blog" description="I think, therefore I scribble.">
   <div class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24 pb-24">
 
     <div class="mb-12">
       <h1 class="font-display text-[48px] md:text-[64px] uppercase leading-none mb-4" data-reveal>Blog</h1>
-      <p class="font-body-lg text-body-lg text-on-surface-variant italic" data-reveal data-reveal-delay="0.08">Writing on building, AI, life, and everything in between.</p>
+      <p class="font-body-lg text-body-lg text-on-surface-variant italic" data-reveal data-reveal-delay="0.08">I think, therefore I scribble.</p>
     </div>
 
     {featured && (
