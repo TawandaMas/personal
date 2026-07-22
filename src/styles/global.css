@@ -465,17 +465,21 @@ body {
     height: auto;
     display: block;
     border-radius: 8px;
+    /* Ensure image always participates in layout */
+    min-height: 1px;
   }
 
   /* Automatic watermark on inline blog post images */
   .blog-prose p:has(> img) {
     position: relative;
+    /* Use inline-block so paragraph height is derived from the image naturally */
     display: block;
     margin: 2.25em 0;
     width: 100%;
-    max-width: 100%;
+    /* DO NOT use overflow:hidden here — it can clip the image when height is 0 */
+    line-height: 0; /* Collapse line-height gap under the img */
+    font-size: 0;   /* Collapse any text node whitespace */
     border-radius: 8px;
-    overflow: hidden;
   }
 
   .blog-prose p:has(> img)::after {
@@ -485,6 +489,7 @@ body {
     right: 14px;
     font-family: 'Hanken Grotesk', system-ui, sans-serif;
     font-size: 10px;
+    line-height: 1;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
