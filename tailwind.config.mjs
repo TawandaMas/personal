@@ -1,6 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 export default {
 	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+	safelist: [
+		'blog-prose',
+		'blog-img-monochrome',
+		'blog-img-vintage',
+		'blog-img-matte',
+		'blog-img-none',
+		'blog-body-monochrome',
+		'blog-body-vintage',
+		'blog-body-matte',
+	],
 	theme: {
 		extend: {
 			transitionTimingFunction: {
