@@ -355,6 +355,19 @@ body {
   user-select: none;
 }
 
+.blog-img-watermark--inline {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.5rem auto;
+}
+
+.blog-img-watermark--inline img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 /* ─── Blog Image Filters ────────────────────────────────────────────────── */
 .blog-img-monochrome {
   filter: grayscale(100%) contrast(115%);

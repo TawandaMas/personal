@@ -28,7 +28,7 @@ const postUrl = (entry: typeof featured) =>
       return (
       <a href={postUrl(featured)} class="block text-inherit mb-20 border-b border-outline-variant pb-16 hover:opacity-90 transition-opacity duration-600 ease-expo-out card-elegant" data-reveal data-reveal-delay="0.12">
         {featured.data.heroImage && (
-          <div class="w-full aspect-[16/7] overflow-hidden rounded-xl mb-8 border border-outline-variant image-reveal blog-img-watermark">
+          <div class="w-full aspect-[16/7] overflow-hidden rounded-xl mb-8 border border-outline-variant image-reveal">
             <img src={featured.data.heroImage} alt={featured.data.title} class={`w-full h-full object-cover block ${featImgClass}`} />
           </div>
         )}
@@ -59,7 +59,7 @@ const postUrl = (entry: typeof featured) =>
           return (
           <a href={postUrl(post)} class="flex flex-col text-inherit border border-outline-variant rounded-xl overflow-hidden card-elegant hover:border-secondary">
             {post.data.heroImage && (
-              <div class="w-full aspect-[16/9] overflow-hidden image-reveal blog-img-watermark">
+              <div class="w-full aspect-[16/9] overflow-hidden image-reveal">
                 <img src={post.data.heroImage} alt={post.data.title} class={`w-full h-full object-cover block ${postImgClass}`} />
               </div>
             )}
