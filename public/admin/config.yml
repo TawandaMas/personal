@@ -4,6 +4,9 @@ backend:
   branch: main
   base_url: https://authkid.pjmasvikeni.workers.dev
 
+site_url: https://tawanda.space
+display_url: https://tawanda.space
+
 media_folder: public/images
 public_folder: /images
 
