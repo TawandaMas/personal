@@ -25,7 +25,7 @@ const bodyClass = filter === 'none' ? '' : `blog-body-${filter}`;
   <article class="px-margin-mobile md:px-gutter max-w-container-max mx-auto py-16 md:py-24 pb-24">
 
     {entry.data.heroImage && (
-      <div class="w-full aspect-[16/7] overflow-hidden mb-12 border-b border-outline-variant">
+      <div class="w-full aspect-[16/7] overflow-hidden mb-12 border-b border-outline-variant blog-img-watermark">
         <img src={entry.data.heroImage} alt={entry.data.title} class={`w-full h-full object-cover block ${imgClass}`} />
       </div>
     )}
