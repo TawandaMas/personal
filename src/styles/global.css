@@ -338,7 +338,7 @@ body {
   .blog-prose {
     font-size: 1.0625rem;
     line-height: 1.8;
-    max-width: 72ch;
+    max-width: 100%;
   }
 
   .blog-prose p {
