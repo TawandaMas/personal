@@ -59,19 +59,3 @@ const bodyClass = filter === 'none' ? '' : `blog-body-${filter}`;
 
   </article>
 </Base>
-
-<script>
-  function wrapBlogImages() {
-    const body = document.getElementById('blog-post-body');
-    if (!body) return;
-    body.querySelectorAll('img').forEach(img => {
-      if (img.closest('.blog-img-watermark')) return;
-      const wrapper = document.createElement('div');
-      wrapper.className = 'blog-img-watermark blog-img-watermark--inline';
-      img.parentNode.insertBefore(wrapper, img);
-      wrapper.appendChild(img);
-    });
-  }
-  document.addEventListener('astro:page-load', wrapBlogImages);
-  document.addEventListener('DOMContentLoaded', wrapBlogImages);
-</script>

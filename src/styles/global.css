@@ -462,16 +462,21 @@ body {
   max-width: 100%;
   height: auto;
   display: block;
-  margin: 2em auto;
+  margin: 0 auto;
   border-radius: 8px;
 }
 
-/* ─── Blog Image Watermark ──────────────────────────────────────────────── */
-.blog-img-watermark {
+/* Automatic watermark on inline blog post images */
+.blog-prose p:has(> img) {
   position: relative;
+  display: table;
+  margin: 2.25em auto;
+  max-width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.blog-img-watermark::after {
+.blog-prose p:has(> img)::after {
   content: 'tawanda.space/blog';
   position: absolute;
   bottom: 10px;
@@ -481,24 +486,11 @@ body {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
   pointer-events: none;
   z-index: 10;
   user-select: none;
-}
-
-.blog-img-watermark--inline {
-  display: block;
-  width: fit-content;
-  max-width: 100%;
-  margin: 1.5rem auto;
-}
-
-.blog-img-watermark--inline img {
-  display: block;
-  max-width: 100%;
-  height: auto;
 }
 
 /* ─── Blog Image Filters ────────────────────────────────────────────────── */
