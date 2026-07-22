@@ -3,6 +3,8 @@ export default {
 	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
 	safelist: [
 		'blog-prose',
+		'blog-img-wrap',
+		'blog-img-watermark',
 		'blog-img-monochrome',
 		'blog-img-vintage',
 		'blog-img-matte',
