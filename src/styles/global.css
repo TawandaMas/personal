@@ -11,23 +11,23 @@
 
 /* ─── Motion Design Tokens ─────────────────────────────────────────────── */
 :root {
-  /* Easing curves - restrained and intentional */
-  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-out-medium: cubic-bezier(0.19, 1, 0.22, 1);
-  --ease-out-sharp: cubic-bezier(0.32, 0.94, 0.6, 1);
-  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Easing curves - restrained, fluid and modern */
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-medium: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out-sharp: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-soft: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Timings - slower where it matters, brisk where it should disappear */
-  --duration-snap: 120ms;
-  --duration-quick: 180ms;
-  --duration-nice: 320ms;
-  --duration-pleasant: 520ms;
-  --duration-luxury: 720ms;
-  --duration-reveal: 840ms;
+  /* Timings - snappy for interactive feedback, fluid for entrance reveals */
+  --duration-snap: 90ms;
+  --duration-quick: 150ms;
+  --duration-nice: 220ms;
+  --duration-pleasant: 340ms;
+  --duration-luxury: 440ms;
+  --duration-reveal: 480ms;
 
-  /* Reveal parameters - nearly static, with only a whisper of drift */
-  --reveal-distance: 12px;
-  --reveal-distance-sm: 8px;
+  /* Reveal parameters - tight, subtle drift */
+  --reveal-distance: 10px;
+  --reveal-distance-sm: 6px;
 }
 
 *, *::before, *::after {
@@ -58,14 +58,14 @@ body {
 }
 
 ::view-transition-old(root) {
-  animation: page-fade-out 120ms ease-out both;
+  animation: page-fade-out 100ms var(--ease-out-soft) both;
   z-index: 1;
   will-change: opacity;
 }
 
 ::view-transition-new(root) {
-  animation: page-fade-in 420ms var(--ease-out-soft) both;
-  animation-delay: 90ms;
+  animation: page-fade-in 220ms var(--ease-out-soft) both;
+  animation-delay: 20ms;
   z-index: 2;
   will-change: opacity;
   opacity: 0;
@@ -159,7 +159,7 @@ body {
   transition:
     opacity var(--duration-luxury) var(--ease-out-soft),
     transform var(--duration-reveal) var(--ease-out-soft);
-  transition-delay: calc(var(--stagger-index, 0) * 0.06s + var(--reveal-delay, 0s));
+  transition-delay: calc(var(--stagger-index, 0) * 0.035s + var(--reveal-delay, 0s));
 }
 
 [data-reveal-stagger].is-visible > * {

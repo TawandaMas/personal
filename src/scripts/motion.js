@@ -24,8 +24,8 @@
   }
 
   function revealAboveFold() {
-    var threshold = window.innerHeight * 0.88;
-    var delay = 0.04;
+    var threshold = window.innerHeight * 0.92;
+    var delay = 0.02;
 
     document.querySelectorAll('[data-reveal]').forEach(function (el) {
       if (el.classList.contains('is-visible')) return;
@@ -40,7 +40,7 @@
           });
         }, customDelay * 1000, el);
         if (!el.dataset.revealDelay) {
-          delay += 0.05;
+          delay += 0.03;
         }
       }
     });
@@ -73,7 +73,7 @@
           }
         });
       },
-      { rootMargin: '0px 0px -12% 0px', threshold: 0.12 }
+      { rootMargin: '0px 0px -4% 0px', threshold: 0.08 }
     );
 
     document.querySelectorAll('[data-reveal]').forEach(function (el) {

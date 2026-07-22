@@ -70,7 +70,7 @@ const navLinks = [
 </head>
 <body class="bg-surface text-on-background font-body-md selection:bg-primary selection:text-white noise-bg">
   <!-- Navigation -->
-  <nav id="site-nav" transition:persist="site-nav" class="fixed top-0 left-0 right-0 z-50 h-20 xl:h-24 transition-[background-color,backdrop-filter,border-color] duration-700 ease-out-soft">
+  <nav id="site-nav" transition:persist="site-nav" class="fixed top-0 left-0 right-0 z-50 h-20 xl:h-24 transition-[background-color,backdrop-filter,border-color] duration-300 ease-out-soft">
     <div class="flex justify-center items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-full">
       <!-- Desktop Nav Links -->
       <div class="hidden xl:flex items-center gap-3 flex-nowrap justify-center relative" id="desktop-nav">
@@ -90,7 +90,7 @@ const navLinks = [
         <!-- Gliding Active Indicator -->
         <div
           id="gliding-indicator"
-          class="absolute bottom-0 left-0 h-px bg-on-background transition-[transform,width] duration-700 ease-out-soft"
+          class="absolute bottom-0 left-0 h-px bg-on-background transition-[transform,width] duration-300 ease-out-soft"
           style="pointer-events: none;"
         ></div>
       </div>
@@ -104,7 +104,7 @@ const navLinks = [
         aria-controls="mobile-menu"
         aria-expanded="false"
         aria-label="Open menu"
-        class="xl:hidden flex items-center justify-center gap-2 min-h-11 min-w-11 -mr-2 rounded-2xl border border-black/8 bg-white/55 px-3 text-on-background shadow-[0_10px_30px_-16px_rgba(0,0,0,0.28)] backdrop-blur-md supports-[backdrop-filter]:bg-white/45 font-label-md text-label-sm uppercase flex-shrink-0 cursor-pointer touch-manipulation select-none transition-all duration-700 ease-out-soft"
+        class="xl:hidden flex items-center justify-center gap-2 min-h-11 min-w-11 -mr-2 rounded-2xl border border-black/8 bg-white/55 px-3 text-on-background shadow-[0_10px_30px_-16px_rgba(0,0,0,0.28)] backdrop-blur-md supports-[backdrop-filter]:bg-white/45 font-label-md text-label-sm uppercase flex-shrink-0 cursor-pointer touch-manipulation select-none transition-all duration-300 ease-out-soft"
       >
         <span id="menu-toggle-icon" class="material-symbols-outlined text-[22px]" aria-hidden="true">menu</span>
         <span id="menu-toggle-label">Menu</span>
