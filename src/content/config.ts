@@ -18,6 +18,7 @@ const blogCollection = defineCollection({
     customSlug: z.string().optional(),
     excerpt: z.string().optional(),
     heroImage: z.string().optional(),
+    imageFilter: z.enum(['none', 'monochrome', 'vintage', 'matte']).optional().default('monochrome'),
     tags: z.array(z.string()).optional(),
   }),
 });

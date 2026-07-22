@@ -333,6 +333,60 @@ body {
   transform: translateY(0);
 }
 
+/* ─── Blog Image Filters ────────────────────────────────────────────────── */
+.blog-img-monochrome {
+  filter: grayscale(100%) contrast(115%);
+  transition: filter var(--duration-pleasant) var(--ease-out-soft);
+}
+.blog-img-monochrome:hover {
+  filter: grayscale(60%) contrast(110%);
+}
+
+.blog-img-vintage {
+  filter: sepia(35%) contrast(108%) saturate(85%) brightness(97%);
+  transition: filter var(--duration-pleasant) var(--ease-out-soft);
+}
+.blog-img-vintage:hover {
+  filter: sepia(15%) contrast(104%) saturate(92%) brightness(99%);
+}
+
+.blog-img-matte {
+  filter: brightness(97%) contrast(110%) saturate(80%);
+  transition: filter var(--duration-pleasant) var(--ease-out-soft);
+}
+.blog-img-matte:hover {
+  filter: brightness(100%) contrast(105%) saturate(90%);
+}
+
+.blog-img-none {
+  filter: none;
+}
+
+/* Apply the same filter to inline images inside blog post body */
+.blog-body-monochrome img {
+  filter: grayscale(100%) contrast(115%);
+  transition: filter var(--duration-pleasant) var(--ease-out-soft);
+}
+.blog-body-monochrome img:hover {
+  filter: grayscale(60%) contrast(110%);
+}
+
+.blog-body-vintage img {
+  filter: sepia(35%) contrast(108%) saturate(85%) brightness(97%);
+  transition: filter var(--duration-pleasant) var(--ease-out-soft);
+}
+.blog-body-vintage img:hover {
+  filter: sepia(15%) contrast(104%) saturate(92%) brightness(99%);
+}
+
+.blog-body-matte img {
+  filter: brightness(97%) contrast(110%) saturate(80%);
+  transition: filter var(--duration-pleasant) var(--ease-out-soft);
+}
+.blog-body-matte img:hover {
+  filter: brightness(100%) contrast(105%) saturate(90%);
+}
+
 /* ─── Reduced Motion ────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,

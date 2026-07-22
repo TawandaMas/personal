@@ -70,6 +70,17 @@ collections:
       - { label: Date, name: date, widget: datetime }
       - { label: Excerpt, name: excerpt, widget: text, required: false, hint: "Short summary shown on the blog listing page" }
       - { label: "Hero Image", name: heroImage, widget: image, required: false, hint: "Cover image displayed at the top of the post and on the listing card" }
+      - label: "Image Filter"
+        name: imageFilter
+        widget: select
+        options:
+          - { label: "Editorial Monochrome (Grayscale)", value: "monochrome" }
+          - { label: "Warm Vintage Tint", value: "vintage" }
+          - { label: "Muted Modern Matte", value: "matte" }
+          - { label: "None (Original)", value: "none" }
+        default: "monochrome"
+        required: false
+        hint: "Select branding filter applied to hero and inline images in this post"
       - label: Tags
         name: tags
         widget: list
