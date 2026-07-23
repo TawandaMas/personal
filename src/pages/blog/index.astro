@@ -41,9 +41,9 @@ const postUrl = (entry: typeof featured) =>
               </div>
             )}
           </div>
-          <h2 class="font-yellowtail text-on-background text-[clamp(2rem,5vw,3.5rem)] leading-tight mb-4 tracking-[-0.01em]">{featured.data.title}</h2>
+          <h2 class="font-display text-on-background text-[clamp(2rem,5vw,3.5rem)] font-bold leading-[1.15] mb-4 tracking-[-0.02em]">{featured.data.title}</h2>
           {featured.data.excerpt && (
-            <p class="font-yellowtail text-on-surface-variant text-[clamp(1.2rem,2vw,1.5rem)] leading-relaxed mb-6 max-w-[60ch]">{featured.data.excerpt}</p>
+            <p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mb-6 max-w-[60ch]">{featured.data.excerpt}</p>
           )}
           <span class="font-label-md text-label-md text-secondary">Read &rarr;</span>
         </div>
@@ -72,9 +72,9 @@ const postUrl = (entry: typeof featured) =>
                   </div>
                 )}
               </div>
-              <h2 class="font-yellowtail text-on-background text-[1.35rem] leading-snug mb-3">{post.data.title}</h2>
+              <h2 class="font-display text-on-background text-[1.35rem] font-bold leading-snug mb-3 tracking-[-0.01em]">{post.data.title}</h2>
               {post.data.excerpt && (
-                <p class="font-yellowtail text-on-surface-variant text-[1.1rem] leading-relaxed mb-5 flex-1">{post.data.excerpt}</p>
+                <p class="font-body-md text-on-surface-variant leading-relaxed mb-5 flex-1">{post.data.excerpt}</p>
               )}
               <span class="font-label-md text-label-md text-secondary">Read &rarr;</span>
             </div>
