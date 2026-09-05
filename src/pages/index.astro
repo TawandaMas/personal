@@ -18,22 +18,21 @@ import Base from '../layouts/Base.astro';
       If you would like <a href="/books" class="text-primary link-refined">book recommendations</a>, here are dozens I've greatly enjoyed.
     </p>
 
-    <!-- Compact Nested Anagram Capsule -->
+    <!-- Word Game Capsule -->
     <div class="not-prose nested-card my-6" data-reveal="fade" data-reveal-delay="0.4">
       <div class="nested-card-top">
         <div class="nested-card-title">
           <span class="nested-dot" aria-hidden="true"></span>
           <span class="nested-label">Anagram</span>
-          <span class="nested-sub">· nested</span>
         </div>
         <button id="btn-unnest" class="btn-unnest" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="anagram-modal">
-          <span>Un-nest</span>
+          <span>Play</span>
           <svg class="unnest-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+            <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
           </svg>
         </button>
       </div>
-      <p class="nested-card-text">A quiet word puzzle hidden in the margins of this page.</p>
+      <p class="nested-card-text">Interested in a word game?</p>
     </div>
 
     <p class="font-body-lg text-body-lg text-on-surface-variant" data-reveal data-reveal-delay="0.45">
@@ -54,10 +53,11 @@ import Base from '../layouts/Base.astro';
           </div>
           <div class="modal-header-actions">
             <div class="score-wrap">Score: <span id="modal-score">0</span></div>
-            <button id="btn-nest" class="btn-nest" type="button" aria-label="Nest game back into page" title="Nest back into page">
-              <span>Nest</span>
+            <button id="btn-nest" class="btn-nest" type="button" aria-label="Close game modal" title="Close game">
+              <span>Close</span>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
           </div>
