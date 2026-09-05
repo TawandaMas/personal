@@ -5,6 +5,7 @@ date: 2026-07-22T22:37:00.000+02:00
 excerpt: "Consumption and creation are in tension but not opposition.
   Inspiration, for example, is often found in the course of consumption. The
   real split is between fruitful versus barren consumption. "
+heroImage: /images/gemini_generated_image_v20cd1v20cd1v20c.jpg
 ---
 The "consoom" meme ridicules those who supposedly spend their lives stupefied by low-value consumption. It has some hilarious renditions, but ultimately it's mean-spirited, and one has to work a little hard not to let that eclipse the insight it carries. Mindless entertainment, especially in its perfected form of infinite scroll interfaces, is simply not conducive to human flourishing. Study after study returns an unfavorable verdict. 
 
