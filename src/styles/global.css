@@ -28,6 +28,24 @@
   /* Reveal parameters - tight, subtle drift */
   --reveal-distance: 10px;
   --reveal-distance-sm: 6px;
+
+  /* ─── Game Theme Tokens ────────────────────────────────────────────────── */
+  --bg: #f9f9f9;
+  --paper: #ffffff;
+  --paper-dark: #f3f3f3;
+  --paper-crease: #e8e8e8;
+  --ink: #1a1c1c;
+  --ink-mid: #4c4546;
+  --ink-light: #7e7576;
+  --accent: #3658b7;
+  --accent-light: #dbe1ff;
+  --rule: #cfc4c5;
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --border-w: 1.5px;
+  --font-serif: "Source Serif 4", Georgia, serif;
+  --font-sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --max-w: 860px;
+  --pad: clamp(1.25rem, 5vw, 3rem);
 }
 
 *, *::before, *::after {
@@ -568,5 +586,339 @@ body {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none !important;
+  }
+}
+
+/* ─── Global Game Layout & Mobile Responsiveness ───────────────────────── */
+.game-header,
+.game-wrap,
+.hint {
+  box-sizing: border-box !important;
+}
+
+.game-header {
+  width: 100% !important;
+  max-width: 540px !important;
+  margin: 0 auto 1.5rem auto !important;
+  padding: 0 1.25rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.6rem !important;
+}
+
+.game-header .back {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: var(--ink-mid) !important;
+  text-decoration: none !important;
+  width: fit-content !important;
+  padding: 0.25rem 0.5rem !important;
+  margin-left: -0.5rem !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+}
+.game-header .back:hover {
+  color: var(--accent) !important;
+  background: var(--paper-dark) !important;
+}
+
+.game-title-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+
+.game-title-row h1 {
+  font-family: var(--font-serif) !important;
+  font-size: clamp(1.75rem, 6vw, 2.5rem) !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+  margin: 0 !important;
+  line-height: 1.1 !important;
+  color: var(--ink) !important;
+}
+
+.score-wrap {
+  font-family: var(--font-sans) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: var(--ink-mid) !important;
+  background: var(--paper) !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 9999px !important;
+  padding: 0.35rem 0.85rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+.score-wrap span {
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+}
+
+.game-wrap {
+  width: calc(100% - 2.5rem) !important;
+  max-width: 540px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  border: 1.5px solid var(--rule) !important;
+  border-radius: 12px !important;
+  background: var(--paper-dark) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  background: var(--paper) !important;
+  opacity: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 20 !important;
+  border-radius: inherit !important;
+}
+
+.overlay.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.overlay-content {
+  text-align: center !important;
+  padding: 1.75rem 1.25rem !important;
+  max-width: 90% !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.overlay-title {
+  font-family: var(--font-serif) !important;
+  font-size: clamp(2rem, 6vw, 2.75rem) !important;
+  font-style: italic !important;
+  color: var(--accent) !important;
+  margin: 0 0 0.5rem 0 !important;
+  line-height: 1.15 !important;
+}
+
+.overlay-sub {
+  font-family: var(--font-sans) !important;
+  font-size: 0.85rem !important;
+  color: var(--ink-light) !important;
+  margin-top: 0.25rem !important;
+  max-width: 300px !important;
+  line-height: 1.5 !important;
+}
+
+.start-btn {
+  margin-top: 1.5rem !important;
+  padding: 0.75rem 2.25rem !important;
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+  border: 1px solid var(--ink) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  transition: transform 0.15s ease, opacity 0.15s ease !important;
+}
+.start-btn:hover {
+  opacity: 0.9 !important;
+  transform: scale(1.02) !important;
+}
+.start-btn:active {
+  transform: scale(0.98) !important;
+}
+
+.hint {
+  width: 100% !important;
+  max-width: 540px !important;
+  margin: 1.5rem auto 4.5rem auto !important;
+  padding: 0 1.25rem !important;
+  text-align: center !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.75rem !important;
+  color: var(--ink-light) !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* ─── Mobile Game Layout Refinements ───────────────────────────────────── */
+@media (max-width: 640px) {
+  .game-header {
+    width: calc(100% - 2.5rem) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .game-wrap {
+    width: calc(100% - 2.5rem) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .hint {
+    width: calc(100% - 2.5rem) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 !important;
+    margin-top: 1.25rem !important;
+    margin-bottom: 3.5rem !important;
+  }
+
+  /* Anagram mobile */
+  .game-wrap:has(.anagram-pane) {
+    aspect-ratio: auto !important;
+    min-height: 380px !important;
+  }
+  .anagram-pane {
+    padding: 1.25rem 0.75rem !important;
+    gap: 1.25rem !important;
+  }
+  .letter-grid {
+    gap: 0.5rem !important;
+  }
+  .letter-tile {
+    width: clamp(2.3rem, 11vw, 3.25rem) !important;
+    height: clamp(2.3rem, 11vw, 3.25rem) !important;
+    font-size: clamp(1.1rem, 5vw, 1.4rem) !important;
+  }
+  .answer-row {
+    min-height: 3.25rem !important;
+    padding: 0 0.5rem !important;
+  }
+  .answer-letter {
+    font-size: clamp(1.4rem, 5vw, 1.8rem) !important;
+    min-width: clamp(1.2rem, 4vw, 1.5rem) !important;
+  }
+  .action-row {
+    margin-top: 0.5rem !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Wordle mobile keyboard adjustments */
+  .wordle-grid {
+    width: min(250px, 75vw) !important;
+  }
+  .keyboard .key {
+    min-width: 0 !important;
+    flex: 1 !important;
+    padding: 10px 2px !important;
+    font-size: 0.75rem !important;
+  }
+  .keyboard .key.wide {
+    flex: 1.5 !important;
+    min-width: 0 !important;
+    font-size: 0.65rem !important;
+  }
+  .kb-row {
+    gap: 3px !important;
+  }
+
+  /* Hangman mobile */
+  .game-wrap:has(.hangman-display) {
+    aspect-ratio: auto !important;
+    min-height: 400px !important;
+    padding: 1rem 0.5rem !important;
+    gap: 0.75rem !important;
+  }
+  .hangman-display .gallows {
+    max-height: 160px !important;
+  }
+  .word-slots {
+    font-size: 1.5rem !important;
+    gap: 0.35rem !important;
+  }
+  .slot {
+    min-width: 1.2rem !important;
+  }
+  .keyboard {
+    gap: 0.25rem !important;
+  }
+
+  /* Colour Match mobile */
+  .game-wrap:has(#colour-word) {
+    aspect-ratio: auto !important;
+    min-height: 350px !important;
+  }
+  .game-pane:has(#colour-word) {
+    padding: 1.25rem 1rem !important;
+  }
+  #colour-word {
+    font-size: clamp(2.2rem, 10vw, 3.5rem) !important;
+  }
+  .controls {
+    gap: 0.75rem !important;
+  }
+  .game-btn {
+    padding: 0.85rem !important;
+    font-size: 1rem !important;
+  }
+
+  /* Crossword & Word Search mobile */
+  .crossword-grid,
+  .search-grid,
+  .boggle-grid {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .search-grid .letter {
+    font-size: clamp(0.75rem, 3.5vw, 0.9rem) !important;
+  }
+  .mobile-keys {
+    gap: 3px !important;
+  }
+  .key-btn {
+    padding: 0.35rem 0 !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Grids & Simon mobile */
+  .simon-grid,
+  .mole-grid {
+    gap: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+  .memory-grid {
+    gap: 0.4rem !important;
+    padding: 0.4rem !important;
+  }
+  .card-face {
+    font-size: clamp(1.2rem, 5vw, 2rem) !important;
+  }
+
+  /* Typing & Spelling Bee mobile */
+  .bee-pane {
+    padding: 1rem 0.5rem !important;
+    gap: 1rem !important;
+  }
+  .typing-text {
+    font-size: 1rem !important;
+    min-height: 110px !important;
+    padding: 0.75rem !important;
+  }
+  .typing-input {
+    font-size: 0.95rem !important;
+    height: 80px !important;
+    padding: 0.75rem !important;
   }
 }
