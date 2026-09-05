@@ -63,12 +63,25 @@ import Base from '../layouts/Base.astro';
           </div>
         </div>
 
+        <!-- Difficulty Pills Selector -->
+        <div class="modal-difficulty-bar" role="radiogroup" aria-label="Difficulty Level">
+          <span class="difficulty-label">Difficulty:</span>
+          <div class="difficulty-buttons">
+            <button type="button" class="diff-btn active" data-diff="easy">Easy (4–5)</button>
+            <button type="button" class="diff-btn" data-diff="medium">Medium (6)</button>
+            <button type="button" class="diff-btn" data-diff="hard">Hard (7–8)</button>
+          </div>
+        </div>
+
         <div class="modal-game-box">
           <div class="modal-anagram-pane">
+            <div id="modal-feedback" class="modal-feedback" aria-live="polite"></div>
             <div id="modal-scrambled-letters" class="modal-letter-grid"></div>
             <div id="modal-answer-slots" class="modal-answer-row"></div>
             <div class="modal-action-row">
+              <button id="modal-btn-hint" class="modal-action-btn secondary" type="button" title="Reveal the first letter">Hint</button>
               <button id="modal-btn-clear" class="modal-action-btn" type="button">Clear</button>
+              <button id="modal-btn-skip" class="modal-action-btn secondary" type="button" title="Skip to another word">Skip</button>
               <button id="modal-btn-submit" class="modal-action-btn primary" type="button">Submit</button>
             </div>
           </div>
@@ -76,14 +89,14 @@ import Base from '../layouts/Base.astro';
           <div id="modal-overlay" class="modal-overlay">
             <div class="modal-overlay-content">
               <div class="modal-overlay-title">Anagram</div>
-              <div class="modal-overlay-sub">Unscramble the letters to reveal the hidden word.</div>
+              <div class="modal-overlay-sub">Unscramble letters into any valid English word. Powered by a full 80,000+ word dictionary.</div>
               <button id="modal-start-btn" class="modal-start-btn" type="button">Start Game</button>
             </div>
           </div>
         </div>
 
         <div class="modal-footer-hint">
-          Tap letters or type on keyboard · Enter to submit · Backspace to clear
+          Any valid English anagram counts! · Tap or type letters · Enter to submit · Backspace to clear
         </div>
       </div>
     </div>
@@ -351,6 +364,83 @@ import Base from '../layouts/Base.astro';
     border-color: var(--accent, #3658b7);
   }
 
+  /* ─── Difficulty Pills Bar ────────────────────────────────────────────── */
+  .modal-difficulty-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.2rem 0.1rem;
+    flex-wrap: wrap;
+  }
+
+  .difficulty-label {
+    font-family: var(--font-sans, "Hanken Grotesk", sans-serif);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-light, #7e7576);
+  }
+
+  .difficulty-buttons {
+    display: flex;
+    gap: 0.35rem;
+    background: var(--paper-dark, #eeeeee);
+    padding: 3px;
+    border-radius: 9999px;
+    border: 1px solid var(--rule, #cfc4c5);
+  }
+
+  .diff-btn {
+    background: transparent;
+    border: none;
+    padding: 0.28rem 0.75rem;
+    font-family: var(--font-sans, "Hanken Grotesk", sans-serif);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-mid, #4c4546);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .diff-btn:hover {
+    color: var(--ink, #1a1c1c);
+  }
+
+  .diff-btn.active {
+    background: var(--ink, #1a1c1c);
+    color: var(--paper, #ffffff);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  /* ─── Feedback Banner ────────────────────────────────────────────────── */
+  .modal-feedback {
+    min-height: 1.5rem;
+    font-family: var(--font-sans, "Hanken Grotesk", sans-serif);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.04em;
+    transition: opacity 0.2s ease;
+    opacity: 0;
+  }
+  .modal-feedback.visible {
+    opacity: 1;
+  }
+  .modal-feedback.success {
+    color: #1e7e34;
+  }
+  .modal-feedback.error {
+    color: #b72b2b;
+  }
+  .modal-feedback.info {
+    color: var(--accent, #3658b7);
+  }
+
   /* ─── Modal Game Box ─────────────────────────────────────────────────── */
   .modal-game-box {
     position: relative;
@@ -472,6 +562,16 @@ import Base from '../layouts/Base.astro';
   .modal-action-btn.primary:hover {
     opacity: 0.9;
   }
+  .modal-action-btn.secondary {
+    background: transparent;
+    color: var(--ink-light, #7e7576);
+    border-color: var(--rule, #cfc4c5);
+  }
+  .modal-action-btn.secondary:hover {
+    color: var(--ink, #1a1c1c);
+    background: var(--paper-dark, #f3f3f3);
+    border-color: var(--ink-light, #7e7576);
+  }
 
   .modal-overlay {
     position: absolute;
@@ -552,6 +652,62 @@ import Base from '../layouts/Base.astro';
 
 <script is:inline>
   (function() {
+    // Shared global dictionary cache so we don't re-download on navigation
+    window.__anagramDict = window.__anagramDict || null;
+    window.__anagramTargets = window.__anagramTargets || null;
+    window.__anagramLoading = window.__anagramLoading || null;
+
+    var FALLBACK_WORDS = {
+      easy: [
+        'BOOK', 'MOON', 'STAR', 'FIRE', 'TREE', 'WIND', 'BIRD', 'SNOW', 'ROSE', 'GOLD',
+        'HERO', 'SHIP', 'RAIN', 'LAKE', 'SONG', 'PAGE', 'DOOR', 'LEAF', 'ROAD', 'WAVE',
+        'TIME', 'LIFE', 'MIND', 'WORD', 'HOME', 'LIGHT', 'HEART', 'DREAM', 'CLOUD', 'EARTH',
+        'SMILE', 'RIVER', 'PLANT', 'WATER', 'STONE', 'OCEAN', 'MUSIC', 'VOICE', 'STORY', 'SPACE'
+      ],
+      medium: [
+        'SHADOW', 'SILVER', 'GARDEN', 'CASTLE', 'PLANET', 'SUMMER', 'WINTER', 'FOREST',
+        'STREAM', 'MEMORY', 'BRIDGE', 'POETRY', 'VOYAGE', 'SPRING', 'MIRROR', 'LANTERN',
+        'FLOWER', 'CLOUDS', 'SUNSET', 'ISLAND', 'WONDER', 'NATURE', 'BEAUTY', 'SPIRIT',
+        'SECRET', 'TEMPLE', 'SILENT', 'LISTEN', 'BREATH', 'LISTEN', 'HARBOR', 'RECORD'
+      ],
+      hard: [
+        'MYSTERY', 'HORIZON', 'CRYSTAL', 'PHANTOM', 'THUNDER', 'SILENCE', 'ECLIPSE', 'WHISPER',
+        'JOURNEY', 'DIAMOND', 'HARVEST', 'PASSAGE', 'TWILIGHT', 'SOLITUDE', 'FEATHER', 'ILLUSION',
+        'INFINITY', 'SERENITY', 'SPECTRUM', 'LABYRINTH', 'CHRONICLE', 'SYMPHONY', 'STARDUST'
+      ]
+    };
+
+    function loadDictionaries() {
+      if (window.__anagramLoading) return window.__anagramLoading;
+
+      window.__anagramLoading = Promise.all([
+        fetch('/words-scrabble.txt')
+          .then(function(r) { return r.text(); })
+          .then(function(txt) {
+            var words = txt.split(/\r?\n/);
+            var set = new Set();
+            for (var i = 0; i < words.length; i++) {
+              var w = words[i].trim().toUpperCase();
+              if (w) set.add(w);
+            }
+            window.__anagramDict = set;
+          })
+          .catch(function(err) {
+            console.warn('[Anagram] Scrabble dictionary load fallback:', err);
+          }),
+        fetch('/data/anagram-targets.json')
+          .then(function(r) { return r.json(); })
+          .then(function(json) {
+            window.__anagramTargets = json;
+          })
+          .catch(function(err) {
+            console.warn('[Anagram] Targets json load fallback:', err);
+          })
+      ]);
+
+      return window.__anagramLoading;
+    }
+
     function setupAnagramModal() {
       var modal = document.getElementById('anagram-modal');
       var btnUnnest = document.getElementById('btn-unnest');
@@ -559,6 +715,9 @@ import Base from '../layouts/Base.astro';
       var backdrop = document.getElementById('modal-backdrop');
 
       if (!modal || !btnUnnest) return;
+
+      // Start prefetching dictionary in background immediately
+      loadDictionaries();
 
       if (btnUnnest.dataset.initialized === 'true') return;
       btnUnnest.dataset.initialized = 'true';
@@ -570,21 +729,52 @@ import Base from '../layouts/Base.astro';
       var startBtn = document.getElementById('modal-start-btn');
       var btnClear = document.getElementById('modal-btn-clear');
       var btnSubmit = document.getElementById('modal-btn-submit');
+      var btnHint = document.getElementById('modal-btn-hint');
+      var btnSkip = document.getElementById('modal-btn-skip');
+      var feedbackEl = document.getElementById('modal-feedback');
+      var diffButtons = document.querySelectorAll('.diff-btn');
 
       var isModalOpen = false;
-      var currentWord = '';
+      var currentDifficulty = localStorage.getItem('anagram-diff') || 'easy';
+      var currentTarget = '';
       var scrambled = '';
       var userWord = '';
       var score = 0;
       var gameActive = false;
       var activeIndices = [];
+      var feedbackTimer = null;
+      var foundWords = [];
 
-      var WORDS = [
-        'ASTRONOMY', 'PHANTOM', 'RHYTHM', 'WHISPER', 'JOURNEY', 'SILENCE', 'CRIMSON', 'MYSTERY', 'HARVEST', 'THUNDER',
-        'ORCHARD', 'LANTERN', 'HORIZON', 'ECLIPSE', 'DIAMOND', 'CRYSTAL', 'BLOSSOM', 'VAMPIRE', 'PENGUIN', 'MONSTER',
-        'PYRAMID', 'DYNAMITE', 'TORNADO', 'VOLCANO', 'DRAGON', 'CACTUS', 'GUITAR', 'GALAXY', 'PLANET', 'ROCKET',
-        'CASTLE', 'WIZARD', 'PIRATE', 'KNIGHT', 'FOREST', 'OCEAN', 'DESERT', 'JUNGLE', 'MOUNTAIN', 'RIVER'
-      ];
+      // Set active difficulty tab
+      diffButtons.forEach(function(btn) {
+        if (btn.dataset.diff === currentDifficulty) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+        btn.addEventListener('click', function() {
+          var newDiff = btn.dataset.diff;
+          if (newDiff === currentDifficulty) return;
+          currentDifficulty = newDiff;
+          localStorage.setItem('anagram-diff', currentDifficulty);
+          diffButtons.forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          if (gameActive) {
+            showFeedback('Difficulty changed to ' + currentDifficulty.toUpperCase(), 'info', 1200);
+            nextWord();
+          }
+        });
+      });
+
+      function showFeedback(text, type, duration) {
+        if (!feedbackEl) return;
+        clearTimeout(feedbackTimer);
+        feedbackEl.textContent = text;
+        feedbackEl.className = 'modal-feedback visible ' + (type || 'info');
+        feedbackTimer = setTimeout(function() {
+          feedbackEl.className = 'modal-feedback';
+        }, duration || 2500);
+      }
 
       function openModal() {
         isModalOpen = true;
@@ -633,7 +823,7 @@ import Base from '../layouts/Base.astro';
           closeModal();
           return;
         }
-        if (!gameActive || !currentWord) return;
+        if (!gameActive || !currentTarget) return;
         if (e.key === 'Backspace') {
           handleClear();
         } else if (e.key === 'Enter') {
@@ -648,7 +838,7 @@ import Base from '../layouts/Base.astro';
               break;
             }
           }
-          if (availableIdx !== -1 && userWord.length < currentWord.length) {
+          if (availableIdx !== -1 && userWord.length < currentTarget.length) {
             activeIndices.push(availableIdx);
             userWord += char;
             updateDisplay();
@@ -666,7 +856,7 @@ import Base from '../layouts/Base.astro';
           if (activeIndices.indexOf(idx) !== -1) tile.classList.add('used');
           tile.textContent = char;
           tile.addEventListener('click', function() {
-            if (activeIndices.indexOf(idx) === -1 && userWord.length < currentWord.length) {
+            if (activeIndices.indexOf(idx) === -1 && userWord.length < currentTarget.length) {
               activeIndices.push(idx);
               userWord += char;
               updateDisplay();
@@ -676,7 +866,7 @@ import Base from '../layouts/Base.astro';
         });
 
         answerRow.innerHTML = '';
-        for (var i = 0; i < currentWord.length; i++) {
+        for (var i = 0; i < currentTarget.length; i++) {
           var span = document.createElement('span');
           span.className = 'modal-answer-letter';
           span.textContent = userWord[i] || '';
@@ -689,27 +879,101 @@ import Base from '../layouts/Base.astro';
         }
       }
 
-      function checkAnswer() {
-        if (!gameActive || userWord.length === 0 || !answerRow) return;
-        if (userWord === currentWord) {
-          score += currentWord.length * 10;
+      function isAnagram(str1, str2) {
+        if (str1.length !== str2.length) return false;
+        return str1.split('').sort().join('') === str2.split('').sort().join('');
+      }
+
+      async function validateWord(word) {
+        var upper = word.toUpperCase();
+
+        // 1. Check local comprehensive 82,000+ Scrabble dictionary set
+        if (window.__anagramDict && window.__anagramDict.has(upper)) {
+          return true;
+        }
+
+        // 2. Check fallback words
+        var allFallbacks = [].concat(FALLBACK_WORDS.easy, FALLBACK_WORDS.medium, FALLBACK_WORDS.hard);
+        if (allFallbacks.indexOf(upper) !== -1) {
+          return true;
+        }
+
+        // 3. Fallback to exact Datamuse lookup
+        try {
+          var ctrl = new AbortController();
+          var tId = setTimeout(function() { ctrl.abort(); }, 1800);
+          var res = await fetch('https://api.datamuse.com/words?sp=' + encodeURIComponent(upper.toLowerCase()) + '&max=1', { signal: ctrl.signal });
+          clearTimeout(tId);
+          var data = await res.json();
+          if (data && data.length > 0 && data[0].word.toUpperCase() === upper) {
+            if (window.__anagramDict) window.__anagramDict.add(upper);
+            return true;
+          }
+        } catch (e) {
+          // ignore network error
+        }
+
+        return false;
+      }
+
+      async function checkAnswer() {
+        if (!gameActive || !currentTarget || !answerRow) return;
+
+        if (userWord.length < currentTarget.length) {
+          showFeedback('Use all ' + currentTarget.length + ' letters!', 'info', 1500);
+          return;
+        }
+
+        // Must be exact anagram of the scrambled letters
+        if (!isAnagram(userWord, scrambled)) {
+          showFeedback('Letters do not match pool.', 'error', 1500);
+          return;
+        }
+
+        if (foundWords.indexOf(userWord) !== -1) {
+          showFeedback('Already found "' + userWord + '"!', 'info', 1500);
+          return;
+        }
+
+        btnSubmit.disabled = true;
+        showFeedback('Checking...', 'info', 2000);
+
+        var isValid = await validateWord(userWord);
+        btnSubmit.disabled = false;
+
+        if (isValid) {
+          foundWords.push(userWord);
+          var points = currentTarget.length * 10;
+          score += points;
           if (scoreEl) scoreEl.textContent = String(score);
-          answerRow.animate([
-            { transform: 'scale(1)' },
-            { transform: 'scale(1.1)', color: 'var(--accent, #3658b7)' },
-            { transform: 'scale(1)' }
-          ], { duration: 300 });
+
           var best = localStorage.getItem('anagram-best') || 0;
           if (score > parseInt(best, 10)) {
             localStorage.setItem('anagram-best', String(score));
+            var hs = document.getElementById('modal-best-score');
+            if (hs) hs.textContent = '(Best: ' + score + ')';
           }
-          setTimeout(nextWord, 800);
+
+          answerRow.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.12)', color: '#1e7e34' },
+            { transform: 'scale(1)' }
+          ], { duration: 320 });
+
+          if (userWord !== currentTarget) {
+            showFeedback('Brilliant! "' + userWord + '" is valid! (+ ' + points + ' pts)', 'success', 2500);
+          } else {
+            showFeedback('Solved! "' + userWord + '" (+ ' + points + ' pts)', 'success', 2000);
+          }
+
+          setTimeout(nextWord, 900);
         } else {
+          showFeedback('"' + userWord + '" is not in dictionary', 'error', 2000);
           answerRow.animate([
             { transform: 'translateX(-10px)' },
             { transform: 'translateX(10px)' },
             { transform: 'translateX(0)' }
-          ], { duration: 200 });
+          ], { duration: 220 });
         }
       }
 
@@ -721,6 +985,19 @@ import Base from '../layouts/Base.astro';
         }
       }
 
+      function handleHint() {
+        if (!gameActive || !currentTarget) return;
+        // Place the correct first letter of currentTarget in slot 0 if not already there
+        var firstChar = currentTarget[0];
+        showFeedback('Starts with: ' + firstChar, 'info', 2200);
+      }
+
+      function handleSkip() {
+        if (!gameActive) return;
+        showFeedback('Word was: ' + currentTarget, 'info', 2500);
+        setTimeout(nextWord, 700);
+      }
+
       function start() {
         score = 0;
         if (scoreEl) scoreEl.textContent = '0';
@@ -729,53 +1006,40 @@ import Base from '../layouts/Base.astro';
         nextWord();
       }
 
+      function pickTargetWord() {
+        var pool = null;
+        if (window.__anagramTargets && window.__anagramTargets[currentDifficulty]) {
+          pool = window.__anagramTargets[currentDifficulty];
+        } else if (FALLBACK_WORDS[currentDifficulty]) {
+          pool = FALLBACK_WORDS[currentDifficulty];
+        } else {
+          pool = FALLBACK_WORDS.easy;
+        }
+        return pool[Math.floor(Math.random() * pool.length)].toUpperCase();
+      }
+
       function nextWord() {
         userWord = '';
         activeIndices = [];
-        currentWord = '';
-        scrambled = '';
-        if (letterGrid) {
-          letterGrid.innerHTML = '<div style="font-family: var(--font-sans); color: var(--ink-light); font-size: 0.9rem;">Fetching word...</div>';
-        }
-        if (answerRow) answerRow.innerHTML = '';
-        if (btnSubmit) btnSubmit.disabled = true;
+        foundWords = [];
+        currentTarget = pickTargetWord();
 
-        var len = Math.floor(Math.random() * 4) + 5;
-        var pattern = '?'.repeat(len);
-        var controller = new AbortController();
-        var timeoutId = setTimeout(function() { controller.abort(); }, 2500);
+        // Ensure word is scrambled properly (not identical to word itself)
+        var tries = 0;
+        do {
+          scrambled = currentTarget.split('').sort(function() { return Math.random() - 0.5; }).join('');
+          tries++;
+        } while (scrambled === currentTarget && currentTarget.length > 1 && tries < 20);
 
-        fetch('https://api.datamuse.com/words?sp=' + pattern + '&md=f&max=100', { signal: controller.signal })
-          .then(function(r) { clearTimeout(timeoutId); return r.json(); })
-          .then(function(data) {
-            if (data && data.length > 0) {
-              var valid = data.filter(function(w) {
-                return !w.word.includes(' ') && !w.word.includes('-') && parseFloat(w.tags && w.tags[0] ? w.tags[0].replace('f:', '') : 0) > 1;
-              });
-              if (valid.length > 0) {
-                currentWord = valid[Math.floor(Math.random() * valid.length)].word.toUpperCase();
-              }
-            }
-          })
-          .catch(function(err) {
-            // offline or timeout fallback
-          })
-          .finally(function() {
-            if (!currentWord) {
-              currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-            }
-            do {
-              scrambled = currentWord.split('').sort(function() { return Math.random() - 0.5; }).join('');
-            } while (scrambled === currentWord && currentWord.length > 1);
-
-            if (btnSubmit) btnSubmit.disabled = false;
-            updateDisplay();
-          });
+        if (btnSubmit) btnSubmit.disabled = false;
+        updateDisplay();
       }
 
       if (startBtn) startBtn.addEventListener('click', start);
       if (btnClear) btnClear.addEventListener('click', handleClear);
       if (btnSubmit) btnSubmit.addEventListener('click', checkAnswer);
+      if (btnHint) btnHint.addEventListener('click', handleHint);
+      if (btnSkip) btnSkip.addEventListener('click', handleSkip);
 
       var bestScore = localStorage.getItem('anagram-best');
       if (bestScore && scoreEl) {

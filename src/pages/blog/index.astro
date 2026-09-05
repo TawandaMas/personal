@@ -28,8 +28,8 @@ const postUrl = (entry: typeof featured) =>
       return (
       <a href={postUrl(featured)} class="block text-inherit mb-20 border-b border-outline-variant pb-16 hover:opacity-90 transition-opacity duration-600 ease-expo-out card-elegant" data-reveal data-reveal-delay="0.12">
         {featured.data.heroImage && (
-          <div class="w-full aspect-[16/7] overflow-hidden rounded-xl mb-8 border border-outline-variant image-reveal">
-            <img src={featured.data.heroImage} alt={featured.data.title} class={`w-full h-full object-cover block ${featImgClass}`} />
+          <div class="w-full max-h-[440px] overflow-hidden rounded-xl mb-8 border border-outline-variant bg-surface-container flex items-center justify-center image-reveal">
+            <img src={featured.data.heroImage} alt={featured.data.title} class={`w-full max-h-[440px] object-contain block mx-auto ${featImgClass}`} />
           </div>
         )}
         <div class="max-w-[720px]">
@@ -59,8 +59,8 @@ const postUrl = (entry: typeof featured) =>
           return (
           <a href={postUrl(post)} class="flex flex-col text-inherit border border-outline-variant rounded-xl overflow-hidden card-elegant hover:border-secondary">
             {post.data.heroImage && (
-              <div class="w-full aspect-[16/9] overflow-hidden image-reveal">
-                <img src={post.data.heroImage} alt={post.data.title} class={`w-full h-full object-cover block ${postImgClass}`} />
+              <div class="w-full aspect-[16/10] bg-surface-container overflow-hidden image-reveal flex items-center justify-center">
+                <img src={post.data.heroImage} alt={post.data.title} class={`w-full h-full object-contain p-1 block ${postImgClass}`} />
               </div>
             )}
             <div class="p-6 flex flex-col flex-1">
