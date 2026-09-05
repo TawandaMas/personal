@@ -5,7 +5,7 @@ date: 2026-09-04T23:30:00.000+02:00
 excerpt: Sure, one has to settle on a form. The whole point is avoiding direct
   and immediate expression of impulses, which is often anathema to civilization.
   In many cases, it is also cruel to oneself.
-heroImage: /images/gemini_generated_image_6a7cem6a7cem6a7c.jpg
+heroImage: /images/gemini_generated_image_ks7n66ks7n66ks7n.jpg
 imageFilter: monochrome
 ---
 *Know thyself* is an almost cruel piece of simple wisdom. It reminds me of a high school subject we had, Thinking Skills, that was offered to those for whom no "meatier" discipline was deemed assailable. We laughed at those students, though not to their faces, as most of them were quite large. I'm not laughing at them now, and it's not because I've outgrown putting others down. I'm not laughing because Lord knows I could have used some intensive thinking skills courses at the time. I wouldn't turn down a class even now.
