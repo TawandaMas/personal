@@ -14,32 +14,26 @@ import Base from '../layouts/Base.astro';
       I'm a writer of short sci-fi and fantasy stories.
     </p>
 
-
-
     <p class="font-body-lg text-body-lg text-on-surface-variant mb-6" data-reveal data-reveal-delay="0.36">
       If you would like <a href="/books" class="text-primary link-refined">book recommendations</a>, here are dozens I've greatly enjoyed.
     </p>
 
-    <!-- Nested Anagram Capsule -->
-    <div class="not-prose nested-capsule my-8" data-reveal="fade" data-reveal-delay="0.4">
-      <div class="nested-capsule-left">
-        <div class="nested-tiles" aria-hidden="true">
-          <span class="nested-tile">A</span>
-          <span class="nested-tile">N</span>
-          <span class="nested-tile">A</span>
-          <span class="nested-tile">G</span>
-          <span class="nested-tile">R</span>
-          <span class="nested-tile">A</span>
-          <span class="nested-tile">M</span>
+    <!-- Compact Nested Anagram Capsule -->
+    <div class="not-prose nested-card my-6" data-reveal="fade" data-reveal-delay="0.4">
+      <div class="nested-card-top">
+        <div class="nested-card-title">
+          <span class="nested-dot" aria-hidden="true"></span>
+          <span class="nested-label">Anagram</span>
+          <span class="nested-sub">· nested</span>
         </div>
-        <p class="nested-hint-text">
-          A small word puzzle is nested here.
-        </p>
+        <button id="btn-unnest" class="btn-unnest" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="anagram-modal">
+          <span>Un-nest</span>
+          <svg class="unnest-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+          </svg>
+        </button>
       </div>
-      <button id="btn-unnest" class="btn-unnest" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="anagram-modal">
-        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">unfold_more</span>
-        <span>Un-nest</span>
-      </button>
+      <p class="nested-card-text">A quiet word puzzle hidden in the margins of this page.</p>
     </div>
 
     <p class="font-body-lg text-body-lg text-on-surface-variant" data-reveal data-reveal-delay="0.45">
@@ -48,8 +42,8 @@ import Base from '../layouts/Base.astro';
 
   </article>
 
-  <!-- Seamless Anagram Modal -->
-  <div id="anagram-modal" class="anagram-modal" role="dialog" aria-modal="true" aria-labelledby="modal-anagram-title" hidden>
+  <!-- Seamless Anagram Modal (rendered outside <article> so position: fixed covers full viewport) -->
+  <div id="anagram-modal" class="anagram-modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-anagram-title">
     <div class="modal-backdrop" id="modal-backdrop"></div>
     <div class="modal-shell">
       <div class="modal-card">
@@ -61,8 +55,10 @@ import Base from '../layouts/Base.astro';
           <div class="modal-header-actions">
             <div class="score-wrap">Score: <span id="modal-score">0</span></div>
             <button id="btn-nest" class="btn-nest" type="button" aria-label="Nest game back into page" title="Nest back into page">
-              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">unfold_less</span>
               <span>Nest</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -138,77 +134,71 @@ import Base from '../layouts/Base.astro';
     letter-spacing: 0.1em;
   }
 
-  /* ─── Nested Anagram Capsule ─────────────────────────────────────────── */
-  .nested-capsule {
+  /* ─── Compact Nested Anagram Capsule ─────────────────────────────────── */
+  .nested-card {
+    max-width: 400px;
+    background: var(--paper, #ffffff);
+    border: 1px solid var(--rule, #cfc4c5);
+    border-radius: 12px;
+    padding: 0.85rem 1.15rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .nested-card:hover {
+    border-color: var(--ink-light, #7e7576);
+    box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .nested-card-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.25rem;
-    background: var(--paper, #ffffff);
-    border: 1.5px solid var(--rule, #cfc4c5);
-    border-radius: 14px;
-    padding: 1.1rem 1.35rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  }
-  .nested-capsule:hover {
-    border-color: var(--ink-light, #7e7576);
-    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.07);
-    transform: translateY(-1px);
+    gap: 0.75rem;
   }
 
-  .nested-capsule-left {
+  .nested-card-title {
     display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
+    align-items: center;
+    gap: 0.45rem;
   }
 
-  .nested-tiles {
-    display: flex;
-    gap: 4px;
-    align-items: center;
+  .nested-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent, #3658b7);
+    display: inline-block;
+    flex-shrink: 0;
   }
 
-  .nested-tile {
-    width: 22px;
-    height: 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--paper-dark, #f3f3f3);
-    border: 1px solid var(--rule, #cfc4c5);
-    border-radius: 4px;
-    font-family: var(--font-serif, "Source Serif 4", serif);
-    font-size: 0.75rem;
+  .nested-label {
+    font-family: var(--font-sans, "Hanken Grotesk", sans-serif);
+    font-size: 0.8rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
     color: var(--ink, #1a1c1c);
-    user-select: none;
-    transition: transform 0.15s ease;
-  }
-  .nested-capsule:hover .nested-tile {
-    transform: translateY(-1px);
   }
 
-  .nested-hint-text {
+  .nested-sub {
     font-family: var(--font-body-md, "Source Serif 4", serif);
-    font-size: 0.95rem;
-    color: var(--ink-mid, #4c4546);
+    font-size: 0.85rem;
+    color: var(--ink-light, #7e7576);
     font-style: italic;
-    margin: 0;
-    line-height: 1.4;
   }
 
   .btn-unnest {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.35rem;
     background: var(--ink, #1a1c1c);
     color: var(--paper, #ffffff);
     border: 1px solid var(--ink, #1a1c1c);
     border-radius: 9999px;
-    padding: 0.55rem 1.25rem;
+    padding: 0.4rem 0.95rem;
     font-family: var(--font-sans, "Hanken Grotesk", sans-serif);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -219,60 +209,59 @@ import Base from '../layouts/Base.astro';
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
   }
   .btn-unnest:hover {
-    opacity: 0.9;
-    transform: scale(1.03);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    background: var(--accent, #3658b7);
+    border-color: var(--accent, #3658b7);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(54, 88, 183, 0.28);
   }
   .btn-unnest:active {
-    transform: scale(0.97);
+    transform: translateY(0);
   }
 
-  @media (max-width: 600px) {
-    .nested-capsule {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
-      padding: 1rem 1.15rem;
-    }
-    .btn-unnest {
-      width: 100%;
-      justify-content: center;
-    }
+  .nested-card-text {
+    font-family: var(--font-body-md, "Source Serif 4", serif);
+    font-size: 0.88rem;
+    color: var(--ink-mid, #4c4546);
+    margin: 0.35rem 0 0 0;
+    line-height: 1.4;
   }
 
   /* ─── Seamless Modal ─────────────────────────────────────────────────── */
   .anagram-modal {
     position: fixed;
-    inset: 0;
-    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: clamp(0.75rem, 3vw, 1.5rem);
-    pointer-events: none;
+    box-sizing: border-box;
   }
-  .anagram-modal:not([hidden]) {
-    pointer-events: auto;
+  .anagram-modal.hidden {
+    display: none !important;
   }
 
   .modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(18, 20, 20, 0.48);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(18, 20, 20, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     opacity: 0;
-    transition: opacity 0.28s ease-out;
+    transition: opacity 0.25s ease-out;
   }
 
   .modal-shell {
     position: relative;
     z-index: 2;
     width: 100%;
-    max-width: 500px;
+    max-width: 480px;
     opacity: 0;
-    transform: scale(0.94) translateY(12px);
-    transition: opacity 0.28s ease-out, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: scale(0.95) translateY(12px);
+    transition: opacity 0.25s ease-out, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .anagram-modal.is-open .modal-backdrop {
@@ -287,16 +276,17 @@ import Base from '../layouts/Base.astro';
     background: var(--bg, #f9f9f9);
     border: 1.5px solid var(--rule, #cfc4c5);
     border-radius: 16px;
-    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.22);
-    padding: 1.5rem;
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.25);
+    padding: 1.35rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    box-sizing: border-box;
   }
 
   @media (max-width: 640px) {
     .modal-card {
-      padding: 1.1rem 0.85rem;
+      padding: 1rem 0.85rem;
       border-radius: 14px;
       gap: 0.85rem;
     }
@@ -373,6 +363,7 @@ import Base from '../layouts/Base.astro';
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .modal-anagram-pane {
@@ -559,239 +550,254 @@ import Base from '../layouts/Base.astro';
   }
 </style>
 
-<script>
-  function initHomeAnagram() {
-    const modal = document.getElementById('anagram-modal');
-    const btnUnnest = document.getElementById('btn-unnest');
-    const btnNest = document.getElementById('btn-nest');
-    const backdrop = document.getElementById('modal-backdrop');
+<script is:inline>
+  (function() {
+    function setupAnagramModal() {
+      var modal = document.getElementById('anagram-modal');
+      var btnUnnest = document.getElementById('btn-unnest');
+      var btnNest = document.getElementById('btn-nest');
+      var backdrop = document.getElementById('modal-backdrop');
 
-    if (!modal || !btnUnnest) return;
+      if (!modal || !btnUnnest) return;
 
-    const letterGrid = document.getElementById('modal-scrambled-letters');
-    const answerRow = document.getElementById('modal-answer-slots');
-    const scoreEl = document.getElementById('modal-score');
-    const overlay = document.getElementById('modal-overlay');
-    const startBtn = document.getElementById('modal-start-btn');
-    const btnClear = document.getElementById('modal-btn-clear');
-    const btnSubmit = document.getElementById('modal-btn-submit');
+      if (btnUnnest.dataset.initialized === 'true') return;
+      btnUnnest.dataset.initialized = 'true';
 
-    let isModalOpen = false;
-    let currentWord = '';
-    let scrambled = '';
-    let userWord = '';
-    let score = 0;
-    let gameActive = false;
-    let activeIndices = [];
+      var letterGrid = document.getElementById('modal-scrambled-letters');
+      var answerRow = document.getElementById('modal-answer-slots');
+      var scoreEl = document.getElementById('modal-score');
+      var overlay = document.getElementById('modal-overlay');
+      var startBtn = document.getElementById('modal-start-btn');
+      var btnClear = document.getElementById('modal-btn-clear');
+      var btnSubmit = document.getElementById('modal-btn-submit');
 
-    const WORDS = [
-      'ASTRONOMY', 'PHANTOM', 'RHYTHM', 'WHISPER', 'JOURNEY', 'SILENCE', 'CRIMSON', 'MYSTERY', 'HARVEST', 'THUNDER',
-      'ORCHARD', 'LANTERN', 'HORIZON', 'ECLIPSE', 'DIAMOND', 'CRYSTAL', 'BLOSSOM', 'VAMPIRE', 'PENGUIN', 'MONSTER',
-      'PYRAMID', 'DYNAMITE', 'TORNADO', 'VOLCANO', 'DRAGON', 'CACTUS', 'GUITAR', 'GALAXY', 'PLANET', 'ROCKET',
-      'CASTLE', 'WIZARD', 'PIRATE', 'KNIGHT', 'FOREST', 'OCEAN', 'DESERT', 'JUNGLE', 'MOUNTAIN', 'RIVER'
-    ];
+      var isModalOpen = false;
+      var currentWord = '';
+      var scrambled = '';
+      var userWord = '';
+      var score = 0;
+      var gameActive = false;
+      var activeIndices = [];
 
-    async function fetchWithTimeout(url, options = {}, timeout = 2500) {
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), timeout);
-      try {
-        const response = await window.fetch(url, { ...options, signal: controller.signal });
-        clearTimeout(id);
-        return response;
-      } catch (e) {
-        clearTimeout(id);
-        throw e;
+      var WORDS = [
+        'ASTRONOMY', 'PHANTOM', 'RHYTHM', 'WHISPER', 'JOURNEY', 'SILENCE', 'CRIMSON', 'MYSTERY', 'HARVEST', 'THUNDER',
+        'ORCHARD', 'LANTERN', 'HORIZON', 'ECLIPSE', 'DIAMOND', 'CRYSTAL', 'BLOSSOM', 'VAMPIRE', 'PENGUIN', 'MONSTER',
+        'PYRAMID', 'DYNAMITE', 'TORNADO', 'VOLCANO', 'DRAGON', 'CACTUS', 'GUITAR', 'GALAXY', 'PLANET', 'ROCKET',
+        'CASTLE', 'WIZARD', 'PIRATE', 'KNIGHT', 'FOREST', 'OCEAN', 'DESERT', 'JUNGLE', 'MOUNTAIN', 'RIVER'
+      ];
+
+      function openModal() {
+        isModalOpen = true;
+        modal.classList.remove('hidden');
+        requestAnimationFrame(function() {
+          modal.classList.add('is-open');
+        });
+        btnUnnest.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
       }
-    }
 
-    function openModal() {
-      if (isModalOpen) return;
-      isModalOpen = true;
-      modal.removeAttribute('hidden');
-      requestAnimationFrame(() => {
-        modal.classList.add('is-open');
+      function closeModal() {
+        isModalOpen = false;
+        modal.classList.remove('is-open');
+        btnUnnest.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(function() {
+          if (!isModalOpen) {
+            modal.classList.add('hidden');
+          }
+        }, 260);
+      }
+
+      btnUnnest.addEventListener('click', function(e) {
+        e.preventDefault();
+        openModal();
       });
-      btnUnnest.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
 
-      // If game has not started yet, start button is ready. If it was active, resume.
-      if (!gameActive && overlay && !overlay.classList.contains('hidden')) {
-        startBtn?.focus();
+      if (btnNest) {
+        btnNest.addEventListener('click', function(e) {
+          e.preventDefault();
+          closeModal();
+        });
       }
-    }
 
-    function closeModal() {
-      if (!isModalOpen) return;
-      isModalOpen = false;
-      modal.classList.remove('is-open');
-      btnUnnest.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
+      if (backdrop) {
+        backdrop.addEventListener('click', function(e) {
+          e.preventDefault();
+          closeModal();
+        });
+      }
 
-      setTimeout(() => {
-        if (!isModalOpen) {
-          modal.setAttribute('hidden', '');
-          btnUnnest.focus();
+      window.addEventListener('keydown', function(e) {
+        if (!isModalOpen) return;
+        if (e.key === 'Escape') {
+          closeModal();
+          return;
         }
-      }, 280);
-    }
-
-    function updateDisplay() {
-      if (!letterGrid || !answerRow) return;
-      letterGrid.innerHTML = '';
-      scrambled.split('').forEach((char, idx) => {
-        const tile = document.createElement('div');
-        tile.className = 'letter-tile';
-        if (activeIndices.includes(idx)) tile.classList.add('used');
-        tile.textContent = char;
-        tile.addEventListener('click', () => {
-          if (!activeIndices.includes(idx) && userWord.length < currentWord.length) {
-            activeIndices.push(idx);
+        if (!gameActive || !currentWord) return;
+        if (e.key === 'Backspace') {
+          handleClear();
+        } else if (e.key === 'Enter') {
+          checkAnswer();
+        } else if (/^[a-zA-Z]$/.test(e.key)) {
+          var char = e.key.toUpperCase();
+          var letters = scrambled.split('');
+          var availableIdx = -1;
+          for (var i = 0; i < letters.length; i++) {
+            if (letters[i] === char && activeIndices.indexOf(i) === -1) {
+              availableIdx = i;
+              break;
+            }
+          }
+          if (availableIdx !== -1 && userWord.length < currentWord.length) {
+            activeIndices.push(availableIdx);
             userWord += char;
             updateDisplay();
           }
-        });
-        letterGrid.appendChild(tile);
+        }
       });
 
-      answerRow.innerHTML = '';
-      for (let i = 0; i < currentWord.length; i++) {
-        const span = document.createElement('span');
-        span.className = 'modal-answer-letter';
-        span.textContent = userWord[i] || '';
-        if (i === userWord.length) {
-          span.style.borderBottomColor = 'var(--accent, #3658b7)';
-        } else {
-          span.style.borderBottomColor = 'var(--rule, #cfc4c5)';
-        }
-        answerRow.appendChild(span);
-      }
-    }
+      function updateDisplay() {
+        if (!letterGrid || !answerRow) return;
+        letterGrid.innerHTML = '';
+        var letters = scrambled.split('');
+        letters.forEach(function(char, idx) {
+          var tile = document.createElement('div');
+          tile.className = 'letter-tile';
+          if (activeIndices.indexOf(idx) !== -1) tile.classList.add('used');
+          tile.textContent = char;
+          tile.addEventListener('click', function() {
+            if (activeIndices.indexOf(idx) === -1 && userWord.length < currentWord.length) {
+              activeIndices.push(idx);
+              userWord += char;
+              updateDisplay();
+            }
+          });
+          letterGrid.appendChild(tile);
+        });
 
-    function checkAnswer() {
-      if (!gameActive || userWord.length === 0 || !answerRow) return;
-
-      if (userWord === currentWord) {
-        score += currentWord.length * 10;
-        if (scoreEl) scoreEl.textContent = String(score);
-
-        answerRow.animate([
-          { transform: 'scale(1)' },
-          { transform: 'scale(1.1)', color: 'var(--accent, #3658b7)' },
-          { transform: 'scale(1)' }
-        ], { duration: 300 });
-
-        const best = localStorage.getItem('anagram-best') || 0;
-        if (score > parseInt(best)) localStorage.setItem('anagram-best', String(score));
-
-        setTimeout(nextWord, 800);
-      } else {
-        answerRow.animate([
-          { transform: 'translateX(-10px)' },
-          { transform: 'translateX(10px)' },
-          { transform: 'translateX(0)' }
-        ], { duration: 200 });
-      }
-    }
-
-    function handleClear() {
-      if (userWord.length > 0) {
-        activeIndices.pop();
-        userWord = userWord.slice(0, -1);
-        updateDisplay();
-      }
-    }
-
-    function start() {
-      score = 0;
-      if (scoreEl) scoreEl.textContent = '0';
-      overlay?.classList.add('hidden');
-      gameActive = true;
-      nextWord();
-    }
-
-    async function nextWord() {
-      userWord = '';
-      activeIndices = [];
-      currentWord = '';
-      scrambled = '';
-
-      if (letterGrid) {
-        letterGrid.innerHTML = '<div style="font-family: var(--font-sans); color: var(--ink-light); font-size: 0.9rem;">Fetching word...</div>';
-      }
-      if (answerRow) answerRow.innerHTML = '';
-      if (btnSubmit) (btnSubmit as HTMLButtonElement).disabled = true;
-
-      try {
-        const len = Math.floor(Math.random() * 4) + 5;
-        const pattern = '?'.repeat(len);
-        const res = await fetchWithTimeout(`https://api.datamuse.com/words?sp=${pattern}&md=f&max=100`);
-        const data = await res.json();
-
-        if (data && data.length > 0) {
-          const valid = data.filter((w: any) => !w.word.includes(' ') && !w.word.includes('-') && parseFloat(w.tags?.[0]?.replace('f:', '') || 0) > 1);
-          if (valid.length > 0) {
-            currentWord = valid[Math.floor(Math.random() * valid.length)].word.toUpperCase();
+        answerRow.innerHTML = '';
+        for (var i = 0; i < currentWord.length; i++) {
+          var span = document.createElement('span');
+          span.className = 'modal-answer-letter';
+          span.textContent = userWord[i] || '';
+          if (i === userWord.length) {
+            span.style.borderBottomColor = 'var(--accent, #3658b7)';
+          } else {
+            span.style.borderBottomColor = 'var(--rule, #cfc4c5)';
           }
+          answerRow.appendChild(span);
         }
-      } catch (e) {
-        console.error("API failed, using fallback dictionary:", e);
       }
 
-      if (!currentWord) {
-        currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+      function checkAnswer() {
+        if (!gameActive || userWord.length === 0 || !answerRow) return;
+        if (userWord === currentWord) {
+          score += currentWord.length * 10;
+          if (scoreEl) scoreEl.textContent = String(score);
+          answerRow.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.1)', color: 'var(--accent, #3658b7)' },
+            { transform: 'scale(1)' }
+          ], { duration: 300 });
+          var best = localStorage.getItem('anagram-best') || 0;
+          if (score > parseInt(best, 10)) {
+            localStorage.setItem('anagram-best', String(score));
+          }
+          setTimeout(nextWord, 800);
+        } else {
+          answerRow.animate([
+            { transform: 'translateX(-10px)' },
+            { transform: 'translateX(10px)' },
+            { transform: 'translateX(0)' }
+          ], { duration: 200 });
+        }
       }
 
-      do {
-        scrambled = currentWord.split('').sort(() => Math.random() - 0.5).join('');
-      } while (scrambled === currentWord && currentWord.length > 1);
-
-      if (btnSubmit) (btnSubmit as HTMLButtonElement).disabled = false;
-      updateDisplay();
-    }
-
-    btnUnnest?.addEventListener('click', openModal);
-    btnNest?.addEventListener('click', closeModal);
-    backdrop?.addEventListener('click', closeModal);
-    startBtn?.addEventListener('click', start);
-    btnClear?.addEventListener('click', handleClear);
-    btnSubmit?.addEventListener('click', checkAnswer);
-
-    window.addEventListener('keydown', (e) => {
-      if (!isModalOpen) return;
-
-      if (e.key === 'Escape') {
-        closeModal();
-        return;
-      }
-
-      if (!gameActive || !currentWord) return;
-
-      if (e.key === 'Backspace') {
-        handleClear();
-      } else if (e.key === 'Enter') {
-        checkAnswer();
-      } else if (/^[a-zA-Z]$/.test(e.key)) {
-        const char = e.key.toUpperCase();
-        const availableIdx = scrambled.split('').findIndex((c, i) => c === char && !activeIndices.includes(i));
-        if (availableIdx !== -1 && userWord.length < currentWord.length) {
-          activeIndices.push(availableIdx);
-          userWord += char;
+      function handleClear() {
+        if (userWord.length > 0) {
+          activeIndices.pop();
+          userWord = userWord.slice(0, -1);
           updateDisplay();
         }
       }
-    });
 
-    const bestScore = localStorage.getItem('anagram-best');
-    if (bestScore) {
-      const hs = document.createElement('span');
-      hs.style.fontSize = '0.75rem';
-      hs.style.marginLeft = '0.5rem';
-      hs.style.color = 'var(--ink-light, #7e7576)';
-      hs.textContent = `(Best: ${bestScore})`;
-      document.querySelector('.modal-header-actions .score-wrap')?.appendChild(hs);
+      function start() {
+        score = 0;
+        if (scoreEl) scoreEl.textContent = '0';
+        if (overlay) overlay.classList.add('hidden');
+        gameActive = true;
+        nextWord();
+      }
+
+      function nextWord() {
+        userWord = '';
+        activeIndices = [];
+        currentWord = '';
+        scrambled = '';
+        if (letterGrid) {
+          letterGrid.innerHTML = '<div style="font-family: var(--font-sans); color: var(--ink-light); font-size: 0.9rem;">Fetching word...</div>';
+        }
+        if (answerRow) answerRow.innerHTML = '';
+        if (btnSubmit) btnSubmit.disabled = true;
+
+        var len = Math.floor(Math.random() * 4) + 5;
+        var pattern = '?'.repeat(len);
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, 2500);
+
+        fetch('https://api.datamuse.com/words?sp=' + pattern + '&md=f&max=100', { signal: controller.signal })
+          .then(function(r) { clearTimeout(timeoutId); return r.json(); })
+          .then(function(data) {
+            if (data && data.length > 0) {
+              var valid = data.filter(function(w) {
+                return !w.word.includes(' ') && !w.word.includes('-') && parseFloat(w.tags && w.tags[0] ? w.tags[0].replace('f:', '') : 0) > 1;
+              });
+              if (valid.length > 0) {
+                currentWord = valid[Math.floor(Math.random() * valid.length)].word.toUpperCase();
+              }
+            }
+          })
+          .catch(function(err) {
+            // offline or timeout fallback
+          })
+          .finally(function() {
+            if (!currentWord) {
+              currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            }
+            do {
+              scrambled = currentWord.split('').sort(function() { return Math.random() - 0.5; }).join('');
+            } while (scrambled === currentWord && currentWord.length > 1);
+
+            if (btnSubmit) btnSubmit.disabled = false;
+            updateDisplay();
+          });
+      }
+
+      if (startBtn) startBtn.addEventListener('click', start);
+      if (btnClear) btnClear.addEventListener('click', handleClear);
+      if (btnSubmit) btnSubmit.addEventListener('click', checkAnswer);
+
+      var bestScore = localStorage.getItem('anagram-best');
+      if (bestScore && scoreEl) {
+        var hs = document.getElementById('modal-best-score');
+        if (!hs) {
+          hs = document.createElement('span');
+          hs.id = 'modal-best-score';
+          hs.style.fontSize = '0.75rem';
+          hs.style.marginLeft = '0.5rem';
+          hs.style.color = 'var(--ink-light, #7e7576)';
+          hs.textContent = '(Best: ' + bestScore + ')';
+          var wrap = document.querySelector('.modal-header-actions .score-wrap');
+          if (wrap) wrap.appendChild(hs);
+        }
+      }
     }
-  }
 
-  document.addEventListener('astro:page-load', initHomeAnagram);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupAnagramModal);
+    } else {
+      setupAnagramModal();
+    }
+    document.addEventListener('astro:page-load', setupAnagramModal);
+  })();
 </script>
-
